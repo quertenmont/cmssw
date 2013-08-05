@@ -1,7 +1,8 @@
 root -l -b << EOF
   TString makeshared(gSystem->GetMakeSharedLib());
-  TString dummy = makeshared.ReplaceAll("-W ", "");
-  TString dummy = makeshared.ReplaceAll("-Wshadow ", "");
+  TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated ");
+  TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");
+  cout << "Compilling with the following arguments: " << makeshared << endl;
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
@@ -10,7 +11,8 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsVertexReco.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
+  gSystem->Load("libPhysicsToolsUtilities.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
- .x DumpInfo.C++("Results/dedxASmi/combined/Eta15/PtMin35/Type0/",2,500);
+ .x DumpInfo.C++("Results/Type4/", 263,-1);
 EOF
 

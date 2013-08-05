@@ -25,6 +25,7 @@ class  CandidateSelector{
       bool  isMuonSTA;
       bool  isMuonGB;
       bool  isMuonTK;
+      bool  isMTMuon;
       bool  isRpc;
       bool  isEcal;
 
@@ -35,6 +36,8 @@ class  CandidateSelector{
 
       float minMuonP;
       float minMuonPt;      
+      float minSAMuonPt;
+      float minMTMuonPt;
 
       float maxMuTimeDtBeta;
       float minMuTimeDtNdof;
