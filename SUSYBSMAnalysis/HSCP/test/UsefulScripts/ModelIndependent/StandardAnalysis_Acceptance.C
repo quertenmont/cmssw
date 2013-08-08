@@ -60,11 +60,10 @@ using namespace std;
 using namespace edm;
 using namespace trigger;
 
-
+#include "../../ICHEP_Analysis/Analysis_Step3.C"
 //#include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
 //#include "../../ICHEP_Analysis/Analysis_Samples.h"
 //#include "../../ICHEP_Analysis/Analysis_Global.h"
-#include "../../ICHEP_Analysis/Analysis_Step3.C"
 #endif
 
 
@@ -112,9 +111,11 @@ void  GetGenHSCPBetaCustom(const std::vector<reco::GenParticle>& genColl, double
 }
 
 
-void StandardAnalysis_Acceptance(string MODE="COMPILE")
+void StandardAnalysis_Acceptance_Compute(FILE* pfile, string MODE="COMPILE",double MassCut=100.0, string MassS="308" )
 {
   if(MODE=="COMPILE") return;
+   
+//   double MassCut=320.0;
 
    Event_Weight = 1;
    MaxEntry = -1;
@@ -176,29 +177,16 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE")
 
 
    vector<string> InputFiles;
-   InputFiles.push_back("root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M494.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/PPStauPU100.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/PPStauPU156.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/PPStauPU247.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/PPStauPU308.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/PPStauPU494.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/GMSBStauPU100.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/GMSBStauPU156.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/GMSBStauPU247.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/GMSBStauPU308.root");
-//   InputFiles.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP/GMSBStauPU494.root");
+   string inputname="root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M"+MassS+".root";
+   InputFiles.push_back(inputname);
 
    for(unsigned int s=0;s<InputFiles.size();s++){
 
 
       vector<string> DataFileName;
       printf("%s\n",InputFiles[s].c_str());
+      fprintf(pfile,"%s\n",InputFiles[s].c_str());
       DataFileName.push_back(InputFiles[s]);
-   //   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP//PPStau308.root");
-   //   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP//PPStauPU494.root");
-   //   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_PairHSCP//GMSBStauPU494.root");
-   //   DataFileName.push_back("/tmp/querten/SingleStau.root");
-   //   DataFileName.push_back("/tmp/querten/PPStau308BX1.root");
 
 
       double NEvents = 0;
@@ -293,7 +281,8 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE")
             //         double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
             //         double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj.dEdx()) + (1/tof->inverseBeta()))*0.5 ) ;
 
-            if(Mass<120)continue;
+            if(Mass<MassCut)continue;
+            //if(Mass<320)continue;
 //            if(Mass<220)continue;
             Passed = true;
    //         if(HSCPGenBeta1>=0)Beta_SelectedM[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
@@ -302,7 +291,10 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE")
          if(Passed)NSEvents+=1.0;
 
       }// end of Event Loop
+       printf("\nmass cut: %f \n ",MassCut);
+       fprintf(pfile,"\nmass cut: %f \n ",MassCut);
       printf("\nEfficiency is %6.2f+-%6.2f%% - %6.2f+-%6.2f%%\n",100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));
+      fprintf(pfile,"\nEfficiency is %6.2f+-%6.2f%% - %6.2f+-%6.2f%%\n",100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));
    }
 
 /*
@@ -335,6 +327,14 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE")
 
 //   OutputHisto->Write();
 //   OutputHisto->Close();  
+}
+
+void StandardAnalysis_Acceptance(string MODE="COMPILE")
+{
+FILE * pfile = fopen("StandardAnalysis_Acceptances.txt","w");
+	StandardAnalysis_Acceptance_Compute(pfile, MODE,190,"308");	
+	StandardAnalysis_Acceptance_Compute(pfile, MODE,330,"494");	
+fclose(pfile);
 }
 
 
