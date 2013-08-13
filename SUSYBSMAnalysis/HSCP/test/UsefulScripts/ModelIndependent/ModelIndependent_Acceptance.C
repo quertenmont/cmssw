@@ -60,10 +60,7 @@ using namespace edm;
 using namespace trigger;
 
 #include "../../ICHEP_Analysis/Analysis_Step3.C"
-//#include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
-//#include "../../ICHEP_Analysis/Analysis_Samples.h"
-//#include "../../ICHEP_Analysis/Analysis_Global.h"
-//#include "../../ICHEP_Analysis/Analysis_Step234.C"
+
 #endif
 
 
@@ -116,6 +113,14 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
    TH2F* Beta_Triggered5 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT100_150_")+histoNames).Data());
    TH2F* Beta_Triggered6 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT150_999_")+histoNames).Data());
 
+   histoNames = "Beta_Preselected";
+   TH2F* Beta_PreSelected1 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT050_060_")+histoNames).Data());
+   TH2F* Beta_PreSelected2 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT060_070_")+histoNames).Data());
+   TH2F* Beta_PreSelected3 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT070_080_")+histoNames).Data());
+   TH2F* Beta_PreSelected4 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT080_100_")+histoNames).Data());
+   TH2F* Beta_PreSelected5 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT100_150_")+histoNames).Data());
+   TH2F* Beta_PreSelected6 = (TH2F*)GetObjectFromPath(InputFile, (TString("Norm_pT150_999_")+histoNames).Data());
+
    TH2F** Beta_Offline1 = new TH2F*[nM];
    TH2F** Beta_Offline2 = new TH2F*[nM];
    TH2F** Beta_Offline3 = new TH2F*[nM];
@@ -146,6 +151,7 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
 
       double NEvents = 0;
       double NTEvents = 0, NTEventsErr = 0;
+      double NPSEvents = 0, NPSEventsErr = 0;
       double* NSEvents = new double[nM];
       double* NSEventsErr = new double[nM];
       for(unsigned int Mi=0;Mi<nM;Mi++){NSEvents[Mi]=0; NSEventsErr[Mi]=0;}
@@ -170,6 +176,8 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
          bool onlyCharged = true;
          double ProbT1 = -1E-9,  ProbErrT1=0;
          double ProbT2 = -1E-9,  ProbErrT2=0;
+         double ProbPS1 = -1E-9,  ProbErrPS1=0;
+         double ProbPS2 = -1E-9,  ProbErrPS2=0;
          double* ProbO1 = new double[nM];
          double* ProbErrO1 = new double[nM];
          double* ProbO2 = new double[nM];
@@ -185,15 +193,16 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
    //         if(beta1<0){beta1=genColl[g].p()/genColl[g].energy(); index=g; return;}
 
             TH2* histoTrigger = Beta_Triggered6;
+            TH2* histoPreselected = Beta_PreSelected6;
             TH2F** histoOffline = Beta_Offline6;
-            if(genColl[g].pt()>= 50 && genColl[g].p()< 60){histoTrigger = Beta_Triggered1; histoOffline = Beta_Offline1;}
-            if(genColl[g].pt()>= 60 && genColl[g].p()< 70){histoTrigger = Beta_Triggered2; histoOffline = Beta_Offline2;}
-            if(genColl[g].pt()>= 70 && genColl[g].p()< 80){histoTrigger = Beta_Triggered3; histoOffline = Beta_Offline3;}
-            if(genColl[g].pt()>= 80 && genColl[g].p()<100){histoTrigger = Beta_Triggered4; histoOffline = Beta_Offline4;}
-            if(genColl[g].pt()>=100 && genColl[g].p()<150){histoTrigger = Beta_Triggered5; histoOffline = Beta_Offline5;}
-            if(genColl[g].pt()>=150                      ){histoTrigger = Beta_Triggered6; histoOffline = Beta_Offline6;}
+            if(genColl[g].pt()>= 50 && genColl[g].p()< 60){histoTrigger = Beta_Triggered1; histoPreselected= Beta_PreSelected1  ; histoOffline = Beta_Offline1;}
+            if(genColl[g].pt()>= 60 && genColl[g].p()< 70){histoTrigger = Beta_Triggered2; histoPreselected= Beta_PreSelected2  ; histoOffline = Beta_Offline2;}
+            if(genColl[g].pt()>= 70 && genColl[g].p()< 80){histoTrigger = Beta_Triggered3; histoPreselected= Beta_PreSelected3  ; histoOffline = Beta_Offline3;}
+            if(genColl[g].pt()>= 80 && genColl[g].p()<100){histoTrigger = Beta_Triggered4; histoPreselected= Beta_PreSelected4  ; histoOffline = Beta_Offline4;}
+            if(genColl[g].pt()>=100 && genColl[g].p()<150){histoTrigger = Beta_Triggered5; histoPreselected= Beta_PreSelected5  ; histoOffline = Beta_Offline5;}
+            if(genColl[g].pt()>=150                      ){histoTrigger = Beta_Triggered6; histoPreselected= Beta_PreSelected6  ; histoOffline = Beta_Offline6;}
 
-            if(genColl[g].pt()<40 || fabs(genColl[g].eta())>2.1)continue;
+            if(genColl[g].pt()<40 || fabs(genColl[g].eta())>2.1)continue;    //why?!
 
             int BinX = histoTrigger->GetXaxis()->FindBin(genColl[g].p()/genColl[g].energy()); 
             int BinY = histoTrigger->GetYaxis()->FindBin(fabs(genColl[g].eta()) );
@@ -202,7 +211,11 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
             }else if(ProbT2<0){ ProbT2=histoTrigger->GetBinContent(BinX, BinY);  ProbErrT2=histoTrigger->GetBinError(BinX, BinY);
             }
 
-            if(genColl[g].pt()<70 || fabs(genColl[g].eta())>2.1)continue;
+	    if(ProbPS1<0){       ProbPS1=histoPreselected->GetBinContent(BinX, BinY);  ProbErrPS1=histoPreselected->GetBinError(BinX, BinY);
+            }else if(ProbPS2<0){ ProbPS2=histoPreselected->GetBinContent(BinX, BinY);  ProbErrPS2=histoPreselected->GetBinError(BinX, BinY);
+            }
+
+            if(genColl[g].pt()<70 || fabs(genColl[g].eta())>2.1)continue;     //why?!
 
             for(unsigned int Mi=0;Mi<nM;Mi++){            
                if(ProbO1[Mi]<0){       ProbO1[Mi]=histoOffline[Mi]->GetBinContent(BinX, BinY);  ProbErrO1[Mi]=histoOffline[Mi]->GetBinError(BinX, BinY);
@@ -210,10 +223,10 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
                }
             }
          }
-//            if(fabs(genColl[g].eta())>1.5)printf("%6.2f %+6.2f %6.2f --> %6.2f\n",genColl[g].pt(), genColl[g].eta(), genColl[g].p()/genColl[g].energy(), histoTrigger->GetBinContent(histoTrigger->GetXaxis()->FindBin(genColl[g].p()/genColl[g].energy()), histoTrigger->GetYaxis()->FindBin(fabs(genColl[g].eta()) ) ) );
-
          double EventTProbErr = 0;
          double EventTProb    = 0;      
+         double EventPSProbErr = 0;
+         double EventPSProb    = 0;      
 
          if(ProbT1<=0 && ProbT2<=0)continue;
          EventTProb    = ProbT1 + ProbT2 - ProbT1*ProbT2;
@@ -221,6 +234,13 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
          EventTProbErr = pow(ProbErrT1*(1-ProbT2),2) + pow(ProbErrT2*(1-ProbT1),2);
          NTEvents    += EventTProb;
          NTEventsErr += EventTProbErr;
+
+         if(ProbPS1<=0 && ProbPS2<=0)continue;
+         EventPSProb    = ProbPS1 + ProbPS2 - ProbPS1*ProbPS2;
+         if(EventPSProb<0 || EventPSProb>1)printf("Pre %f - %f --> %f\n", ProbPS1,ProbPS2,EventPSProb);
+         EventPSProbErr = pow(ProbErrPS1*(1-ProbPS2),2) + pow(ProbErrPS2*(1-ProbPS1),2);
+         NPSEvents    += EventPSProb;
+         NPSEventsErr += EventPSProbErr;
 
          for(unsigned int Mi=0;Mi<nM;Mi++){
             double EventProb    = EventTProb;
@@ -237,9 +257,11 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
         
       }// end of Event Loop
       FILE* pFile = fopen(MODE.c_str(), "w");
+      //FILE* pFile = fopen("testtt.tx", "w");
+
       for(unsigned int Mi=0;Mi<nM;Mi++){
-         printf("M>%3i Efficiency is %6.2f%%+-%6.2f%% - %6.2f%%+-%6.2f%%\n",Mi*100, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2) + pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents[Mi]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr[Mi])/NEvents,2) + pow(NSEvents[Mi]*sqrt(NEvents)/pow(NEvents,2),2)));
-         fprintf(pFile, "%30s M>%3i Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), Mi*100, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2) + pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents[Mi]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr[Mi])/NEvents,2) + pow(NSEvents[Mi]*sqrt(NEvents)/pow(NEvents,2),2)));      
+         printf("%30s M>%3i Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), Mi*100, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2) + pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2) + pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents[Mi]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr[Mi])/NEvents,2) + pow(NSEvents[Mi]*sqrt(NEvents)/pow(NEvents,2),2)));      
+         fprintf(pFile, "%30s M>%3i Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), Mi*100, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2) + pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2) + pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents[Mi]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr[Mi])/NEvents,2) + pow(NSEvents[Mi]*sqrt(NEvents)/pow(NEvents,2),2)));      
       }
       fclose(pFile);
    }
