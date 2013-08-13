@@ -12,7 +12,7 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
-  .x Standard_Acceptance.C++("pictures/aer", 0, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 45.0, 2.1);
+  .x StandardAnalysis_Acceptance.C++("pictures/aer", 0, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 45.0, 2.1);
   //.x StandardAnalysis_Acceptance.C+("Analyze");
   //.x MakePlot.C+
 EOF
