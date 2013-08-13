@@ -1,7 +1,9 @@
+// with GMStau add a strange point to the model independant plot at 557 coming from Preselec of standard analysis, why?! 
 void Compare_ModIndvsStandard() {
 	TTree *T = new TTree("ntuple","data from ascii file");
 	char Signal[20]; char filename[30];
 	sprintf(Signal,"PPStau");
+	//sprintf(Signal,"GMStau");
 	sprintf(filename,"all_%s.csv",Signal);
 
 	Long64_t nlines = T->ReadFile(filename,"Ms:type:Mcut:EffT:ErrEffT:EffPS:ErrEffPS:Eff:ErrEff");
@@ -32,7 +34,7 @@ void Compare_ModIndvsStandard() {
 
 
 		TMultiGraph *mg = new TMultiGraph();
-		char title[100],SaveName[100];
+		char title[100],SaveName[200];
 	       	sprintf(title,"Efficiencies comparison Mod. Ind vs standard MCut=%d",i*100);	
 		sprintf(SaveName,"pictures/Comparison_ModIndvsStand_%s_MCut%d.png",Signal,i*100);	
 		mg->SetTitle(title);
@@ -70,7 +72,7 @@ void Compare_ModIndvsStandard() {
 
 
 		TMultiGraph *mg3 = new TMultiGraph();
-		char title[100],SaveName[100];
+		char title[100],SaveName[200];
 	       	sprintf(title,"Trigg. Efficiencies comparison Mod. Ind vs standard");	
 		sprintf(SaveName,"pictures/Comparison_ModIndvsStand_%s_Trigg.png",Signal);	
 		mg3->SetTitle(title);
