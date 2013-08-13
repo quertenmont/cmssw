@@ -170,21 +170,6 @@ bool PassTriggerCustom(const fwlite::ChainEvent& ev)
 	return false;
 }
 
-void  GetGenHSCPBetaCustom(const std::vector<reco::GenParticle>& genColl, double& beta1, bool onlyCharged, int& index){
-	beta1=-1;
-	for(unsigned int g=0;g<genColl.size();g++){
-		if(genColl[g].pt()<5)continue;
-		if(genColl[g].status()!=1)continue;
-		int AbsPdg=abs(genColl[g].pdgId());
-		if(AbsPdg<1000000)continue;
-		if(onlyCharged && (AbsPdg==1000993 || AbsPdg==1009313 || AbsPdg==1009113 || AbsPdg==1009223 || AbsPdg==1009333 || AbsPdg==1092114 || AbsPdg==1093214 || AbsPdg==1093324))continue; //Skip neutral gluino RHadrons
-		if(onlyCharged && (AbsPdg==1000622 || AbsPdg==1000642 || AbsPdg==1006113 || AbsPdg==1006311 || AbsPdg==1006313 || AbsPdg==1006333))continue;  //skip neutral stop RHadrons
-
-
-		if(beta1<0){beta1=genColl[g].p()/genColl[g].energy(); index=g; return;}
-	}
-}
-
 
 // Looping on all events, tracks, selection and check how many events are entering the mass distribution
 void Analysis_Compute(FILE* pfile, string inputname,string MODE,  double MassCut, string MassS)
@@ -244,9 +229,6 @@ void Analysis_Compute(FILE* pfile, string inputname,string MODE,  double MassCut
 			int NChargedHSCP=HowManyChargedHSCP(genColl);
 
 			NEvents++;
-
-			double HSCPGenBeta1; int genIndex=-1;
-			GetGenHSCPBetaCustom(genColl,HSCPGenBeta1,false,genIndex);
 
 			//check if the event is passing trigger
 			//See if event passed signal triggers
@@ -338,7 +320,7 @@ void Analysis_Compute(FILE* pfile, string inputname,string MODE,  double MassCut
 				}
 
 				//check if the candiate pass the preselection cuts
-				if(!PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, NULL, HSCPGenBeta1)) continue;
+				if(!PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, NULL, 0)) continue;
 				PSPassed=true;
 
 				//compute the mass of the candidate
@@ -353,7 +335,7 @@ void Analysis_Compute(FILE* pfile, string inputname,string MODE,  double MassCut
 				//for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
 				//Full Selection
 				int CutIndex=0;
-				if(!PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, HSCPGenBeta1))continue;
+				if(!PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, 0))continue;
 				//} //end of Cut loop
 				if(MassComb<MassCut) continue; 
 				//printf("Mass is %f MassComb %f \n",Mass,MassComb);
