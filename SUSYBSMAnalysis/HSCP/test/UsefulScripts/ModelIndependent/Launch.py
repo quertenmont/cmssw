@@ -7,8 +7,8 @@ import sys
 import LaunchOnCondor
 import glob
 
-EffMassPoints=[100, 126, 156, 200, 247, 308, 370, 432, 494, 557]
-
+MassPoints=[100, 126, 156, 200, 247, 308, 370, 432, 494, 557]
+MassCut   =[10, 20, 50, 90, 130, 180, 230, 280, 320, 370]
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
 if CMSSW_VERSION == 'CMSSW_VERSION':
@@ -26,14 +26,14 @@ elif sys.argv[1]=='0':
         JobName = "HscpBuildEffMaps"
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
-        for m in EffMassPoints :
+        for m in MassPoints :
            LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/GetEfficiencyMaps.C", '"pictures/Histos_SStau'+str(m)+'.root"', '"root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau'+str(m)+'.root"'])
 	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
         print 'Merge efficiencies'
         fileList = ''
-        for m in EffMassPoints :
+        for m in MassPoints :
            fileList+=' pictures/Histos_SStau'+str(m)+'.root'        
         os.system('hadd -f pictures/Histos.root' + fileList)
         os.system('root MakePlot.C++ -l -b -q');
@@ -43,9 +43,21 @@ elif sys.argv[1]=='2':
         JobName = "HscpModelIndepAccep"
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
-        for m in EffMassPoints :
+        for m in MassPoints :
            LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/PPStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M'+str(m)+'.root"'])
            LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/GMStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_8TeV_M'+str(m)+'.root"'])
+        LaunchOnCondor.SendCluster_Submit()
+elif sys.argv[1]=='3':
+        print 'Compute acceptance for standard analysis'
+        FarmDirectory = "FARM"
+        JobName = "HscpStandardAccep"
+        LaunchOnCondor.Jobs_RunHere = 1
+        LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
+        I=0;
+        for m in MassPoints :
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_8TeV_M'+str(m)+'"', '0', str(MassCut[I])])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_8TeV_M'+str(m)+'"', '0', str(MassCut[I])])
+           I+=1;
         LaunchOnCondor.SendCluster_Submit()
 
 else:

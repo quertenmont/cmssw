@@ -49,63 +49,6 @@ using namespace reweight;
 
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
-
-void Analysis_Compute(string inputname, string outputname, string MODE,  double MassCut, string MassS);
-bool   PassTriggerCustom(const fwlite::ChainEvent& ev);
-
-
-void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdxS_Label, string dEdxMass_=dEdxM_Label, string TOF_Label_=TOF_Label, double CutPt_=-1.0, double CutI_=-1, double CutTOF_=-1, float MinPt_=GlobalMinPt, float MaxEta_=GlobalMaxEta, float MaxDZ_=GlobalMaxDZ, float MaxDXY_=GlobalMaxDXY)
-{
-	if(MODE=="COMPILE")return;
-
-	// redefine global variable dependent on the arguments given to the function
-	dEdxS_Label    = dEdxSel_;
-	dEdxM_Label    = dEdxMass_;
-	TOF_Label      = TOF_Label_;
-	InitdEdx(dEdxS_Label);
-	TypeMode       = TypeMode_;
-	GlobalMaxEta   = MaxEta_;
-	GlobalMinPt    = MinPt_;
-	GlobalMaxDZ    = MaxDZ_;
-	GlobalMaxDXY    = MaxDXY_;
-
-	if(TypeMode<2){      GlobalMinNDOF   = 0; 
-		GlobalMinTOF    = 0;
-	}else if(TypeMode==2) { 
-	}else{
-                printf("Code only suited for TkOnly and TkTOF Analysis, exit now\n"); exit(0);
-	}
-
-	if(TypeMode<2){   
-		CutPt .push_back(70.0);   CutI  .push_back(0.4);  CutTOF.push_back(-1);
-	}else if(TypeMode==2){
-		CutPt .push_back(70.0);   CutI  .push_back(0.125);  CutTOF.push_back(-1);
-	}
-
-	string SignalName="PPStau"; 
-	//string SignalName="GMStau"; 
-	string SignalPath="root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/"+SignalName+"_8TeV_M";
-
-//FIXME should handle automatically cut depending on signalname
-//	double MassCuts [10]={ 0   , 30  , 60  , 100 , 140 , 180 , 230 , 270 , 310 , 350 };   //for GMStau in paper
-	double MassCuts [10]={ 10  , 20  , 50  , 90  , 130 , 180 , 230 , 280 , 320 , 370 };   //for PPStau in paper
-	string MassSs [10]  ={"100","126","156","200","247","308","370","432","494","557"}; 
-	int SizeInput=10;   //FIXME Masscuts and signal mass should be changed to vector and handle cleaner and so this should not be used	
-	//	double MassCuts [3]={10,320, 370 }; string MassSs [3]  ={"100","494","557"}; //int SizeInput=3; //for debuging only on 3 files
-
-	// run the analyis
-	printf("nombre masses considerees:%i\n",SizeInput);
-
-        system("mkdir -p pictures");
-	for (int Fileitt=0;Fileitt<SizeInput;Fileitt++){
-		string inputname= SignalPath+MassSs[Fileitt]+".root";
-		string outputname ="pictures/Std_"+SignalName+MassSs[Fileitt]+".txt";
-		Analysis_Compute(inputname ,outputname, SignalName+MassSs[Fileitt],MassCuts[Fileitt],MassSs[Fileitt]);
-	}	
-	return;
-}
-
-
 // check if the event is passing trigger or not --> note that the function has two part (one for 2011 analysis and the other one for 2012)
 bool PassTriggerCustom(const fwlite::ChainEvent& ev)
 {
@@ -118,30 +61,69 @@ bool PassTriggerCustom(const fwlite::ChainEvent& ev)
 	return false;
 }
 
-
-// Looping on all events, tracks, selection and check how many events are entering the mass distribution
-void Analysis_Compute(string inputname, string outputname, string MODE,  double MassCut, string MassS)
+void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double paperMassCut=0)
 {
+       if(MODE=="COMPILE")return;
+       string sampleName = MODE;       
+
+       // redefine global variable dependent on the arguments given to the function
+       InitdEdx(dEdxS_Label);
+       TypeMode       = TypeMode_;
+       GlobalMaxEta   = 2.1;
+       GlobalMinPt    = 45;
+       if(TypeMode<2){      
+          GlobalMinNDOF   = 0; 
+   	  GlobalMinTOF    = 0;
+       }else if(TypeMode==2) { 
+       }else{
+           printf("Code only suited for TkOnly and TkTOF Analysis, exit now\n"); exit(0);
+       }
+
+       if(TypeMode<2){   
+      	  CutPt .push_back(70.0);   CutI  .push_back(0.4);  CutTOF.push_back(-1);
+       }else if(TypeMode==2){
+          CutPt .push_back(70.0);   CutI  .push_back(0.125);  CutTOF.push_back(-1);
+       }
+       int CutIndex=0;
+
+       //determine the list of models that are considered
+       std::vector<stSample> samples;
+       GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
+       InitBaseDirectory();
+       int s  = JobIdToIndex(sampleName,samples);
+       if(s<0){printf("Current Sample (%s) Not Found!  Exit now\n", sampleName.c_str());exit(0);}
+       printf("Analyze %s\n",  sampleName.c_str());
+
+//	string SignalName="PPStau"; 
+//	string SignalPath="root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/"+SignalName+"_8TeV_M";
+
+       //initialize LumiReWeighting
+       BgLumiMC.clear(); TrueDist.clear(); TrueDistSyst.clear();
+       if(samples[s].Pileup=="S10"){   for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
+       }else{                          for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
+       }
+
+       for(int i=0; i<60; ++i) TrueDist    .push_back(TrueDist2012_f[i]);
+       for(int i=0; i<60; ++i) TrueDistSyst.push_back(TrueDist2012_XSecShiftUp_f[i]);
+       LumiWeightsMC     = edm::LumiReWeighting(BgLumiMC, TrueDist);
+       LumiWeightsMCSyst = edm::LumiReWeighting(BgLumiMC, TrueDistSyst);
+
+
        //Initialize a RandomNumberGenerator
        TRandom3* RNG = new TRandom3();
 
-       bool isData   = false ;//(samples[s].Type==0);
-       bool isMC     = false; //(samples[s].Type==1);
-       bool isSignal = true; //(samples[s].Type>=2);
-       int CutIndex=0;
+       bool isData   = (samples[s].Type==0);
+       bool isMC     = (samples[s].Type==1);
+       bool isSignal = (samples[s].Type>=2);
 
        dEdxTemplates = loadDeDxTemplate("../../../data/Discrim_Templates_MC_2012.root");
        dEdxSF = 1.05;
 
-
        //do two loops through signal for samples with and without trigger changes.
        //load the files corresponding to this sample
        std::vector<string> FileName;
-
-       vector<string> DataFileName;
-       printf("%s\n",inputname.c_str());
-       DataFileName.push_back(inputname);
-       fwlite::ChainEvent ev(DataFileName);
+       GetInputFiles(samples[s], BaseDirectory, FileName);
+       fwlite::ChainEvent ev(FileName);
 
        double NEvents = 0;
        double NTEvents = 0;
@@ -149,23 +131,35 @@ void Analysis_Compute(string inputname, string outputname, string MODE,  double 
        double NSEvents = 0;
        double NSEventsM[6] = {0,0,0,0,0,0};
 
-
        //Loop on the events
        printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
-       printf("Looping on Tree              :");
+       printf("Looping on Tree                   :");
        int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
 
+
+      //loop once on the MC events to get the PU normalization
+      double PUSystFactor=1.0;//not used
+      double SampleWeight = 1.0;
+      if(samples[s].Type>0){
+            double NMCevents=0;
+            for(Long64_t ientry=0;ientry<ev.size();ientry++){
+               ev.to(ientry);
+               NMCevents += GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
+            }
+            SampleWeight /= NMCevents;
+       }
+ 
+       //real loop on events    
        for(Long64_t ientry=0;ientry<ev.size();ientry++){
                ev.to(ientry);
                if(MaxEntry>0 && ientry>MaxEntry)break;
                if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-               NEvents++;
+               Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
+               NEvents+=Event_Weight;
 
-               //    		Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
-
-               std::vector<reco::GenParticle> genColl;
 
                //get the collection of generated Particles
+               std::vector<reco::GenParticle> genColl;
                fwlite::Handle< std::vector<reco::GenParticle> > genCollHandle;
                genCollHandle.getByLabel(ev, "genParticles");
                if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
@@ -174,7 +168,7 @@ void Analysis_Compute(string inputname, string outputname, string MODE,  double 
 
                //check if the event is passing trigger
                if(!PassTriggerCustom(ev ) )continue;
-               NTEvents++;
+               NTEvents+=Event_Weight;
 
                //load all event collection that will be used later on (HSCP COll, dEdx and TOF)
                fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
@@ -247,27 +241,28 @@ void Analysis_Compute(string inputname, string outputname, string MODE,  double 
 
                        //compute the mass of the candidate
                        double Mass     = -1; if(dedxMObj) Mass = GetMass(track->p(),dedxMObj->dEdx(),!isData);
-                       if(Mass<MassCut) continue; 
-                       Passed = true;
-
                        for(int M=0;M<6;M++){
-                               if(Mass>100.0*M) PassedM[M]=true;
+                         if(Mass>100.0*M) PassedM[M]=true;
                        }		
+                       if(Mass<paperMassCut) continue; 
+                       Passed = true;
                }// end of Track Loop
 
-               if(PSPassed)NPSEvents+=1.0;
-               if(Passed)NSEvents+=1.0;
+               if(PSPassed)NPSEvents+=Event_Weight;
+               if(Passed)NSEvents+=Event_Weight;
                for(int M=0;M<6;M++){
-                       if(PassedM[M]) NSEventsM[M]+=1;
+                       if(PassedM[M]) NSEventsM[M]+=Event_Weight;
                }	
        }printf("\n");// end of Event Loop
 
+       system("mkdir -p pictures");
+       string outputname ="pictures/Std_"+samples[s].Name+".txt";
        FILE* pFile = fopen(outputname.c_str(), "w");
-       printf("%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), MassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));      
+       printf("%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));      
        for(int M=0;M<6;M++){
                fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEvents)/NEvents,2)+pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsM[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEvents)/pow(NEvents,2),2)));      
        }	
-       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), MassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEvents)/NEvents,2)+pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));      
+       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEvents)/NEvents,2)+pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));      
       fclose(pFile);
 
 

@@ -12,7 +12,16 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
-  .x StandardAnalysis_Acceptance.C++("pictures/aer", 0, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 45.0, 2.1);
-  //.x StandardAnalysis_Acceptance.C+("Analyze");
+  .x StandardAnalysis_Acceptance.C++("COMPILE");
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M100", 0, 10);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M126", 0, 20);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M156", 0, 50);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M200", 0, 90);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M247", 0,130);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M308", 0,180);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M370", 0,230);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M432", 0,280);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M494", 0,320);
+  .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M557", 0,370);
   //.x MakePlot.C+
 EOF
