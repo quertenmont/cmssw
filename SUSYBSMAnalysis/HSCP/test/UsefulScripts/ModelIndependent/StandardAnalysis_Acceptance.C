@@ -125,11 +125,12 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
        GetInputFiles(samples[s], BaseDirectory, FileName);
        fwlite::ChainEvent ev(FileName);
 
-       double NEvents = 0;
-       double NTEvents = 0;
-       double NPSEvents = 0;
-       double NSEvents = 0;
-       double NSEventsM[6] = {0,0,0,0,0,0};
+       double NEvents = 0, NEventsErr=0;
+       double NTEvents = 0, NTEventsErr=0;
+       double NPSEvents = 0, NPSEventsErr=0;
+       double NSEvents = 0, NSEventsErr=0;
+       double NSEventsM[6] = {0,0,0,0,0,0};  
+       double NSEventsMErr[6] = {0,0,0,0,0,0};
 
        //Loop on the events
        printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
@@ -155,7 +156,7 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
                if(MaxEntry>0 && ientry>MaxEntry)break;
                if(ientry%TreeStep==0){printf(".");fflush(stdout);}
                Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
-               NEvents+=Event_Weight;
+               NEvents+=Event_Weight;   NEventsErr+=Event_Weight*Event_Weight;
 
 
                //get the collection of generated Particles
@@ -168,7 +169,7 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
 
                //check if the event is passing trigger
                if(!PassTriggerCustom(ev ) )continue;
-               NTEvents+=Event_Weight;
+               NTEvents+=Event_Weight;  NTEventsErr+=Event_Weight*Event_Weight;
 
                //load all event collection that will be used later on (HSCP COll, dEdx and TOF)
                fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
@@ -248,21 +249,21 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
                        Passed = true;
                }// end of Track Loop
 
-               if(PSPassed)NPSEvents+=Event_Weight;
-               if(Passed)NSEvents+=Event_Weight;
+               if(PSPassed){NPSEvents+=Event_Weight; NPSEventsErr+=Event_Weight*Event_Weight;}
+               if(Passed){NSEvents+=Event_Weight; NSEventsErr+=Event_Weight*Event_Weight;}
                for(int M=0;M<6;M++){
-                       if(PassedM[M]) NSEventsM[M]+=Event_Weight;
+                       if(PassedM[M]){NSEventsM[M]+=Event_Weight; NSEventsMErr[M]+=Event_Weight*Event_Weight;}
                }	
        }printf("\n");// end of Event Loop
 
        system("mkdir -p pictures");
        string outputname ="pictures/Std_"+samples[s].Name+".txt";
        FILE* pFile = fopen(outputname.c_str(), "w");
-       printf("%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));      
+       printf("%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)));      
        for(int M=0;M<6;M++){
-               fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEvents)/NEvents,2)+pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsM[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEvents)/pow(NEvents,2),2)));      
+               fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEventsErr,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)));      
        }	
-       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEvents)/NEvents,2)+pow(NTEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEvents)/NEvents,2)+pow(NPSEvents*sqrt(NEvents)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEvents)/NEvents,2)+pow(NSEvents*sqrt(NEvents)/pow(NEvents,2),2)));      
+       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)));      
       fclose(pFile);
 
 
