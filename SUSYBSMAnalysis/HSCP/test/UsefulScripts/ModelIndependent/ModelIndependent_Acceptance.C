@@ -185,6 +185,7 @@ void ModelIndependent_Acceptance(string MODE="COMPILE", string fileurl="")
             }
 
             for(unsigned int Mi=0;Mi<nM;Mi++){            
+               if(genColl[g].mass()<Mi*100)continue;
                if(H==0){   ProbO1[Mi]=histoOffline[Mi]->GetBinContent(BinX, BinY, BinZ);  ProbErrO1[Mi]=histoOffline[Mi]->GetBinError(BinX, BinY, BinZ);
                }else{      ProbO2[Mi]=histoOffline[Mi]->GetBinContent(BinX, BinY, BinZ);  ProbErrO2[Mi]=histoOffline[Mi]->GetBinError(BinX, BinY, BinZ);
                }
