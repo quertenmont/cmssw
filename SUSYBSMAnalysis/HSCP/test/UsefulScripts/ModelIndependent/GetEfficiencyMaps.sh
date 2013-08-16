@@ -12,6 +12,6 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
-  .x GetEfficiencyMaps.C+("Analyze");
+  .x GetEfficiencyMaps.C+("COMPILE");
   //.x MakePlot.C+
 EOF

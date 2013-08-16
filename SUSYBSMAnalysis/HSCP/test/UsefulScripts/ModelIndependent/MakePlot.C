@@ -52,10 +52,7 @@ void MakePlot()
 
 
    TFile* InputFile = new TFile("pictures/Histos.root", "UPDATE");
-
-   double PT[] = {50,60,70,80,100,150,999};
-   int nPT = (sizeof(PT)/sizeof(double))-1;
-   std::vector<TString> histoNames;
+   std::vector<string> histoNames;
    histoNames.push_back("Beta_Gen");
    histoNames.push_back("Beta_GenChaged");
    histoNames.push_back("Beta_Triggered");
@@ -72,50 +69,55 @@ void MakePlot()
    histoNames.push_back("Beta_SelectedM4");
    histoNames.push_back("Beta_SelectedM5");
 
-   TH2F*** Beta_Map         = new TH2F**[histoNames.size()];
-   for(int i=0;i<histoNames.size();i++){
-      Beta_Map[i] = new TH2F*[nPT];
-      for(int PTB=0;PTB<nPT;PTB++){
-         char Name [1024];
-         sprintf(Name,"pT%03i_%03i_%s",(int)PT[PTB],(int)PT[PTB+1], histoNames[i].Data());
-         Beta_Map[i][PTB] = (TH2F*)GetObjectFromPath(InputFile, Name);
-        
-         if(i>0){//if not GEN MAP
-            Beta_Map[i][PTB]->Divide(Beta_Map[0][PTB]); //normalize to NGen
-         }
+   TH3F** Beta_Map         = new TH3F*[histoNames.size()];
+   for(unsigned int i=0;i<histoNames.size();i++){
+      Beta_Map[i] = (TH3F*)GetObjectFromPath(InputFile, histoNames[i]);
+
+      if(i>0){//if not GEN MAP
+        Beta_Map[i]->Divide(Beta_Map[0]); //normalize to NGen
       }
    }
 
-   for(int i=0;i<histoNames.size();i++){
-      for(int PTB=0;PTB<nPT;PTB++){
-         if(i>2){//normalized to efficiency of passing cuts after having passed the trigger
-            Beta_Map[i][PTB]->Divide(Beta_Map[2][PTB]); 
-         }  
-
-         if(i!=0){//efficiencies
-            Beta_Map[i][PTB]->SetMaximum(1.0); 
-         }  
-         Beta_Map[i][PTB]->Write(TString("Norm_")+Beta_Map[i][PTB]->GetName());
-      }
+   for(unsigned int i=0;i<histoNames.size();i++){
+      if(i>2){//normalized to efficiency of passing cuts after having passed the trigger
+         Beta_Map[i]->Divide(Beta_Map[2]); 
+      }  
+      if(i!=0){//efficiencies
+         Beta_Map[i]->SetMaximum(1.0); 
+      }  
+      Beta_Map[i]->Write(TString("Norm_")+Beta_Map[i]->GetName());
    }
 
+
+  int NBins = Beta_Map[0]->GetNbinsX();
+  int NCol = 4;
+  int NRow = NBins/NCol + (NBins%NCol==0?0:1);
+  printf("Bins = %i NCol=%i NRow=%i\n",NBins, NCol, NRow);
+  TH2F* frame = new TH2F("frame", "frame", 10, 0.0, 1.0, 10, 0.0, 2.1);
 
   for(unsigned int i=0;i<histoNames.size();i++){
-      TPaveText* T1 = new TPaveText(0.2,0.99,0.8,0.94, "NDC");   T1->SetFillColor(0); T1->SetTextAlign(22); T1->AddText("pT=[ 50, 60] GeV");
-      TPaveText* T2 = new TPaveText(0.2,0.99,0.8,0.94, "NDC");   T2->SetFillColor(0); T2->SetTextAlign(22); T2->AddText("pT=[ 70, 80] GeV");
-      TPaveText* T3 = new TPaveText(0.2,0.99,0.8,0.94, "NDC");   T3->SetFillColor(0); T3->SetTextAlign(22); T3->AddText("pT=[100,150] GeV");
-      TPaveText* T4 = new TPaveText(0.2,0.99,0.8,0.94, "NDC");   T4->SetFillColor(0); T4->SetTextAlign(22); T4->AddText("pT#geq150 GeV");
+      c1 = new TCanvas("c1","c1",400*NCol,400*NRow);
+      c1->Divide(NCol,NRow);
 
-      c1 = new TCanvas("c1","c1",1500,900);
-      c1->Divide(2,2);
-      c1->cd(1);   Beta_Map[i][0]->Draw("COLZ text E"); T1->Draw("same");
-      c1->cd(2);   Beta_Map[i][2]->Draw("COLZ text E"); T2->Draw("same");
-      c1->cd(3);   Beta_Map[i][4]->Draw("COLZ text E"); T3->Draw("same");
-      c1->cd(4);   Beta_Map[i][5]->Draw("COLZ text E"); T4->Draw("same");
+      std::vector<TObject*> toBeDeleted;             
+      for(int x=1;x<=NBins;x++){
+         (c1->cd(x))->SetLogz(true);
+         char Buffer[256]; sprintf(Buffer, "p_{T}=[%i, %i] GeV/c", (int)Beta_Map[i]->GetXaxis()->GetBinLowEdge(x), (int)Beta_Map[i]->GetXaxis()->GetBinUpEdge(x));
+         TPaveText* T = new TPaveText(0.2,0.99,0.8,0.94, "NDC");   T->SetFillColor(0); T->SetTextAlign(22); T->AddText(Buffer);
+         Beta_Map[i]->GetXaxis()->SetRange(x,x);
+         TH2F* proj = (TH2F*)Beta_Map[i]->Project3D((TString(histoNames[i].c_str())+Buffer)+"_zy");
+         frame->Draw("Axis");
+         proj->Draw("same COLZ text E");
+         proj->Rebin2D(2,1);  if(i>0)proj->Scale(1.0/2.0);
+         T->Draw("same");
+         toBeDeleted.push_back(proj);
+         toBeDeleted.push_back(T);
+      }
       c1->cd(0);
 
       char plotindex[255];sprintf(plotindex,"%02i_",i);
       c1->SaveAs((TString("pictures/")+plotindex)+histoNames[i]+".png");
+//      for(unsigned int d=0;d<toBeDeleted.size();d++){delete toBeDeleted[d];}
       delete c1;
    }
 }

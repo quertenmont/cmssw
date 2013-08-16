@@ -82,7 +82,7 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
        if(TypeMode<2){   
       	  CutPt .push_back(70.0);   CutI  .push_back(0.4);  CutTOF.push_back(-1);
        }else if(TypeMode==2){
-          CutPt .push_back(70.0);   CutI  .push_back(0.125);  CutTOF.push_back(-1);
+          CutPt .push_back(70.0);   CutI  .push_back(0.125);  CutTOF.push_back(1.225);
        }
        int CutIndex=0;
 
@@ -140,7 +140,7 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
 
       //loop once on the MC events to get the PU normalization
       double PUSystFactor=1.0;//not used
-      double SampleWeight = 1.0;
+      double SampleWeight = ev.size();
       if(samples[s].Type>0){
             double NMCevents=0;
             for(Long64_t ientry=0;ientry<ev.size();ientry++){

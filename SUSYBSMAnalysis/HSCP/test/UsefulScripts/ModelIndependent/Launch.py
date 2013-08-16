@@ -27,7 +27,7 @@ elif sys.argv[1]=='0':
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
         for m in MassPoints :
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/GetEfficiencyMaps.C", '"pictures/Histos_SStau'+str(m)+'.root"', '"root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau'+str(m)+'.root"'])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/GetEfficiencyMaps.C", '"SStau'+str(m)+'"', "0", '"root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau'+str(m)+'.root"'])
 	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
@@ -44,8 +44,8 @@ elif sys.argv[1]=='2':
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
         for m in MassPoints :
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/PPStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M'+str(m)+'.root"'])
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/GMStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_8TeV_M'+str(m)+'.root"'])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/MI_PPStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M'+str(m)+'.root"'])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/MI_GMStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_8TeV_M'+str(m)+'.root"'])
         LaunchOnCondor.SendCluster_Submit()
 elif sys.argv[1]=='3':
         print 'Compute acceptance for standard analysis'

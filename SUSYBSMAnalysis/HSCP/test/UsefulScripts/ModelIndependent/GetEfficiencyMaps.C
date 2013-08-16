@@ -1,37 +1,12 @@
-#include <exception>
-#include <vector>
-
-#include "TROOT.h"
-#include "TFile.h"
-#include "TDCacheFile.h"
-#include "TDirectory.h"
-#include "TChain.h"
-#include "TObject.h"
-#include "TCanvas.h"
-#include "TMath.h"
-#include "TLegend.h"
-#include "TGraph.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TH3.h"
-#include "TTree.h"
-#include "TF1.h"
-#include "TGraphAsymmErrors.h"
-#include "TPaveText.h"
-#include "TRandom3.h"
-#include "TProfile.h"
-#include "TDirectory.h"
-#include "TCanvas.h"
-#include "TProfile.h"
-#include "TPaveText.h"
+// Original Author:  Loic Quertenmont
 
 
-namespace reco { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra;}
-namespace susybsm { class HSCParticle; class HSCPIsolation;}
-namespace fwlite { class ChainEvent;}
+namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
+namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment; class HSCPDeDxInfo;}
+namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
-namespace edm {class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
-namespace reweight{class PoissonMeanShifter;}
+namespace edm     { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
+namespace reweight{ class PoissonMeanShifter;}
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/FWLite/interface/Handle.h"
@@ -43,8 +18,13 @@ namespace reweight{class PoissonMeanShifter;}
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -58,39 +38,27 @@ using namespace susybsm;
 using namespace std;
 using namespace edm;
 using namespace trigger;
+using namespace reweight;
 
-#include "../../ICHEP_Analysis/Analysis_Step3.C"
-//#include "../../ICHEP_Analysis/Analysis_Global.h"
-//#include "../../ICHEP_Analysis/Analysis_CommonFunction.h"
-//#include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
-//#include "../../ICHEP_Analysis/Analysis_PlotStructure.h"
-//#include "../../ICHEP_Analysis/Analysis_Samples.h"
-//#include "tdrstyle.C"
 #endif
 
-bool PassTriggerCustom(const fwlite::ChainEvent& ev){
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
-      if(!tr.isValid())return false;
 
-//      if(tr.accept("HSCPHLTTriggerHtDeDxFilter"))return true;
-//      if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
-//      if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
-      if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
-      return false;
-}
+//the define here is simply need to load FWLITE code from the include
+#define FWLITE
+#include "../../ICHEP_Analysis/Analysis_Step3.C"
 
-bool PassSkimCustom(const fwlite::ChainEvent& ev){
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
-      if(!tr.isValid())return false;
+/////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
-      edm::TriggerResultsByName skim = ev.triggerResultsByName("HLT");
-      if(!skim.isValid())return false;
-      //for(unsigned int i=0;i<skim.size();i++){
-      //   printf("Path %3i %50s --> %1i\n",i, skim.triggerName(i).c_str(),skim.accept(i));
-      //}fflush(stdout);
-      if((tr.accept("HSCPHLTTriggerMetDeDxFilter") || tr.accept("HSCPHLTTriggerMuDeDxFilter") || tr.accept("HSCPHLTTriggerHtDeDxFilter") || tr.accept("HSCPHLTTriggerMuFilter") ||  tr.accept("HSCPHLTTriggerMetFilter") ||  tr.accept("HSCPHLTTriggerHtFilter") || tr.accept("HSCPHLTTriggerL2MuFilter") || tr.accept("HSCPHLTTriggerCosmicFilter")) && skim.accept("HSCP_step"))return true;
-      if((tr.accept("HSCPHLTTriggerMetDeDxFilter") || tr.accept("HSCPHLTTriggerMuDeDxFilter") || tr.accept("HSCPHLTTriggerHtDeDxFilter"))&&skim.accept("HSCPdedx_step"))return true;
-      return false;
+// check if the event is passing trigger or not --> note that the function has two part (one for 2011 analysis and the other one for 2012)
+bool PassTriggerCustom(const fwlite::ChainEvent& ev)
+{
+	edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
+	if(!tr.isValid())return false;
+
+	if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
+//	if(tr.accept("HSCPHLTTriggerPFMetFilter"))return true;
+
+	return false;
 }
 
 void  GetGenHSCPBetaCustom(const std::vector<reco::GenParticle>& genColl, double& beta1, bool onlyCharged, int& index){
@@ -99,228 +67,232 @@ void  GetGenHSCPBetaCustom(const std::vector<reco::GenParticle>& genColl, double
       if(genColl[g].pt()<5)continue;
       if(genColl[g].status()!=1)continue;
       int AbsPdg=abs(genColl[g].pdgId());
-//      if(AbsPdg!=13)     continue;
       if(AbsPdg<1000000)continue;
-//      if(onlyCharged && (AbsPdg==1000993 || AbsPdg==1009313 || AbsPdg==1009113 || AbsPdg==1009223 || AbsPdg==1009333 || AbsPdg==1092114 || AbsPdg==1093214 || AbsPdg==1093324))continue; //Skip neutral gluino RHadrons
-//      if(onlyCharged && (AbsPdg==1000622 || AbsPdg==1000642 || AbsPdg==1006113 || AbsPdg==1006311 || AbsPdg==1006313 || AbsPdg==1006333))continue;  //skip neutral stop RHadrons
+      if(onlyCharged && (AbsPdg==1000993 || AbsPdg==1009313 || AbsPdg==1009113 || AbsPdg==1009223 || AbsPdg==1009333 || AbsPdg==1092114 || AbsPdg==1093214 || AbsPdg==1093324))continue; //Skip neutral gluino RHadrons
+      if(onlyCharged && (AbsPdg==1000622 || AbsPdg==1000642 || AbsPdg==1006113 || AbsPdg==1006311 || AbsPdg==1006313 || AbsPdg==1006333))continue;  //skip neutral stop RHadrons
       if(beta1<0){beta1=genColl[g].p()/genColl[g].energy(); index=g; return;}
    }
 }
 
-
-void GetEfficiencyMaps(string MODE="COMPILE", string fileurl="")
+void GetEfficiencyMaps(string MODE="COMPILE", int TypeMode_=0, string inputURL="")
 {
-  if(MODE=="COMPILE") return;
+       if(MODE=="COMPILE")return;
+       string sampleName = MODE;       
 
-   Event_Weight = 1;
-   MaxEntry = -1;
+       // redefine global variable dependent on the arguments given to the function
+       InitdEdx(dEdxS_Label);
+       TypeMode       = TypeMode_;
+       GlobalMaxEta   = 2.1;
+       GlobalMinPt    = 45;
+       if(TypeMode<2){      
+          GlobalMinNDOF   = 0; 
+   	  GlobalMinTOF    = 0;
+       }else if(TypeMode==2) { 
+       }else{
+           printf("Code only suited for TkOnly and TkTOF Analysis, exit now\n"); exit(0);
+       }
 
+       if(TypeMode<2){   
+      	  CutPt .push_back(70.0);   CutI  .push_back(0.0);  CutTOF.push_back(-1);
+          CutPt .push_back(70.0);   CutI  .push_back(0.4);  CutTOF.push_back(-1);
+          CutPt .push_back(70.0);   CutI  .push_back(0.4);  CutTOF.push_back(-1);
+       }else if(TypeMode==2){
+          CutPt .push_back(70.0);   CutI  .push_back(0.0  );  CutTOF.push_back(-1);
+          CutPt .push_back(70.0);   CutI  .push_back(0.125);  CutTOF.push_back(-1);
+          CutPt .push_back(70.0);   CutI  .push_back(0.125);  CutTOF.push_back(1.225);
+       }
+       int CutIndex=0;
 
-   system("mkdir -p pictures");
+       //initialize LumiReWeighting
+       BgLumiMC.clear(); TrueDist.clear(); TrueDistSyst.clear();
+       for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
 
-   setTDRStyle();
-   gStyle->SetPadTopMargin   (0.06);
-   gStyle->SetPadBottomMargin(0.15);
-   gStyle->SetPadRightMargin (0.03);
-   gStyle->SetPadLeftMargin  (0.07);
-   gStyle->SetTitleSize(0.04, "XYZ");
-   gStyle->SetTitleXOffset(1.1);
-   gStyle->SetTitleYOffset(1.35);
-   gStyle->SetPalette(1);
-   gStyle->SetNdivisions(505,"X");
-   TH1::AddDirectory(kTRUE);
-
-   TypeMode = 0;
-   GlobalMaxEta   = 2.1;
-   GlobalMinPt    = 70;
-   CutPt .push_back(70 );CutPt .push_back(70 );CutPt .push_back(70 );
-   CutI  .push_back(0.0);CutI  .push_back(0.40);CutI .push_back(0.40);
-   CutTOF.push_back(-1);CutTOF.push_back(-1);CutTOF.push_back(-1);
-   int CutIndex=0;
-//   GlobalMaxV3D=1000000; //should be defined like this because V3D is not well defined on singleParticle event
-   system("mkdir pictures/");
-//   TFile* OutputHisto = new TFile((string("pictures/") + "/Histos_" + MODE + ".root").c_str(),"RECREATE");
-   TFile* OutputHisto = new TFile(MODE.c_str(),"RECREATE");
-
-
-   double PT[] = {50,60,70,80,100,150,999};
-   TH2F** Beta_Gen         = new TH2F*[6];
-   TH2F** Beta_GenCharged  = new TH2F*[6];
-   TH2F** Beta_Triggered   = new TH2F*[6];
-   TH2F** Beta_Skimmed     = new TH2F*[6];
-   TH2F** Beta_Matched     = new TH2F*[6];
-   TH2F** Beta_Preselected = new TH2F*[6];
-   TH2F** Beta_SelectedP   = new TH2F*[6];
-   TH2F** Beta_SelectedI   = new TH2F*[6];
-   TH2F** Beta_SelectedT   = new TH2F*[6];
-   TH2F** Beta_SelectedM0  = new TH2F*[6];
-   TH2F** Beta_SelectedM1  = new TH2F*[6];
-   TH2F** Beta_SelectedM2  = new TH2F*[6];
-   TH2F** Beta_SelectedM3  = new TH2F*[6];
-   TH2F** Beta_SelectedM4  = new TH2F*[6];
-   TH2F** Beta_SelectedM5  = new TH2F*[6];
-
-   TString Name;
-   for(int PTB=0;PTB<6;PTB++){
-      char PTname [255];
-      sprintf(PTname,"pT%03i_%03i_",(int)PT[PTB],(int)PT[PTB+1]);
-      TString PTName(PTname);
-
-      Name = PTName+"Beta_Gen"         ; Beta_Gen        [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_Gen         [PTB]->Sumw2();
-      Name = PTName+"Beta_GenChaged"   ; Beta_GenCharged [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_GenCharged  [PTB]->Sumw2();
-      Name = PTName+"Beta_Triggered"   ; Beta_Triggered  [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_Triggered   [PTB]->Sumw2();
-      Name = PTName+"Beta_Skimmed"     ; Beta_Skimmed    [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_Skimmed     [PTB]->Sumw2();
-      Name = PTName+"Beta_Matched"     ; Beta_Matched    [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_Matched     [PTB]->Sumw2();
-      Name = PTName+"Beta_Preselected" ; Beta_Preselected[PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_Preselected [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedP"   ; Beta_SelectedP  [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedP   [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedI"   ; Beta_SelectedI  [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedI   [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedT"   ; Beta_SelectedT  [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedT   [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedM0"  ; Beta_SelectedM0 [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedM0  [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedM1"  ; Beta_SelectedM1 [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedM1  [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedM2"  ; Beta_SelectedM2 [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedM2  [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedM3"  ; Beta_SelectedM3 [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedM3  [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedM4"  ; Beta_SelectedM4 [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedM4  [PTB]->Sumw2();
-      Name = PTName+"Beta_SelectedM5"  ; Beta_SelectedM5 [PTB] = new TH2F(Name, Name+";#beta;|#eta|", 20, 0,  1, 8, 0, 2.1);  Beta_SelectedM5  [PTB]->Sumw2();
-   }
+       for(int i=0; i<60; ++i) TrueDist    .push_back(TrueDist2012_f[i]);
+       for(int i=0; i<60; ++i) TrueDistSyst.push_back(TrueDist2012_XSecShiftUp_f[i]);
+       LumiWeightsMC     = edm::LumiReWeighting(BgLumiMC, TrueDist);
+       LumiWeightsMCSyst = edm::LumiReWeighting(BgLumiMC, TrueDistSyst);
 
 
-   vector<string> DataFileName;
-   DataFileName.push_back(fileurl);
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau100.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau126.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau156.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau200.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau247.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau308.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau370.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau432.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau494.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau557.root");
+       //////////////////////////////////////////////
+       //prepare to save all maps to histos
+       TFile* OutputHisto = new TFile((string("pictures/") + "/Histos_" + sampleName + ".root").c_str(),"RECREATE");
+
+       double Bins_Pt  [] = {45, 70, 100, 150, 300, 500, 1000, 9999};
+       double Bins_Beta[] = {0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00};
+       double Bins_Eta [] = {0.0, 0.3, 0.6, 0.9, 1.1, 1.4, 1.8, 2.1};
+
+       TString Name;
+       Name = "Beta_Gen"         ; TH3F* Beta_Gen         = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_Gen         ->Sumw2();
+       Name = "Beta_GenChaged"   ; TH3F* Beta_GenCharged  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_GenCharged  ->Sumw2();
+       Name = "Beta_Triggered"   ; TH3F* Beta_Triggered   = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_Triggered   ->Sumw2();
+       Name = "Beta_Skimmed"     ; TH3F* Beta_Skimmed     = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_Skimmed     ->Sumw2();
+       Name = "Beta_Matched"     ; TH3F* Beta_Matched     = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_Matched     ->Sumw2();
+       Name = "Beta_Preselected" ; TH3F* Beta_Preselected = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_Preselected ->Sumw2();
+       Name = "Beta_SelectedP"   ; TH3F* Beta_SelectedP   = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedP   ->Sumw2();
+       Name = "Beta_SelectedI"   ; TH3F* Beta_SelectedI   = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedI   ->Sumw2();
+       Name = "Beta_SelectedT"   ; TH3F* Beta_SelectedT   = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedT   ->Sumw2();
+       Name = "Beta_SelectedM0"  ; TH3F* Beta_SelectedM0  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedM0  ->Sumw2();
+       Name = "Beta_SelectedM1"  ; TH3F* Beta_SelectedM1  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedM1  ->Sumw2();
+       Name = "Beta_SelectedM2"  ; TH3F* Beta_SelectedM2  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedM2  ->Sumw2();
+       Name = "Beta_SelectedM3"  ; TH3F* Beta_SelectedM3  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedM3  ->Sumw2();
+       Name = "Beta_SelectedM4"  ; TH3F* Beta_SelectedM4  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedM4  ->Sumw2();
+       Name = "Beta_SelectedM5"  ; TH3F* Beta_SelectedM5  = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_SelectedM5  ->Sumw2();
 
 
 
-//   DataFileName.push_back("/afs/cern.ch/user/q/querten/workspace/public/13_06_01_2012_HSCP_Analysis_Archive/SingleHSCP_Gen/CMSSW_5_2_5_patch3/src/GEN/SingleStauPythiaMuon/mu_1_0.root");
-//   DataFileName.push_back("/afs/cern.ch/user/q/querten/workspace/public/13_06_01_2012_HSCP_Analysis_Archive/SingleHSCP_Gen/EDM/CMSSW_5_3_2_patch4/src/SUSYBSMAnalysis/HSCP/test/BuildHSCParticles/Signals/MERGE/outputs/stau100_09999_EDM.root");
-//   DataFileName.push_back("root://eoscms//eos/cms/store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M100.root");
-//     DataFileName.push_back("root://eoscms//eos/cms/store/user/querten/12_07_03_SingleHSCP/PPStauPU100.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_100.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_126.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_156.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_200.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_247.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_308.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_370.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_432.root");
-//   DataFileName.push_back("rfio:/castor/cern.ch/user/q/querten/12_07_03_SingleHSCP/SingleStau_494.root");
+
+       bool isData   = false; 
+       bool isMC     = false; 
+       bool isSignal = true; 
+
+       dEdxTemplates = loadDeDxTemplate("../../../data/Discrim_Templates_MC_2012.root");
+       dEdxSF = 1.05;
+
+       //do two loops through signal for samples with and without trigger changes.
+       //load the files corresponding to this sample
+       std::vector<string> FileName;
+       FileName.push_back(inputURL);
+       fwlite::ChainEvent ev(FileName);
+
+      //loop once on the MC events to get the PU normalization
+      double PUSystFactor=1.0;//not used
+      double SampleWeight = ev.size();
+      double NMCevents=0;
+      for(Long64_t ientry=0;ientry<ev.size();ientry++){
+         ev.to(ientry);
+         NMCevents += GetPUWeight(ev, "S10", PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
+      }
+      SampleWeight /= NMCevents;
+ 
+       //Loop on the events
+       printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
+       printf("Looping on Tree                   :");
+       int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
+
+       //real loop on events    
+       for(Long64_t ientry=0;ientry<ev.size();ientry++){
+               ev.to(ientry);
+               if(MaxEntry>0 && ientry>MaxEntry)break;
+               if(ientry%TreeStep==0){printf(".");fflush(stdout);}
+               Event_Weight = SampleWeight * GetPUWeight(ev, "S10", PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
+
+               //get the collection of generated Particles
+               std::vector<reco::GenParticle> genColl;
+               fwlite::Handle< std::vector<reco::GenParticle> > genCollHandle;
+               genCollHandle.getByLabel(ev, "genParticles");
+               if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
+               genColl = *genCollHandle;
+
+               double BETA; int genIndex=-1;
+               GetGenHSCPBetaCustom(genColl,BETA,false,genIndex);
+               if(BETA<0)continue;
+               double PT = genColl[genIndex].pt(); double ETA=fabs(genColl[genIndex].eta());
+               if(genIndex<0 || genColl[genIndex].pt()<45 || fabs(genColl[genIndex].eta())>2.1)continue;
+
+               Beta_Gen->Fill(PT, BETA, ETA, Event_Weight);
+               GetGenHSCPBetaCustom(genColl,BETA,true,genIndex); if(BETA<0)continue;//make sure there is a charged HSCP
+               Beta_GenCharged->Fill(PT, BETA, ETA, Event_Weight);
+
+               //check if the event is passing trigger
+               if(!PassTriggerCustom(ev ) )continue;
+               Beta_Triggered->Fill(PT, BETA, ETA, Event_Weight);
+
+               //if(!PassSkimCustom(ev) )continue;
+               Beta_Skimmed->Fill(PT, BETA, ETA, Event_Weight);
 
 
-   fwlite::ChainEvent treeS(DataFileName);
-   printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
-   printf("Looping on Tree              :");
-   int TreeStep = treeS.size()/50;if(TreeStep==0)TreeStep=1;
-   for(Long64_t e=0;e<treeS.size();e++){
-      treeS.to(e); 
-      if(e%TreeStep==0){printf(".");fflush(stdout);}
-      fwlite::Handle< std::vector<reco::GenParticle> > genCollHandle;
-      genCollHandle.getByLabel(treeS, "genParticles");
-      if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
-      std::vector<reco::GenParticle> genColl = *genCollHandle;
+               //load all event collection that will be used later on (HSCP COll, dEdx and TOF)
+               fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
+               hscpCollHandle.getByLabel(ev,"HSCParticleProducer");
+               //if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
+               if(!hscpCollHandle.isValid())continue;
+               const susybsm::HSCParticleCollection& hscpColl = *hscpCollHandle;
 
-      double HSCPGenBeta1; int genIndex=-1;
-      GetGenHSCPBetaCustom(genColl,HSCPGenBeta1,false,genIndex);
-      if(genIndex<0 || genColl[genIndex].pt()<45 || fabs(genColl[genIndex].eta())>2.1)continue;
-      int PTB = 0;while(genColl[genIndex].pt()>PT[PTB+1] && PTB<5)PTB++;
+               fwlite::Handle<DeDxDataValueMap> dEdxSCollH;
+               dEdxSCollH.getByLabel(ev, dEdxS_Label.c_str());
+               if(!dEdxSCollH.isValid()){printf("Invalid dEdx Selection collection\n");continue;}
 
-      if(HSCPGenBeta1>=0)Beta_Gen[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);        
-      GetGenHSCPBetaCustom(genColl,HSCPGenBeta1,true,genIndex);
-      if(HSCPGenBeta1>=0)Beta_GenCharged[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
+               fwlite::Handle<DeDxDataValueMap> dEdxMCollH;
+               dEdxMCollH.getByLabel(ev, dEdxM_Label.c_str());
+               if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
-      if(!PassTriggerCustom(treeS) )continue;
-      if(HSCPGenBeta1>=0)Beta_Triggered[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
+               fwlite::Handle<MuonTimeExtraMap> TOFCollH;
+               TOFCollH.getByLabel(ev, "muontiming",TOF_Label.c_str());
+               if(!TOFCollH.isValid()){printf("Invalid TOF collection\n");return;}
 
-//      if(!PassSkimCustom(treeS) )continue;
-      if(HSCPGenBeta1>=0)Beta_Skimmed[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
+               fwlite::Handle<MuonTimeExtraMap> TOFDTCollH;
+               TOFDTCollH.getByLabel(ev, "muontiming",TOFdt_Label.c_str());
+               if(!TOFDTCollH.isValid()){printf("Invalid DT TOF collection\n");return;}
 
-      fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
-      hscpCollHandle.getByLabel(treeS,"HSCParticleProducer");
-      if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
-      const susybsm::HSCParticleCollection& hscpColl = *hscpCollHandle;
+               fwlite::Handle<MuonTimeExtraMap> TOFCSCCollH;
+               TOFCSCCollH.getByLabel(ev, "muontiming",TOFcsc_Label.c_str());
+               if(!TOFCSCCollH.isValid()){printf("Invalid CSC TOF collection\n");return;}
 
-      fwlite::Handle<DeDxDataValueMap> dEdxSCollH;
-      dEdxSCollH.getByLabel(treeS, dEdxS_Label.c_str());
-      if(!dEdxSCollH.isValid()){printf("Invalid dEdx Selection collection\n");continue;}
+               //loop on HSCP candidates
+               for(unsigned int c=0;c<hscpColl.size();c++){
+                       //define alias for important variable
+                       susybsm::HSCParticle hscp  = hscpColl[c];
+                       reco::MuonRef  muon  = hscp.muonRef();
+                       reco::TrackRef track = hscp.trackRef();
+                       if(track.isNull())continue;
 
-      fwlite::Handle<DeDxDataValueMap> dEdxMCollH;
-      dEdxMCollH.getByLabel(treeS, dEdxM_Label.c_str());
-      if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
-
-      fwlite::Handle<MuonTimeExtraMap> TOFCollH;
-      TOFCollH.getByLabel(treeS, "muontiming",TOF_Label.c_str());
-      if(!TOFCollH.isValid()){printf("Invalid TOF collection\n");continue;}
-
-      fwlite::Handle<MuonTimeExtraMap> TOFDTCollH;
-      TOFDTCollH.getByLabel(treeS, "muontiming",TOFdt_Label.c_str());
-      if(!TOFDTCollH.isValid()){printf("Invalid DT TOF collection\n");continue;}
-
-      fwlite::Handle<MuonTimeExtraMap> TOFCSCCollH;
-      TOFCSCCollH.getByLabel(treeS, "muontiming",TOFcsc_Label.c_str());
-      if(!TOFCSCCollH.isValid()){printf("Invalid CSC TOF collection\n");continue;}
-
-      for(unsigned int c=0;c<hscpColl.size();c++){
-         susybsm::HSCParticle hscp  = hscpColl[c];
-         reco::MuonRef  muon  = hscp.muonRef();
-         reco::TrackRef track = hscp.trackRef();
-         if(track.isNull())continue;
-
-         int ClosestGen;
-         if(DistToHSCP(hscp, genColl, ClosestGen)>0.03)continue;
-         if(HSCPGenBeta1>=0)Beta_Matched[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-
-         const DeDxData& dedxSObj  = dEdxSCollH->get(track.key());
-         const DeDxData& dedxMObj  = dEdxMCollH->get(track.key());
-         const reco::MuonTimeExtra* tof = NULL;
-         const reco::MuonTimeExtra* dttof = NULL;
-         const reco::MuonTimeExtra* csctof = NULL;
-         if(TypeMode==2 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof  = &TOFDTCollH->get(hscp.muonRef().key()); csctof  = &TOFCSCCollH->get(hscp.muonRef().key()); }
-
-         if(genColl[g].pt()<40 || fabs(genColl[g].eta())>2.1)continue;
-
-         if(!PassPreselection(hscp,  &dedxSObj, &dedxMObj, tof, dttof, csctof, treeS,           NULL, HSCPGenBeta1))continue;        
-         if(HSCPGenBeta1>=0)Beta_Preselected[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-
-          if(genColl[g].pt()<70 || fabs(genColl[g].eta())>2.1)continue;
-
-         if(!PassSelection   (hscp,  &dedxSObj, &dedxMObj, tof, treeS, CutIndex+0, NULL, false, HSCPGenBeta1))continue;    
-         if(HSCPGenBeta1>=0)Beta_SelectedP[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(!PassSelection   (hscp,  &dedxSObj, &dedxMObj, tof, treeS, CutIndex+1, NULL, false, HSCPGenBeta1))continue;
-         if(HSCPGenBeta1>=0)Beta_SelectedI[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(!PassSelection   (hscp,  &dedxSObj, &dedxMObj, tof, treeS, CutIndex+2, NULL, false, HSCPGenBeta1))continue;
-         if(HSCPGenBeta1>=0)Beta_SelectedT[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-
-         double Mass     = GetMass(track->p(),dedxMObj.dEdx(), true);
-         //         double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
-         //         double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj.dEdx()) + (1/tof->inverseBeta()))*0.5 ) ;
-
-         if(HSCPGenBeta1<0)continue;
-         if(Mass<0)continue;
-         Beta_SelectedM0[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(Mass<100)continue;
-         Beta_SelectedM1[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(Mass<200)continue;
-         Beta_SelectedM2[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(Mass<300)continue;
-         Beta_SelectedM3[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(Mass<400)continue;
-         Beta_SelectedM4[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-         if(Mass<500)continue;
-         Beta_SelectedM5[PTB]->Fill(HSCPGenBeta1, fabs(genColl[genIndex].eta()), Event_Weight);
-      } // end of Track Loop 
+                       //for signal only, make sure that the candidate is associated to a true HSCP
+                       int ClosestGen;
+                       if(isSignal && DistToHSCP(hscp, genColl, ClosestGen)>0.03)continue;
+                       Beta_Matched->Fill(PT, BETA, ETA, Event_Weight);
 
 
-   }// end of Event Loop
+                       //load quantity associated to this track (TOF and dEdx)
+                       const DeDxData* dedxSObj = NULL;
+                       const DeDxData* dedxMObj = NULL;
+                       if(!track.isNull()) {
+                          dedxSObj  = &dEdxSCollH->get(track.key());
+                          dedxMObj  = &dEdxMCollH->get(track.key());
+                       }
 
+                       const reco::MuonTimeExtra* tof = NULL;
+                       const reco::MuonTimeExtra* dttof = NULL;
+                       const reco::MuonTimeExtra* csctof = NULL;
+                       if(TypeMode>1 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof = &TOFDTCollH->get(hscp.muonRef().key());  csctof = &TOFCSCCollH->get(hscp.muonRef().key());}
+
+                       //Recompute dE/dx on the fly
+                       if(dedxSObj){
+                               dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, false, useClusterCleaning);
+                               dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, false, useClusterCleaning);
+                       }
+
+                       //check if the candiate pass the preselection cuts
+                       if(!PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, NULL, 0)) continue;
+                       Beta_Preselected->Fill(PT, BETA, ETA, Event_Weight);
+
+                       //check if the candiate pass the selection cuts
+                       if(genColl[ClosestGen].pt()<45 || fabs(genColl[ClosestGen].eta())>2.1)continue; 
+                
+                       if(!PassSelection   (hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex+0, NULL, false, 0))continue;
+                       Beta_SelectedP->Fill(PT, BETA, ETA, Event_Weight);
+                       if(!PassSelection   (hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex+1, NULL, false, 0))continue;
+                       Beta_SelectedI->Fill(PT, BETA, ETA, Event_Weight);
+                       if(!PassSelection   (hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex+2, NULL, false, 0))continue;
+                       Beta_SelectedT->Fill(PT, BETA, ETA, Event_Weight);
+
+                       //compute the mass of the candidate
+                       double Mass     = -1; if(dedxMObj) Mass = GetMass(track->p(),dedxMObj->dEdx(),!isData);
+                       if(Mass<0)continue;
+                       Beta_SelectedM0->Fill(PT, BETA, ETA, Event_Weight);
+                       if(Mass<100)continue;
+                       Beta_SelectedM1->Fill(PT, BETA, ETA, Event_Weight);
+                       if(Mass<200)continue;
+                       Beta_SelectedM2->Fill(PT, BETA, ETA, Event_Weight);
+                       if(Mass<300)continue;
+                       Beta_SelectedM3->Fill(PT, BETA, ETA, Event_Weight);
+                       if(Mass<400)continue;
+                       Beta_SelectedM4->Fill(PT, BETA, ETA, Event_Weight);
+                       if(Mass<500)continue;
+                       Beta_SelectedM5->Fill(PT, BETA, ETA, Event_Weight);
+
+               }// end of Track Loop
+       }printf("\n");// end of Event Loop
    OutputHisto->Write();
-   OutputHisto->Close();  
+   OutputHisto->Close();
 }
-
 
