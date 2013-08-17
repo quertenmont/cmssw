@@ -117,9 +117,11 @@ void GetEfficiencyMaps(string MODE="COMPILE", int TypeMode_=0, string inputURL="
        //prepare to save all maps to histos
        TFile* OutputHisto = new TFile((string("pictures/") + "/Histos_" + sampleName + ".root").c_str(),"RECREATE");
 
-       double Bins_Pt  [] = {45, 70, 100, 150, 300, 500, 1000, 9999};
+//       double Bins_Pt  [] = {45, 70, 100, 150, 300, 500, 1000, 9999};
+//       double Bins_Pt  [] = {45, 75, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 325, 350, 375, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1700, 1900, 2100, 2500, 9999};
+       double Bins_Pt  [] = {45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260, 280, 300, 325, 350, 375, 400, 425, 450, 475, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2250, 2500, 9999};
        double Bins_Beta[] = {0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00};
-       double Bins_Eta [] = {0.0, 0.3, 0.6, 0.9, 1.1, 1.4, 1.8, 2.1};
+       double Bins_Eta [] = {0.0, 0.25, 0.50, 0.75, 1.00, 1.10, 1.125, 1.50, 1.75, 2.00, 2.10};
 
        TString Name;
        Name = "Beta_Gen"         ; TH3F* Beta_Gen         = new TH3F(Name, Name+";p_{T};#beta;|#eta|", sizeof(Bins_Pt)/sizeof(double) - 1, Bins_Pt, sizeof(Bins_Beta)/sizeof(double) - 1, Bins_Beta, sizeof(Bins_Eta)/sizeof(double) - 1, Bins_Eta);  Beta_Gen         ->Sumw2();
