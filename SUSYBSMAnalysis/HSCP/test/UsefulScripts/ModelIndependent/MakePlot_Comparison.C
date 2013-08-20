@@ -172,7 +172,7 @@ void MakePlot_Comparison()
 
       for(int LevelIndex=-2; LevelIndex<6;LevelIndex++){
          TCanvas* c1 = new TCanvas("c1","c1",600, 600);
-         TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
+         TPad* t1 = new TPad("t1","t1", 0.0, 0.30, 1.0, 1.0);
          t1->Draw();
          t1->cd();
          t1->SetTopMargin(0.06);
@@ -219,11 +219,12 @@ void MakePlot_Comparison()
          leg->Draw();
 
          c1->cd();
-         TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2);
+         TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.3);
          t2->Draw();
          t2->cd();
+         t2->SetGridx(true);
          t2->SetGridy(true);
-         t2->SetPad(0,0.0,1.0,0.2);
+         t2->SetPad(0,0.0,1.0,0.3);
          t2->SetTopMargin(0);
          t2->SetBottomMargin(0.5);
 
@@ -232,8 +233,8 @@ void MakePlot_Comparison()
          frameR->SetStats(kFALSE);
          frameR->GetYaxis()->SetTitle("MI / STD");
          frameR->GetYaxis()->SetTitleOffset(1.40);
-         frameR->SetMaximum(1.5);   
-         frameR->SetMinimum(0.5);
+         frameR->SetMaximum(1.3);   
+         frameR->SetMinimum(0.7);
          frameR->GetXaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
          frameR->GetXaxis()->SetLabelSize(15); //font size
          frameR->GetXaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
@@ -246,7 +247,11 @@ void MakePlot_Comparison()
          frameR->GetYaxis()->SetNdivisions(505);
          frameR->Draw("AXIS");
 
-         TLine* LineAtOne = new TLine(0,1,600,1);      LineAtOne->SetLineStyle(1);   LineAtOne->Draw();
+         TLine* LineAt10 = new TLine(0,1.0,600,1.0);      LineAt10->SetLineStyle(1);   LineAt10->Draw();
+         TLine* LineAt11 = new TLine(0,1.1,600,1.1);      LineAt11->SetLineStyle(2);   LineAt11->Draw();
+         TLine* LineAt12 = new TLine(0,1.2,600,1.2);      LineAt12->SetLineStyle(2);   LineAt12->Draw();
+         TLine* LineAt09 = new TLine(0,0.9,600,0.9);      LineAt09->SetLineStyle(2);   LineAt09->Draw();
+         TLine* LineAt08 = new TLine(0,0.8,600,0.8);      LineAt08->SetLineStyle(2);   LineAt08->Draw();
          R->Draw("same P2");
 
          c1->cd();

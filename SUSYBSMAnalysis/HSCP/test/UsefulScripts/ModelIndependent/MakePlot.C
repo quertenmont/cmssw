@@ -89,14 +89,20 @@ void MakePlot()
    }
 
 
+//Rebin to accomodate the large number of pT bin
+   for(unsigned int i=0;i<histoNames.size();i++){
+      Beta_Map[i]->Rebin3D(4,1,1, "");
+   }
+
+
   int NBins = Beta_Map[0]->GetNbinsX();
-  int NCol = 4;
+  int NCol = 5;
   int NRow = NBins/NCol + (NBins%NCol==0?0:1);
   printf("Bins = %i NCol=%i NRow=%i\n",NBins, NCol, NRow);
   TH2F* frame = new TH2F("frame", "frame", 10, 0.0, 1.0, 10, 0.0, 2.1);
 
   for(unsigned int i=0;i<histoNames.size();i++){
-      c1 = new TCanvas("c1","c1",400*NCol,400*NRow);
+      c1 = new TCanvas("c1","c1",600*NCol,600*NRow);
       c1->Divide(NCol,NRow);
 
       std::vector<TObject*> toBeDeleted;             

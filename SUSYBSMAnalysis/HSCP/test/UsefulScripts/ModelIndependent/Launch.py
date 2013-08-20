@@ -27,7 +27,7 @@ elif sys.argv[1]=='0':
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
         for m in MassPoints :
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/GetEfficiencyMaps.C", '"SStau'+str(m)+'"', "0", '"root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau'+str(m)+'.root"'])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/GetEfficiencyMaps.C", '"SStau'+str(m)+'"', "1", '"root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau'+str(m)+'.root"'])
 	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
@@ -55,8 +55,8 @@ elif sys.argv[1]=='3':
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
         I=0;
         for m in MassPoints :
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_8TeV_M'+str(m)+'"', '0', str(MassCut[I])])
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_8TeV_M'+str(m)+'"', '0', str(MassCut[I])])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_8TeV_M'+str(m)+'"', '1', str(MassCut[I])])
+           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_8TeV_M'+str(m)+'"', '1', str(MassCut[I])])
            I+=1;
         LaunchOnCondor.SendCluster_Submit()
 
