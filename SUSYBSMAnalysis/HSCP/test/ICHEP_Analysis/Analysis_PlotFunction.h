@@ -74,7 +74,7 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool prelimina
 //   }else if(SQRTS_>0.0){
 //      sprintf(energy, "#sqrt{s} = %1.0f TeV  ",SQRTS_);
 //   }else{
-      sprintf(energy, "");
+      sprintf(energy, " ");
 //   }
 
    if(preliminary){   
@@ -129,7 +129,7 @@ void DrawPreliminary(string Text, double SQRTS_, double Lumi, bool preliminary, 
    }else if(SQRTS_>0.0){
       sprintf(energy, "#sqrt{s} = %1.0f TeV",SQRTS_);
    }else{
-      sprintf(energy, "");
+      sprintf(energy, " ");
    }
    
    char LumiText[1024];

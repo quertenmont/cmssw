@@ -12,6 +12,7 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
+  gSystem->SetIncludePath( "-I$ROOFITSYS/include" );
   .x StandardAnalysis_Acceptance.C++("COMPILE");
   .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M100", 0, 10);
   .x StandardAnalysis_Acceptance.C+ ("PPStau_8TeV_M126", 0, 20);

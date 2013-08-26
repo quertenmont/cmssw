@@ -61,6 +61,70 @@ bool PassTriggerCustom(const fwlite::ChainEvent& ev)
 	return false;
 }
 
+
+void computeSimpleLimits(string outpath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double SignEff, double SignEffStat, double SignalEffUnc, double Lumi, double LumiUnc=1.044, double* limits=NULL){
+
+   double NSign = SignEff*Lumi;
+   double Scale = 1.0;
+   while(NSign>100){NSign/=10.0; Scale*=10.0;}
+
+   FILE* pFile = fopen(outpath.c_str(), "w");
+   fprintf(pFile, "imax 1\n");
+   fprintf(pFile, "jmax *\n");
+   fprintf(pFile, "kmax *\n");
+   fprintf(pFile, "-------------------------------\n");
+   fprintf(pFile, "bin %s\n",ChannelName.c_str());
+   fprintf(pFile, "Observation %f\n",Obs);
+   fprintf(pFile, "-------------------------------\n");
+   fprintf(pFile, "bin      %s %s\n",ChannelName.c_str(), ChannelName.c_str());
+   fprintf(pFile, "process  %s pred\n",SignalName.c_str());
+   fprintf(pFile, "process  0 1\n");
+   fprintf(pFile, "rate    %f %f\n",NSign,std::max(1E-4, Pred) );  //if Pred<1E-4 we have troubles when merging datacards
+   fprintf(pFile, "-------------------------------\n");
+   fprintf(pFile, "%35s    %6s %5.3f     1.0  \n","Lumi" , "lnN", LumiUnc);
+   fprintf(pFile, "%35s    %6s -         %5.3f\n",(ChannelName+"systP").c_str(), "lnN", PredRelErr);
+   fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"systS").c_str(), "lnN", SignalEffUnc);
+   fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"statS").c_str(), "lnN", std::min(SignEffStat,2.0));
+   fclose(pFile);
+
+   string JobName = SignalName;
+   string massStr = "0";
+
+   //prepare and run the script that will run the external "combine" tool from the Higgs group
+   //If very low background range too small, set limit at 0.001.  Only affects scanning range not final limit
+   if(Pred<0.001) Pred=0.001;
+   char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(Pred)/NSign) );
+   string CodeToExecute = "cd /tmp/;";
+   CodeToExecute += "combine -M Asymptotic        -n " + JobName + " -m " + massStr + rangeStr + " " + outpath + " &> " + outpath + ".log;";
+
+   system(CodeToExecute.c_str());
+
+   //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+   //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+   TFile* file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+".Asymptotic.mH"+massStr+".root").c_str());
+   if(!file || file->IsZombie())return;
+   TTree* tree = (TTree*)file->Get("limit");
+   if(!tree)return;
+   double Tmass, Tlimit, TlimitErr; float TquantExp;
+   tree->GetBranch("mh"              )->SetAddress(&Tmass    );
+   tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+   tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+   tree->GetBranch("limitErr"        )->SetAddress(&TlimitErr);
+   tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+   for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+     tree->GetEntry(ientry);
+           if(TquantExp==0.025f){ limits[0] = Tlimit/Scale;
+     }else if(TquantExp==0.160f){ limits[1] = Tlimit/Scale;
+     }else if(TquantExp==0.500f){ limits[2] = Tlimit/Scale;
+     }else if(TquantExp==0.840f){ limits[3] = Tlimit/Scale;
+     }else if(TquantExp==0.975f){ limits[4] = Tlimit/Scale;
+     }else if(TquantExp==-1    ){ limits[5] = Tlimit/Scale; //will be overwritten afterward
+     }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
+     }
+   }
+   file->Close();
+}
+
 void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double paperMassCut=0)
 {
        if(MODE=="COMPILE")return;
@@ -260,10 +324,22 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
        string outputname ="pictures/Std_"+samples[s].Name+".txt";
        FILE* pFile = fopen(outputname.c_str(), "w");
        printf("%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)));      
-       for(int M=0;M<6;M++){
-               fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)));      
+       for(unsigned int M=0;M<6;M++){
+
+               double NPred=-1, NPredErr=-1, NData=-1;
+                    if(M==0){NPred=44.0; NPredErr=9.0; NData=42;}
+               else if(M==1){NPred= 5.6; NPredErr=1.1; NData= 7;}
+               else if(M==2){NPred= 0.56;NPredErr=0.11;NData= 0;}
+               else         {NPred= 0.02;NPredErr=0.004;NData= 0;}
+
+               double limits[] = {-1, -1, -1, -1, -1, -1};
+               computeSimpleLimits(string("/tmp/combine_")+MODE+".dat", "TkTOF", MODE, NData, NPred, 1.0 + NPredErr/NPred, NSEventsM[M]/NEvents, 1.0 + sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)), 1.32, IntegratedLuminosity8TeV, 1.044, limits);
+
+               fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%  Limits=%E %E %E %E %E %E\n",MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)), limits[0], limits[1], limits[2], limits[3], limits[4], limits[5]);      
        }	
-       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)));      
+
+       double limits[] = {-1, -1, -1, -1, -1, -1};
+       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%  Limits=%E %E %E %E %E %E\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), limits[0], limits[1], limits[2], limits[3], limits[4], limits[5]);      
       fclose(pFile);
 
 

@@ -7,8 +7,11 @@ import sys
 import LaunchOnCondor
 import glob
 
-MassPoints=[100, 126, 156, 200, 247, 308, 370, 432, 494, 557]
-MassCut   =[10, 20, 50, 90, 130, 180, 230, 280, 320, 370]
+StauMassPoints=[100, 126, 156, 200, 247, 308, 370, 432, 494, 557]
+StauMassCut   =[10, 20, 50, 90, 130, 180, 230, 280, 320, 370]
+DYMassPoints=[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+DYMassCut   =[40, 120, 190, 270, 340, 400, 470, 530, 590, 650]
+Energy = ["7TeV", "8TeV"]
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
 if CMSSW_VERSION == 'CMSSW_VERSION':
@@ -26,14 +29,14 @@ elif sys.argv[1]=='0':
         JobName = "HscpBuildEffMaps"
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
-        for m in MassPoints :
+        for m in StauMassPoints :
            LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/GetEfficiencyMaps.C", '"SStau'+str(m)+'"', "1", '"root://eoscms//eos/cms/store/user/querten/ModelIndep/ModelIndep_SingleStau'+str(m)+'.root"'])
 	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
         print 'Merge efficiencies'
         fileList = ''
-        for m in MassPoints :
+        for m in StauMassPoints :
            fileList+=' pictures/Histos_SStau'+str(m)+'.root'        
         os.system('hadd -f pictures/Histos.root' + fileList)
         os.system('root MakePlot.C++ -l -b -q');
@@ -43,9 +46,13 @@ elif sys.argv[1]=='2':
         JobName = "HscpModelIndepAccep"
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
-        for m in MassPoints :
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/MI_PPStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_8TeV_M'+str(m)+'.root"'])
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"pictures/MI_GMStau'+str(m)+'.txt"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_8TeV_M'+str(m)+'.root"'])
+        for E in Energy:           
+           for m in StauMassPoints :
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_PPStau_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_'+E+'_M'+str(m)+'.root"'])
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_GMStau_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_'+E+'_M'+str(m)+'.root"'])
+           for m in DYMassPoints :
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_DY_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/HSCP_'+E+'_M'+str(m)+'_Q1.root"'])
+
         LaunchOnCondor.SendCluster_Submit()
 elif sys.argv[1]=='3':
         print 'Compute acceptance for standard analysis'
@@ -53,11 +60,19 @@ elif sys.argv[1]=='3':
         JobName = "HscpStandardAccep"
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
-        I=0;
-        for m in MassPoints :
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_8TeV_M'+str(m)+'"', '1', str(MassCut[I])])
-           LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_8TeV_M'+str(m)+'"', '1', str(MassCut[I])])
-           I+=1;
+        for E in Energy:
+           I=0;
+           for m in StauMassPoints :
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_'+E+'_M'+str(m)+'"', '1', str(StauMassCut[I])])
+              I+=1;
+           I=0;
+           for m in StauMassPoints :
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_'+E+'_M'+str(m)+'"', '1', str(StauMassCut[I])])
+              I+=1;
+           I=0;
+           for m in DYMassPoints :
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"DY_'+E+'_M'+str(m)+'_Q1"', '1', str(DYMassCut[I])])
+              I+=1;
         LaunchOnCondor.SendCluster_Submit()
 
 else:
