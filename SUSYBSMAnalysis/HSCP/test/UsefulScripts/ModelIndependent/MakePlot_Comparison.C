@@ -312,7 +312,7 @@ void MakePlot_Comparison()
          TGraphErrors* MI_limit = new TGraphErrors(dms_MI.size());   
          TGraphErrors* ST_limit = new TGraphErrors(dms_ST.size());       
          for(unsigned int i=0;i<dms_ST.size();i++){
-            int MassCut = std::min((int(dms_ST[i][0].mass * 0.6)/100), 6);
+            int MassCut = std::min((int(dms_ST[i][0].mass * 0.6)/100), 5);
             printf("MI %f --> %f --> %E \n", dms_MI[i][MassCut].mass, MassCut*100.0, dms_MI[i][MassCut].Limits[5]);
             printf("ST %f --> %f --> %E \n", dms_ST[i][MassCut].mass, MassCut*100.0, dms_ST[i][MassCut].Limits[5]);
             MI_limit->SetPoint(i,  dms_MI[i][MassCut].mass, dms_MI[i][MassCut].Limits[5]);   MI_limit->SetPointError(i, 0, 0);
