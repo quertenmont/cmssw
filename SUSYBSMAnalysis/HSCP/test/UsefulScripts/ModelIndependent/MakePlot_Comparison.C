@@ -132,6 +132,10 @@ void MakePlot_Comparison()
    dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M432.txt", 432.0));
    dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M494.txt", 494.0));
    dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M557.txt", 557.0));
+   dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M651.txt", 651.0));
+   dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M745.txt", 745.0));
+   dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M871.txt", 871.0));
+   dms_PP_ST.push_back(readFromFile("pictures/Std_PPStau_8TeV_M1029.txt",1029.0));
 
    std::vector< std::vector<dataModel> > dms_PP_MI;
    dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M100.txt", 100.0));
@@ -144,6 +148,10 @@ void MakePlot_Comparison()
    dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M432.txt", 432.0));
    dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M494.txt", 494.0));
    dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M557.txt", 557.0));
+   dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M651.txt", 651.0));
+   dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M745.txt", 745.0));
+   dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M871.txt", 871.0));
+   dms_PP_MI.push_back(readFromFile("pictures/MI_PPStau_8TeV_M1029.txt",1029.0));
 
    std::vector< std::vector<dataModel> > dms_GM_ST;
    dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M100.txt", 100.0));
@@ -156,6 +164,10 @@ void MakePlot_Comparison()
    dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M432.txt", 432.0));
    dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M494.txt", 494.0));
    dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M557.txt", 557.0));
+   dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M651.txt", 651.0));
+   dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M745.txt", 745.0));
+   dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M871.txt", 871.0));
+   dms_GM_ST.push_back(readFromFile("pictures/Std_GMStau_8TeV_M1029.txt",1029.0));
 
    std::vector< std::vector<dataModel> > dms_GM_MI;
    dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M100.txt", 100.0));
@@ -168,6 +180,11 @@ void MakePlot_Comparison()
    dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M432.txt", 432.0));
    dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M494.txt", 494.0));
    dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M557.txt", 557.0));
+   dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M651.txt", 651.0));
+   dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M745.txt", 745.0));
+   dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M871.txt", 871.0));
+   dms_GM_MI.push_back(readFromFile("pictures/MI_GMStau_8TeV_M1029.txt",1029.0));
+
 
    std::vector< std::vector<dataModel> > dms_DY_ST;
    dms_DY_ST.push_back(readFromFile("pictures/Std_DY_8TeV_M100_Q1.txt", 100.0));
@@ -207,7 +224,7 @@ void MakePlot_Comparison()
          t1->SetTopMargin(0.06);
 
 
-         TH1D* frame = new TH1D("frame", "frame", 1,0,M<2?600:1100);
+         TH1D* frame = new TH1D("frame", "frame", 1,0,M<2?1100:1100);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
          frame->GetXaxis()->SetTitle(ModelName+" Mass (GeV/#font[12]{c}^{2})");
@@ -257,7 +274,7 @@ void MakePlot_Comparison()
          t2->SetTopMargin(0);
          t2->SetBottomMargin(0.5);
 
-         TH1D* frameR = new TH1D("frameR", "frameR", 1,0,M<2?600:1100);
+         TH1D* frameR = new TH1D("frameR", "frameR", 1,0,M<2?1100:1100);
          frameR->SetTitle("");
          frameR->SetStats(kFALSE);
          frameR->GetYaxis()->SetTitle("MI / STD");
@@ -276,11 +293,11 @@ void MakePlot_Comparison()
          frameR->GetYaxis()->SetNdivisions(505);
          frameR->Draw("AXIS");
 
-         TLine* LineAt10 = new TLine(0,1.0,600,1.0);      LineAt10->SetLineStyle(1);   LineAt10->Draw();
-         TLine* LineAt11 = new TLine(0,1.1,600,1.1);      LineAt11->SetLineStyle(2);   LineAt11->Draw();
-         TLine* LineAt12 = new TLine(0,1.2,600,1.2);      LineAt12->SetLineStyle(2);   LineAt12->Draw();
-         TLine* LineAt09 = new TLine(0,0.9,600,0.9);      LineAt09->SetLineStyle(2);   LineAt09->Draw();
-         TLine* LineAt08 = new TLine(0,0.8,600,0.8);      LineAt08->SetLineStyle(2);   LineAt08->Draw();
+         TLine* LineAt10 = new TLine(0,1.0,1100,1.0);      LineAt10->SetLineStyle(1);   LineAt10->Draw();
+         TLine* LineAt11 = new TLine(0,1.1,1100,1.1);      LineAt11->SetLineStyle(2);   LineAt11->Draw();
+         TLine* LineAt12 = new TLine(0,1.2,1100,1.2);      LineAt12->SetLineStyle(2);   LineAt12->Draw();
+         TLine* LineAt09 = new TLine(0,0.9,1100,0.9);      LineAt09->SetLineStyle(2);   LineAt09->Draw();
+         TLine* LineAt08 = new TLine(0,0.8,1100,0.8);      LineAt08->SetLineStyle(2);   LineAt08->Draw();
          R->Draw("same P2");
 
          c1->cd();
@@ -309,7 +326,7 @@ void MakePlot_Comparison()
          t1->SetTopMargin(0.06);
          t1->SetLogy(true);
 
-         TH1D* frame = new TH1D("frame", "frame", 1,0,600);
+         TH1D* frame = new TH1D("frame", "frame", 1,0,1100);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
          frame->GetXaxis()->SetTitle(ModelName+" Mass (GeV/#font[12]{c}^{2})");
@@ -387,7 +404,7 @@ void MakePlot_Comparison()
          t2->SetTopMargin(0);
          t2->SetBottomMargin(0.5);
 
-         TH1D* frameR = new TH1D("frameR", "frameR", 1,0,600);
+         TH1D* frameR = new TH1D("frameR", "frameR", 1,0,1100);
          frameR->SetTitle("");
          frameR->SetStats(kFALSE);
          frameR->GetYaxis()->SetTitle("MI / STD");
@@ -406,11 +423,11 @@ void MakePlot_Comparison()
          frameR->GetYaxis()->SetNdivisions(505);
          frameR->Draw("AXIS");
 
-         TLine* LineAt10 = new TLine(0,1.0,600,1.0);      LineAt10->SetLineStyle(1);   LineAt10->Draw();
-         TLine* LineAt11 = new TLine(0,1.1,600,1.1);      LineAt11->SetLineStyle(2);   LineAt11->Draw();
-         TLine* LineAt12 = new TLine(0,1.2,600,1.2);      LineAt12->SetLineStyle(2);   LineAt12->Draw();
-         TLine* LineAt09 = new TLine(0,0.9,600,0.9);      LineAt09->SetLineStyle(2);   LineAt09->Draw();
-         TLine* LineAt08 = new TLine(0,0.8,600,0.8);      LineAt08->SetLineStyle(2);   LineAt08->Draw();
+         TLine* LineAt10 = new TLine(0,1.0,1100,1.0);      LineAt10->SetLineStyle(1);   LineAt10->Draw();
+         TLine* LineAt11 = new TLine(0,1.1,1100,1.1);      LineAt11->SetLineStyle(2);   LineAt11->Draw();
+         TLine* LineAt12 = new TLine(0,1.2,1100,1.2);      LineAt12->SetLineStyle(2);   LineAt12->Draw();
+         TLine* LineAt09 = new TLine(0,0.9,1100,0.9);      LineAt09->SetLineStyle(2);   LineAt09->Draw();
+         TLine* LineAt08 = new TLine(0,0.8,1100,0.8);      LineAt08->SetLineStyle(2);   LineAt08->Draw();
          R->Draw("same P2");
 
          c1->cd();
