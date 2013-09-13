@@ -211,10 +211,36 @@ void MakePlot_Comparison()
    dms_DY_MI.push_back(readFromFile("pictures/MI_DY_8TeV_M1000.txt", 1000.0));
 
 
-   for(unsigned int M=0;M<3;M++){
-      TString ModelName = M==0?"PPStau":M==1?"GMStau":"DY";
-      std::vector< std::vector<dataModel> >& dms_ST = M==0?dms_PP_ST:M==1?dms_GM_ST:dms_DY_ST;
-      std::vector< std::vector<dataModel> >& dms_MI = M==0?dms_PP_MI:M==1?dms_GM_MI:dms_DY_MI;
+
+   std::vector< std::vector<dataModel> > dms_pMSSM_ST;
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M100.txt", 100.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M200.txt", 200.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M300.txt", 300.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M400.txt", 400.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M500.txt", 500.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M600.txt", 600.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M700.txt", 700.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M800.txt", 800.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M900.txt", 900.0));
+   dms_pMSSM_ST.push_back(readFromFile("pictures/Std_pMSSM_8TeV_M1000.txt", 1000.0));
+
+   std::vector< std::vector<dataModel> > dms_pMSSM_MI;
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M100.txt", 100.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M200.txt", 200.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M300.txt", 300.0)); 
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M400.txt", 400.0)); 
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M500.txt", 500.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M600.txt", 600.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M700.txt", 700.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M800.txt", 800.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M900.txt", 900.0));
+   dms_pMSSM_MI.push_back(readFromFile("pictures/MI_pMSSM_8TeV_M1000.txt", 1000.0));
+
+
+   for(unsigned int M=0;M<4;M++){
+      TString ModelName = M==0?"PPStau":M==1?"GMStau":M==2?"DY":"pMSSM";
+      std::vector< std::vector<dataModel> >& dms_ST = (M==0)?dms_PP_ST:(M==1)?dms_GM_ST:(M==2)?dms_DY_ST:dms_pMSSM_ST;
+      std::vector< std::vector<dataModel> >& dms_MI = (M==0)?dms_PP_MI:(M==1)?dms_GM_MI:(M==2)?dms_DY_MI:dms_pMSSM_MI;
 
       for(int LevelIndex=-2; LevelIndex<6;LevelIndex++){
          TCanvas* c1 = new TCanvas("c1","c1",600, 600);
@@ -432,6 +458,8 @@ void MakePlot_Comparison()
 
          c1->cd();
          char saveName[256]; sprintf(saveName,"pictures/CompPlot_%s_Limit.png", ModelName.Data());
+         c1->SaveAs(saveName);
+         sprintf(saveName,"pictures/CompPlot_%s_Limit.C", ModelName.Data());
          c1->SaveAs(saveName);
          delete c1; delete frame; delete frameR;
       } 

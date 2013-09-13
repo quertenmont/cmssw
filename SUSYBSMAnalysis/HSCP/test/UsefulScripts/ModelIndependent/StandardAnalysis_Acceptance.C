@@ -297,6 +297,10 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
                                dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, false, useClusterCleaning);
                        }
 
+                       printf("Run=%6i Event=%6i --> %6.2f   %6.2f\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), track->pt(), dedxMObj->dEdx());
+
+
+
                        //check if the candiate pass the preselection cuts
                        if(!PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, NULL, 0)) continue;
                        PSPassed=true;

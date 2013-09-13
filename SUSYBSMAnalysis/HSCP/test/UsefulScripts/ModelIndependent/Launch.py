@@ -49,11 +49,12 @@ elif sys.argv[1]=='2':
         for E in Energy:           
            Suffix=''
            if(E=="7TeV"):Suffix="_BX1";
-           for m in StauMassPoints :
-              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_PPStau_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_'+E+'_M'+str(m)+Suffix+'.root"'])
-              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_GMStau_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_'+E+'_M'+str(m)+Suffix+'.root"'])
+#           for m in StauMassPoints :
+#              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_PPStau_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/PPStau_'+E+'_M'+str(m)+Suffix+'.root"'])
+#              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_GMStau_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/GMStau_'+E+'_M'+str(m)+Suffix+'.root"'])
            for m in DYMassPoints :
-              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_DY_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/HSCP_'+E+'_M'+str(m)+Suffix+'_Q1.root"'])
+#              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_DY_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/HSCP_'+E+'_M'+str(m)+Suffix+'_Q1.root"'])
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/ModelIndependent_Acceptance.C", '"MI_pMSSM_'+E+'_M'+str(m)+'"', '"root://eoscms//eos/cms//store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/pMSSM_'+E+'_ChipmChipm_mChi'+str(m)+Suffix+'.root"'])
 
         LaunchOnCondor.SendCluster_Submit()
 elif sys.argv[1]=='3':
@@ -67,15 +68,19 @@ elif sys.argv[1]=='3':
            if(E=="7TeV"):Suffix="_BX1";
            I=0;
            for m in StauMassPoints :
-              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_'+E+'_M'+str(m)+Suffix+'"', '1', str(StauMassCut[I])])
+  #            LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"PPStau_'+E+'_M'+str(m)+Suffix+'"', '1', str(StauMassCut[I])])
               I+=1;
            I=0;
            for m in StauMassPoints :
-              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_'+E+'_M'+str(m)+Suffix+'"', '1', str(StauMassCut[I])])
+ #             LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"GMStau_'+E+'_M'+str(m)+Suffix+'"', '1', str(StauMassCut[I])])
               I+=1;
            I=0;
            for m in DYMassPoints :
-              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"DY_'+E+'_M'+str(m)+'_Q1'+Suffix+'"', '1', str(DYMassCut[I])])
+#              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"DY_'+E+'_M'+str(m)+'_Q1'+Suffix+'"', '1', str(DYMassCut[I])])
+              I+=1;
+           I=0;
+           for m in DYMassPoints :
+              LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/StandardAnalysis_Acceptance.C", '"pMSSM_'+E+'_M'+str(m)+Suffix+'"', '1', str(DYMassCut[I])])
               I+=1;
         LaunchOnCondor.SendCluster_Submit()
 
