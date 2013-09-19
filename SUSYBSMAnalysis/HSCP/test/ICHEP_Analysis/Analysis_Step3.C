@@ -212,12 +212,6 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    //   for (int CutIndex = 0; CutIndex < CutPt.size(); ++CutIndex)      printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt[CutIndex], CutI[CutIndex],  CutTOF[CutIndex]);
    //   for (int CutIndex = 0; CutIndex < CutPt_Flip.size(); ++CutIndex) printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt_Flip[CutIndex], CutI_Flip[CutIndex],  CutTOF_Flip[CutIndex]);
 
-   //make the directory structure corresponding to this analysis (depends on dEdx/TOF estimator being used, Eta/Pt cuts and Mode of the analysis)
-   char Buffer[2048], Command[2048];
-   //sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
-   sprintf(Buffer,"Results/Type%i/", TypeMode);
-   sprintf(Command,"mkdir -p %s",Buffer); system(Command);
-
    // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
    InitBaseDirectory();
    GetSampleDefinition(samples);
@@ -250,8 +244,10 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    LumiWeightsMCSyst = edm::LumiReWeighting(BgLumiMC, TrueDistSyst);
 
    //create histogram file and run the analyis
-   HistoFile = new TFile((string(Buffer)+"/Histos_"+samples[0].Name+"_"+samples[0].FileName+".root").c_str(),"RECREATE");
-   Analysis_Step3(Buffer);
+   char Filename[2048];
+   sprintf(Filename,"Type%i_", TypeMode);
+   HistoFile = new TFile(string("/tmp/Histos_"+string(Filename)+samples[0].Name+"_"+samples[0].FileName+".root").c_str(),"RECREATE");
+   Analysis_Step3(Filename);
    HistoFile->Write();
    HistoFile->Close();
    return;

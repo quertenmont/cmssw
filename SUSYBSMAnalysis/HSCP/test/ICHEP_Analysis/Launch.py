@@ -6,7 +6,7 @@ import os
 import sys
 import LaunchOnCondor
 import glob
-
+import errno
 
 def skipSamples(type, name):
    if(type==3):
@@ -18,6 +18,12 @@ def skipSamples(type, name):
    
    return False
 
+def makedirs(path):
+   try:
+      os.makedirs(path)
+   except OSError as exception:
+      if exception.errno != errno.EEXIST:
+         raise
 
 #the vector below contains the "TypeMode" of the analyses that should be run
 AnalysesToRun = [0,2,3,4,5]
@@ -50,14 +56,25 @@ elif sys.argv[1]=='0':
         for line in f :
            index+=1
            vals=line.split(',')
-           if((vals[0].replace('"','')) in CMSSW_VERSION):
+           if("CMSSW_5_3" in (vals[0].replace('"',''))):
               for Type in AnalysesToRun:
                  if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue
-                 if  (Type==0):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
-                 elif(Type==2):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
-                 elif(Type==3):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 15, 15])
-                 elif(Type==4):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
-                 elif(Type==5):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                 filename = vals[2].strip()[1:-1] + '_' + vals[3].strip()[1:-1] + '.root'
+                 if  (Type==0):
+                    makedirs("Results/Type0")
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type0_' +filename, "Results/Type0/")], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                 elif(Type==2):
+                    makedirs("Results/Type2")
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type2_' +filename, "Results/Type2/")], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                 elif(Type==3):
+                    makedirs("Results/Type3")
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type3_' +filename, "Results/Type3/")], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 15, 15])
+                 elif(Type==4):
+                    makedirs("Results/Type4")
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type4_' +filename, "Results/Type4/")], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                 elif(Type==5):
+                    makedirs("Results/Type5")
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type5_' +filename, "Results/Type5/")], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
         f.close()
 	LaunchOnCondor.SendCluster_Submit()
 
@@ -134,6 +151,4 @@ elif sys.argv[1]=='5':
         os.system('sh Analysis_Step6.sh')
 else:
 	print 'Unknown case: use an other argument or no argument to get help'
-
-
 
