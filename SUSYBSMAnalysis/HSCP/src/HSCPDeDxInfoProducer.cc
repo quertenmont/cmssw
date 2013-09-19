@@ -215,8 +215,10 @@ void  HSCPDeDxInfoProducer::beginRun(edm::Run & run, const edm::EventSetup& iSet
              MOD->Width     = DetUnit->surface().bounds().width();
              MOD->Length    = DetUnit->surface().bounds().length();
              if(trapezoidalBounds!=NULL){
-                std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
-                for(unsigned int p=0;p<parameters.size();p++)MOD->trapezoParams .push_back(parameters[p]);
+                //std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+                //for(unsigned int p=0;p<parameters.size();p++)MOD->trapezoParams .push_back(parameters[p]);
+		std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
+		for(unsigned int p=0;p<4;p++)MOD->trapezoParams .push_back(parameters[p]); 
              }
              MOD->NAPV      = NAPV;
              MODsColl[MOD->DetId] = MOD;
