@@ -64,7 +64,9 @@ void Analysis_Step4(std::string InputPattern)
    double CosmicVetoInEfficiencyErr = CosmicVetoInEfficiency7TeVErr;
    
 
-   string Input     = InputPattern + "Histos.root";
+   string Input     = "/tmp/" + InputPattern + "_Histos.root";
+   system(("mv Results/" + InputPattern + "/Histos_NoPred.root " + Input).c_str());
+
    TFile* InputFile = new TFile(Input.c_str(), "UPDATE");
    TypeMode = TypeFromPattern(InputPattern);
 
@@ -104,7 +106,6 @@ void Analysis_Step4(std::string InputPattern)
 	  TH1D*  H_F            = (TH1D*)GetObjectFromPath(directory, ("H_F" + Suffix).c_str());
 	  TH1D*  H_G            = (TH1D*)GetObjectFromPath(directory, ("H_G" + Suffix).c_str());
 	  TH1D*  H_H            = (TH1D*)GetObjectFromPath(directory, ("H_H" + Suffix).c_str());
-        
           TH1D*  H_A_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_A_Flip" + Suffix).c_str()) : NULL;
           TH1D*  H_B_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_B_Flip" + Suffix).c_str()) : NULL;
           TH1D*  H_C_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_C_Flip" + Suffix).c_str()) : NULL;
@@ -185,7 +186,7 @@ void Analysis_Step4(std::string InputPattern)
             Version.append(Bin);
             H_P_Binned[i]       = (TH1D*)H_P->Clone(("H_P_Binned" + Version).c_str());
           }
-
+       
       printf("Making prediction for %s\n",directory->GetName());
       //////////////////////////////////////////////////      MAKING THE PREDICTION
       for(unsigned int CutIndex=0;CutIndex<(unsigned int)HCuts_Pt->GetXaxis()->GetNbins();CutIndex++){
@@ -194,7 +195,7 @@ void Analysis_Step4(std::string InputPattern)
          double A=H_A->GetBinContent(CutIndex+1);  double AErr = sqrt(A);
          double B=H_B->GetBinContent(CutIndex+1);  double BErr = sqrt(B);
          double C=H_C->GetBinContent(CutIndex+1);  double CErr = sqrt(C);
-         double D=H_D->GetBinContent(CutIndex+1);  double DErr = sqrt(D);
+         double D=H_D->GetBinContent(CutIndex+1); // double DErr = sqrt(D);
          double E=H_E->GetBinContent(CutIndex+1); // double EErr = sqrt(E);
          double F=H_F->GetBinContent(CutIndex+1); // double FErr = sqrt(F);
          double G=H_G->GetBinContent(CutIndex+1); // double GErr = sqrt(G);
@@ -296,7 +297,7 @@ void Analysis_Step4(std::string InputPattern)
                 Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
               }
 	   }
-
+	 
 	   //Prediction in Pt-TOF plane
            for(int i=0; i<PredBins; i++) {
 	     //Subtract the expected cosmic tracks from each region
@@ -516,9 +517,9 @@ void Analysis_Step4(std::string InputPattern)
 	}
       }
       //directory->Delete("H_P;1");
-
+	
       //////////////////////////////////////////////////     DUMP USEFUL INFORMATION
-      FILE* pFile = fopen((InputPattern+"/Info_"+directory->GetName()+Suffix+".txt").c_str(),"w");
+      FILE* pFile = fopen(("/tmp/" + InputPattern+"_Info_"+directory->GetName()+Suffix+".txt").c_str(),"w");
       for(unsigned int CutIndex=0;CutIndex<(unsigned int)HCuts_Pt->GetXaxis()->GetNbins();CutIndex++){
          const double& A=H_A->GetBinContent(CutIndex+1);
          const double& B=H_B->GetBinContent(CutIndex+1);
@@ -535,4 +536,5 @@ void Analysis_Step4(std::string InputPattern)
 
 	}//end loop on sub directory
       }//End of loop on two predictions
+
 }

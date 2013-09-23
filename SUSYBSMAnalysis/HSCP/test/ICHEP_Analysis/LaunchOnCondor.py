@@ -187,10 +187,10 @@ def AddJobToCmdFile(OutputRemaps):
 			output_files = 'transfer_output_files =  '
 			remaps = 'transfer_output_remaps = "'
 			for OutputRemap in OutputRemaps:
-				remaps += OutputRemap[0] + ' = ' + OutputRemap[1] + OutputRemap[0] + ' ; '
-				output_files += '/tmp/' + OutputRemap[0] + ', '
-                        cmd_file.write(output_files[:-2] + '\n')
-			cmd_file.write(remaps[:-3] + '"\n')
+				remaps += OutputRemap[0] + ' = ' + OutputRemap[1] + ';'
+				output_files += '/tmp/' + OutputRemap[0] + ','
+                        cmd_file.write(output_files[:-1] + '\n')
+			cmd_file.write(remaps[:-1] + '"\n')
 	        cmd_file.write('Executable              = %s\n'     % Path_Shell)
         	cmd_file.write('output                  = %s.out\n' % Path_Log)
 	        cmd_file.write('error                   = %s.err\n' % Path_Log)
