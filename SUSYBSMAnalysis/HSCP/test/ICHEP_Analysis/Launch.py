@@ -28,6 +28,12 @@ def makedirs(path):
 #the vector below contains the "TypeMode" of the analyses that should be run
 AnalysesToRun = [0,2,3,4,5]
 
+def make_excl_dirs():
+   for analysis in AnalysesToRun:
+      makedirs("Results/Type" + str(analysis) + "/EXCLUSION7TeV")
+      makedirs("Results/Type" + str(analysis) + "/EXCLUSION8TeV")
+      makedirs("Results/Type" + str(analysis) + "/EXCLUSIONCOMB")
+
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
 if CMSSW_VERSION == 'CMSSW_VERSION':
   print 'please setup your CMSSW environement'
@@ -123,6 +129,8 @@ elif sys.argv[1]=='4':
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
 
+        make_excl_dirs()
+
         f = open('Analysis_Samples.txt','r')
         for line in f :
            vals=line.split(',')
@@ -130,6 +138,8 @@ elif sys.argv[1]=='4':
            for Type in AnalysesToRun:            
               if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue     
               skip = False
+              TypeStr = "Type"+str(Type)
+              Path = "Results/"+TypeStr+"/"
 
               #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)
               if(vals[2].find("8TeV")>=0):
@@ -141,10 +151,16 @@ elif sys.argv[1]=='4':
                      if(vals2[1]==vals[1] and vals2[2] == key): skip = True;
                   if(skip==True): continue;
                   f2.close()
-              #print vals[2] + "   " + str(skip)
+              print vals[2] + "   " + str(skip)
+              pre_8TeV = vals[2].replace("7TeV", "8TeV").strip().replace('"', '')
+              print pre_8TeV
 
-              Path = "Results/Type"+str(Type)+"/"
-              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
+              Files_8TeV = [pre_8TeV + ".info", pre_8TeV + ".txt", "shape_" + pre_8TeV + ".dat", "shape_" + pre_8TeV + ".log"]
+              #Files_8TeV = ["Gluino_8TeV_M300_f10.info", "Type0_Gluino_8TeV_M300_f10.txt", "shape_Type0_Gluino_8TeV_M300_f10.dat", "shape_Type0_Gluino_M300_f10.log"]
+              Remaps = [(TypeStr + "_" + File, Path + "EXCLUSION8TeV/" + File) for File in Files_8TeV]
+              #Files_Comb = ["Type0_Gluino_M300_f10.txt", "shape_Type0_Gluino_M300_f10.dat", "shape_Type0_Gluino_M300_f10.log"]
+              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", Remaps, '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
+           break
         f.close()
         LaunchOnCondor.SendCluster_Submit()
 
