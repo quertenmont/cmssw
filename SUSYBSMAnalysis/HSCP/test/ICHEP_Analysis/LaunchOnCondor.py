@@ -78,7 +78,7 @@ def CreateTheShellFile(argv):
         Path_Shell = Farm_Directories[1]+Jobs_Index+Jobs_Name+'.sh'
 
 	function_argument='('
-        for i in range(2,len(argv)):
+        for i in range(3,len(argv)):
                 function_argument+="%s" % argv[i]
                 if i != len(argv)-1:
                         function_argument+=', '
@@ -142,8 +142,10 @@ def CreateTheShellFile(argv):
                 shell_file.write('#Program to use is not specified... Guess it is bash command\n')
 		shell_file.write(argv[1] + " %s\n" % function_argument)
 
+
         for i in range(len(Jobs_FinalCmds)):
 		shell_file.write(Jobs_FinalCmds[i]+'\n')
+
 	shell_file.write('mv '+ Jobs_Name+'* '+os.getcwd()+'/'+Farm_Directories[3]+'\n')
 	shell_file.close()
 	os.system("chmod 777 "+Path_Shell)
@@ -171,7 +173,7 @@ def CreateTheCmdFile():
 		cmd_file.write('when_to_transfer_output = ON_EXIT\n')
 	cmd_file.close()
 
-def AddJobToCmdFile():
+def AddJobToCmdFile(OutputRemaps):
         global useLSF
 	global Path_Shell
         global Path_Cmd
@@ -182,12 +184,20 @@ def AddJobToCmdFile():
 		cmd_file.write("bsub -q " + Jobs_Queue + " -J " + Jobs_Name+Jobs_Index + " '" + os.getcwd() + "/"+Path_Shell + " 0 ele'\n")
 	else:
         	cmd_file.write('\n')
+		if len(OutputRemaps) > 0:
+			output_files = 'transfer_output_files =  '
+			remaps = 'transfer_output_remaps = "'
+			for OutputRemap in OutputRemaps:
+				remaps += OutputRemap[0] + ' = ' + OutputRemap[1] + ';'
+				output_files += '/tmp/' + OutputRemap[0] + ','
+                        cmd_file.write(output_files[:-1] + '\n')
+			cmd_file.write(remaps[:-1] + '"\n')
 	        cmd_file.write('Executable              = %s\n'     % Path_Shell)
         	cmd_file.write('output                  = %s.out\n' % Path_Log)
 	        cmd_file.write('error                   = %s.err\n' % Path_Log)
         	cmd_file.write('log                     = %s.log\n' % Path_Log)
 	        cmd_file.write('Queue 1\n')
-        cmd_file.close()
+	cmd_file.close()
 
 def CreateDirectoryStructure(FarmDirectory):
         global Jobs_Name
@@ -235,6 +245,10 @@ def SendCluster_Create(FarmDirectory, JobName):
         CreateDirectoryStructure(FarmDirectory)
         CreateTheCmdFile()
 
+def AddFinalCopy(OutputRemaps):
+        global Jobs_FinalCmds
+	Jobs_FinalCmds.extend(['cp /tmp/' + OutputRemap[0] + ' ' + OutputRemap[1] for OutputRemap in OutputRemaps])
+
 def SendCluster_Push(Argv):
         global Farm_Directories
         global Jobs_Count
@@ -250,9 +264,10 @@ def SendCluster_Push(Argv):
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
 		print "Getting the jobs..."
-	print Argv
+
+        AddFinalCopy(Argv[2])
         CreateTheShellFile(Argv)
-        AddJobToCmdFile()
+        AddJobToCmdFile(Argv[2])
 	Jobs_Count = Jobs_Count+1
 
 def SendCluster_Submit():
