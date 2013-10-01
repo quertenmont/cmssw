@@ -151,16 +151,20 @@ elif sys.argv[1]=='4':
                      if(vals2[1]==vals[1] and vals2[2] == key): skip = True;
                   if(skip==True): continue;
                   f2.close()
-              print vals[2] + "   " + str(skip)
-              pre_8TeV = vals[2].replace("7TeV", "8TeV").strip().replace('"', '')
-              print pre_8TeV
+              #print vals[2] + "   " + str(skip)
+              pre_7TeV = vals[2].strip().replace('"', '')
+              Files_7TeV = [pre_7TeV + ".info", pre_7TeV + ".txt", pre_7TeV + ".dat", pre_7TeV + ".log"]
+              Remaps = [(TypeStr + "_" + File, Path + "EXCLUSION7TeV/" + File) for File in Files_7TeV]
 
-              Files_8TeV = [pre_8TeV + ".info", pre_8TeV + ".txt", "shape_" + pre_8TeV + ".dat", "shape_" + pre_8TeV + ".log"]
-              #Files_8TeV = ["Gluino_8TeV_M300_f10.info", "Type0_Gluino_8TeV_M300_f10.txt", "shape_Type0_Gluino_8TeV_M300_f10.dat", "shape_Type0_Gluino_M300_f10.log"]
-              Remaps = [(TypeStr + "_" + File, Path + "EXCLUSION8TeV/" + File) for File in Files_8TeV]
-              #Files_Comb = ["Type0_Gluino_M300_f10.txt", "shape_Type0_Gluino_M300_f10.dat", "shape_Type0_Gluino_M300_f10.log"]
+              pre_8TeV = pre_7TeV.replace("7TeV", "8TeV")
+              Files_8TeV = [pre_8TeV + ".info", pre_8TeV + ".txt", pre_8TeV + ".dat", pre_8TeV + ".log"]
+              Remaps.extend([(TypeStr + "_" + File, Path + "EXCLUSION8TeV/" + File) for File in Files_8TeV])
+
+              pre_Comb = pre_7TeV.replace("_7TeV", "")
+              Files_Comb = [pre_Comb + ".txt", pre_Comb + ".dat", pre_Comb + ".log"]
+              Remaps.extend([(TypeStr + "_" + File, Path + "EXCLUSIONCOMB/" + File) for File in Files_Comb])
+              
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", Remaps, '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
-           break
         f.close()
         LaunchOnCondor.SendCluster_Submit()
 

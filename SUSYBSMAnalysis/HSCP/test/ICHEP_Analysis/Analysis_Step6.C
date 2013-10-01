@@ -133,6 +133,7 @@ double computeSignificance(string datacard, bool expected, string& signal, strin
 bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH1* MassData, TH1* MassPred, TH1* MassSign, TH1* MassSignP, TH1* MassSignI, TH1* MassSignM, TH1* MassSignT, TH1* MassSignPU);
 bool Combine(string InputPattern, string signal7, string signal8);
 bool useSample(int TypeMode, string sample);
+void CreateFiles(int Type, string signal7, string signal8);
 
 double MinRange = 0;
 double MaxRange = 1999;
@@ -180,7 +181,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
       string signal8TeV = signal; 
       if(signal8TeV.find("_7TeV")!=string::npos) signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
-      cout << "Signal 8 TeV " << signal8TeV << endl;
+      
+      CreateFiles(TypeFromPattern(InputPattern), signal7TeV, signal8TeV);
+
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
       //2011 Limits
       Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"7TeV";
@@ -2132,7 +2135,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    TH1D* H_G           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_G");
    TH1D* H_H           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_H");
    TH1D* H_P           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P");
-   TH1D* H_S           = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TOF");
+   //TH1D* H_S           = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TOF");
    TH2D* MassData      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Mass");
    TH2D* MassPred      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_Mass");
    TH2D* MassSign      = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass" );
@@ -2441,14 +2444,14 @@ double computeSignificance(string datacard, bool expected, string& signal, strin
    double toReturn = -1;
    char strengthStr[255]; sprintf(strengthStr,"--expectSignal=%f",Strength);
    string CodeToExecute = "cd /tmp/;";
-   if(expected)CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 100 " + strengthStr + " " + datacard + " &> shape_" + signal + ".log;";
-   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance                            " + datacard + " &> shape_" + signal + ".log;";
+   if(expected)CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 100 " + strengthStr + " " + datacard + " &> " + signal + ".log;";
+   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance                            " + datacard + " &> " + signal + ".log;";
    CodeToExecute += "cd $OLDPWD;";
    system(CodeToExecute.c_str());   
 
    char line[4096];
-   FILE* sFile = fopen((string("/tmp/shape_")+signal + ".log").c_str(), "r");
-   if(!sFile)std::cout<<"FILE NOT OPEN:"<< (string("/tmp/shape_")+signal + ".log").c_str() << endl;
+   FILE* sFile = fopen((string("/tmp/")+signal + ".log").c_str(), "r");
+   if(!sFile)std::cout<<"FILE NOT OPEN:"<< (string("/tmp/")+signal + ".log").c_str() << endl;
    int LineIndex=0; int GarbageI; double GarbageD;     
    while(fgets(line, 4096, sFile)){LineIndex++;       
      if(!expected && LineIndex==3){sscanf(line,"Significance: %lf",&toReturn);     break;}
@@ -2588,7 +2591,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
 
       //make histo that will contains the shapes for limit
-      string shapeFilePath = "/tmp/shape_"+signal+".root";
+      string shapeFilePath = "/tmp/"+signal+".root";
       TFile* out = new TFile(shapeFilePath.c_str(),"RECREATE");   
       out->cd();
       out->mkdir(CutIndexStr);
@@ -2657,9 +2660,9 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    //build the combine datacard, the same code is used both for cut&count and shape base
    char TypeStr[255]; sprintf(TypeStr,"Type%i_", TypeMode);
    string JobName = TypeStr+signal;
-   string datacardPath = "/tmp/shape_"+JobName+".dat";
+   string datacardPath = "/tmp/"+JobName+".dat";
 
-   makeDataCard(datacardPath,string("shape_")+JobName+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, 1.0+fabs(EffErr/Eff), SignalUnc, Shape);
+   makeDataCard(datacardPath,JobName+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, 1.0+fabs(EffErr/Eff), SignalUnc, Shape);
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    string test = massStr + signal;
@@ -2706,9 +2709,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
       printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
       string CodeToExecute = "cd /tmp/;";
-      CodeToExecute += "combine -M Asymptotic        -n " + JobName + " -m " + massStr + rangeStr + " shape_" + JobName+".dat &> shape_" + JobName + ".log;";   
+      CodeToExecute += "combine -M Asymptotic        -n " + JobName + " -m " + massStr + rangeStr + " " + JobName+".dat &> " + JobName + ".log;";   
       CodeToExecute += "cd $OLDPWD;";
-	//cp /tmp/shape_" + JobName + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -2738,9 +2740,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    
       //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
       CodeToExecute = "cd /tmp/;";
-      CodeToExecute += "combine -M HybridNew -n " + JobName + " -m " + massStr + rangeStr + " shape_" + JobName+".dat > shape_" + JobName + ".log;";
+      CodeToExecute += "combine -M HybridNew -n " + JobName + " -m " + massStr + rangeStr + " " + JobName+".dat > " + JobName + ".log;";
       CodeToExecute += "cd $OLDPWD;";
-      // cp /tmp/shape_" + JobName + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -2779,17 +2780,16 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 	double Point = Down2 + i*Step;
         sprintf(PointStr,"%6.8f",Point);
 	//Don't include mass string here or else it won't work
-	CodeToExecute += "combine shape_" + JobName + ".dat -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + JobName +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> shape_" + JobName + "Exp.log;";
+	CodeToExecute += "combine " + JobName + ".dat -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + JobName +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> " + JobName + "Exp.log;";
       }
 
-      CodeToExecute += "hadd -f higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root higgsCombine"+JobName+".HybridNew.mH120.*.root >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.5 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.16 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.84 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.025 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.975 >> shape_" + JobName + "Exp.log;";
+      CodeToExecute += "hadd -f higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root higgsCombine"+JobName+".HybridNew.mH120.*.root >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.5 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.16 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.84 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.025 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.975 >> " + JobName + "Exp.log;";
       CodeToExecute += "cd $OLDPWD;";
-      //cp /tmp/shape_" + JobName + "Exp.* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -3013,7 +3013,6 @@ bool Combine(string InputPattern, string signal7, string signal8){
    //Get Optimal cut from sample11
    stAllInfo result11 =  stAllInfo("/tmp/"+(TypeStr+signal7)+".txt");
    //Get Optimal cut from sample12
-   cout << "The file is named " + ("/tmp/"+(TypeStr+signal8)+".txt") << endl;
    stAllInfo result12 =  stAllInfo("/tmp/"+(TypeStr+signal8)+".txt");
 
    stAllInfo result = result12;
@@ -3024,24 +3023,20 @@ bool Combine(string InputPattern, string signal7, string signal8){
    FILE* pFileTmp = NULL;
 
    bool is7TeVPresent = true;
-   //pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal7)+".dat").c_str(), "r");
-   pFileTmp = fopen(("/tmp/shape_"+(TypeStr+signal7)+".dat").c_str(), "r");
+   pFileTmp = fopen(("/tmp/"+(TypeStr+signal7)+".dat").c_str(), "r");
    if(!pFileTmp){is7TeVPresent=false;}else{fclose(pFileTmp);}
    if(TypeMode==3) is7TeVPresent=false;
 
    bool is8TeVPresent = true;
-   //pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal8)+".dat").c_str(), "r");
-   pFileTmp = fopen(("/tmp/shape_"+(TypeStr+signal8)+".dat").c_str(), "r");
+   pFileTmp = fopen(("/tmp/"+(TypeStr+signal8)+".dat").c_str(), "r");
    if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
 
 
    string CodeToExecute = "combineCards.py ";
-   if(is7TeVPresent)CodeToExecute+="   " + string("/tmp/shape_")+(TypeStr+signal7)+".dat ";
-   if(is8TeVPresent)CodeToExecute+="   " + string("/tmp/shape_")+(TypeStr+signal8)+".dat ";
-   //if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal7)+".dat ";
-   //if(is8TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal8)+".dat ";
+   if(is7TeVPresent)CodeToExecute+="   " + string("/tmp/")+(TypeStr+signal7)+".dat ";
+   if(is8TeVPresent)CodeToExecute+="   " + string("/tmp/")+(TypeStr+signal8)+".dat ";
 
-   CodeToExecute+=" > /tmp/shape_"+JobName+".dat ";
+   CodeToExecute+=" > /tmp/"+JobName+".dat ";
    system(CodeToExecute.c_str());   
    printf("%s \n",CodeToExecute.c_str());
 
@@ -3057,18 +3052,16 @@ bool Combine(string InputPattern, string signal7, string signal8){
      result.Save("/tmp/"+string(TypeStr)+signal+".txt");
      return true;
    }
-   cout << result12.NSign << endl;
+
    result.LInt  = result11.LInt  + result12.LInt ;
    result.NSign = result11.NSign + result12.NSign;
    result.NData = result11.NData + result12.NData;
    result.NPred = result11.NPred + result12.NPred;
    result.NPredErr = sqrt(pow(result11.NPredErr,2) + pow(result12.NPredErr,2));
-   cout << "DEBUG2" << endl;
+
    //compute combined significance
-   //CodeToExecute = "cp " + outpath+"shape_"+JobName+".dat /tmp/.;";   
-   //system(CodeToExecute.c_str());
-   result.Significance = computeSignificance(string("shape_")+JobName+".dat", false, JobName, massStr, 1.0);
-   printf("Combined Significance = %f (%s)\n", result.Significance, (outpath+"shape_"+JobName+".dat").c_str());
+   result.Significance = computeSignificance(JobName+".dat", false, JobName, massStr, 1.0);
+   printf("Combined Significance = %f (%s)\n", result.Significance, (outpath+""+JobName+".dat").c_str());
 
    double NPred = result.NPred;
    double NSign = result.NSign / 100.0;
@@ -3078,14 +3071,11 @@ bool Combine(string InputPattern, string signal7, string signal8){
       //prepare and run the script that will run the external "combine" tool from the Higgs group
       //If very low background range too small, set limit at 0.001.  Only affects scanning range not final limit
       if(NPred<0.001) NPred=0.001;
-      cout << "NPred " << NPred << " NSign " << NSign << endl;
       char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
       printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
-      //string CodeToExecute = "cp " + outpath+"shape_"+JobName+".dat /tmp/.;";
       CodeToExecute = "cd /tmp/;";
-      CodeToExecute += "combine -M Asymptotic        -n " + JobName + " -m " + massStr + rangeStr + " shape_" + JobName+".dat &> shape_" + JobName + ".log;";   
+      CodeToExecute += "combine -M Asymptotic        -n " + JobName + " -m " + massStr + rangeStr + " " + JobName+".dat &> " + JobName + ".log;";   
       CodeToExecute += "cd $OLDPWD;";
-      //cp /tmp/shape_" + JobName + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -3113,15 +3103,12 @@ bool Combine(string InputPattern, string signal7, string signal8){
       }
       file->Close();
 
-      cout << "DEBUG3" << endl;
       //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
       CodeToExecute = "cd /tmp/;";
-      CodeToExecute += "combine -M HybridNew -n " + JobName + " -m " + massStr + rangeStr + " shape_" + JobName+".dat &> shape_" + JobName + ".log;";
+      CodeToExecute += "combine -M HybridNew -n " + JobName + " -m " + massStr + rangeStr + " " + JobName+".dat &> " + JobName + ".log;";
       CodeToExecute += "cd $OLDPWD;";
-      //cp /tmp/shape_" + JobName + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
-      cout << CodeToExecute << endl;
       system(CodeToExecute.c_str());
-      cout << "DEBUG3.1" << endl;
+
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
       //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
       file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+".HybridNew.mH"+massStr+".root").c_str());
@@ -3145,7 +3132,6 @@ bool Combine(string InputPattern, string signal7, string signal8){
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
-      cout << "DEBUG4" << endl;
       file->Close();
       if(FullExpLimit) {
       //Create grid to find expected limits in Cls
@@ -3157,7 +3143,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
       double Step=(Up2-Down2)/gridPoints;
 
       CodeToExecute = "cd /tmp/;";
-      CodeToExecute += "echo 'Finding Expected Limits' > shape_" + JobName + "Exp.log;";
+      CodeToExecute += "echo 'Finding Expected Limits' > " + JobName + "Exp.log;";
       for (int i=0; i<gridPoints+1; i++) {
 	char Seed[1024];
 	sprintf(Seed,"%i",i);
@@ -3166,17 +3152,16 @@ bool Combine(string InputPattern, string signal7, string signal8){
 	double Point = Down2 + i*Step;
         sprintf(PointStr,"%6.8f",Point);
 	//Don't include mass string here or else it won't work
-	CodeToExecute += "combine shape_" + JobName + ".dat -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + JobName +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> shape_" + JobName + "Exp.log;";
+	CodeToExecute += "combine " + JobName + ".dat -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + JobName +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> " + JobName + "Exp.log;";
       }
       
-      CodeToExecute += "hadd -f higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root higgsCombine"+JobName+".HybridNew.mH120.*.root >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.5 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.16 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.84 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.025 >> shape_" + JobName + "Exp.log;";
-      CodeToExecute += "combine shape_" + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.975 >> shape_" + JobName + "Exp.log;";
+      CodeToExecute += "hadd -f higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root higgsCombine"+JobName+".HybridNew.mH120.*.root >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.5 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.16 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.84 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.025 >> " + JobName + "Exp.log;";
+      CodeToExecute += "combine " + JobName+".dat -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.975 >> " + JobName + "Exp.log;";
       CodeToExecute += "cd $OLDPWD;";
-      //cp /tmp/shape_" + JobName + "Exp.* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -3292,3 +3277,27 @@ string toLatex(double value) {
   return stringReturn;
 }
 
+//Prevent condor from holding jobs because files not present by initializing empty files
+void CreateFiles(int Type, string signal7, string signal8) {
+  string signal = signal7;
+  if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
+  char TypeStr[2048];
+  sprintf(TypeStr,"Type%i_", Type);  
+  system(("touch /tmp/"+(TypeStr + signal7)+".txt").c_str());
+  system(("touch /tmp/"+(TypeStr + signal7)+".info").c_str());
+  system(("touch /tmp/"+(TypeStr + signal7)+".dat").c_str());
+  system(("touch /tmp/"+(TypeStr + signal7)+".log").c_str());
+
+  system(("touch /tmp/"+(TypeStr + signal8)+".txt").c_str());
+  system(("touch /tmp/"+(TypeStr + signal8)+".info").c_str());
+  system(("touch /tmp/"+(TypeStr + signal8)+".dat").c_str());
+  system(("touch /tmp/"+(TypeStr + signal8)+".log").c_str());
+
+  system(("touch /tmp/"+(TypeStr + signal)+".txt").c_str());
+  system(("touch /tmp/"+(TypeStr + signal)+".dat").c_str());
+  system(("touch /tmp/"+(TypeStr + signal)+".log").c_str());
+
+  //system("touch /tmp/" + TypeStr + signal8.c_str() + ".txt");
+  //Type0_Gluino_M300_f10.txt
+  //Type0_Gluino_8TeV_M300_f10.info
+}
