@@ -142,6 +142,7 @@ def CreateTheShellFile(argv):
                 shell_file.write('#Program to use is not specified... Guess it is bash command\n')
 		shell_file.write(argv[1] + " %s\n" % function_argument)
 
+
         for i in range(len(Jobs_FinalCmds)):
 		shell_file.write(Jobs_FinalCmds[i]+'\n')
 
@@ -244,6 +245,10 @@ def SendCluster_Create(FarmDirectory, JobName):
         CreateDirectoryStructure(FarmDirectory)
         CreateTheCmdFile()
 
+def AddFinalCopy(OutputRemaps):
+        global Jobs_FinalCmds
+	Jobs_FinalCmds = ['cp /tmp/' + OutputRemap[0] + ' ' + OutputRemap[1] for OutputRemap in OutputRemaps]
+
 def SendCluster_Push(Argv):
         global Farm_Directories
         global Jobs_Count
@@ -259,7 +264,8 @@ def SendCluster_Push(Argv):
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
 		print "Getting the jobs..."
-	print Argv
+
+        AddFinalCopy(Argv[2])
         CreateTheShellFile(Argv)
         AddJobToCmdFile(Argv[2])
 	Jobs_Count = Jobs_Count+1
