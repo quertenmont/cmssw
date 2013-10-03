@@ -1038,7 +1038,7 @@ bool EventOtherType(const fwlite::ChainEvent& ev, int OtherType) {
     }
 
     if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  OtherType, NULL, -1,   0, 0, 0)){
-      return true
+      return true;
     }
   }
 
@@ -1230,11 +1230,7 @@ void Analysis_Step3(char* SavePath)
 	    //Skip event if preselected by another analysis
 	    if(TypeMode == 3) {
 	      if (EventOtherType(ev, 2)) {
-		cout << "Event preselected by Type 2" << endl;
 		continue;
-	      }
-	      else {
-		cout << "Event not preselected by Type 2" << endl;
 	      }
 	    }
 
