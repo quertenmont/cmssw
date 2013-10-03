@@ -247,7 +247,7 @@ def SendCluster_Create(FarmDirectory, JobName):
 
 def AddFinalCopy(OutputRemaps):
         global Jobs_FinalCmds
-	Jobs_FinalCmds.extend(['cp /tmp/' + OutputRemap[0] + ' ' + OutputRemap[1] for OutputRemap in OutputRemaps])
+	Jobs_FinalCmds = ['cp /tmp/' + OutputRemap[0] + ' ' + OutputRemap[1] for OutputRemap in OutputRemaps]
 
 def SendCluster_Push(Argv):
         global Farm_Directories
