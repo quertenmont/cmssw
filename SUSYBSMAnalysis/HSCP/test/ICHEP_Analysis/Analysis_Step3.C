@@ -970,8 +970,8 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
          }
 }
 
+//Check if event passes preselection for OtherType analysis
 bool EventOtherType(const fwlite::ChainEvent& ev, int OtherType) {
-
   //load all event collection that will be used later on (HSCP COll, dEdx and TOF)
   fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
   hscpCollHandle.getByLabel(ev,"HSCParticleProducer");
@@ -998,8 +998,6 @@ bool EventOtherType(const fwlite::ChainEvent& ev, int OtherType) {
   fwlite::Handle<MuonTimeExtraMap> TOFCSCCollH;
   TOFCSCCollH.getByLabel(ev, "muontiming",TOFcsc_Label.c_str());
   if(!TOFCSCCollH.isValid()){printf("Invalid CSC TOF collection\n");return false;}
-
-  bool toReturn = false;
 
   //loop on HSCP candidates
   for(unsigned int c=0;c<hscpColl.size();c++){
@@ -1040,11 +1038,11 @@ bool EventOtherType(const fwlite::ChainEvent& ev, int OtherType) {
     }
 
     if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  OtherType, NULL, -1,   0, 0, 0)){
-      toReturn = true;
+      return true
     }
   }
 
-  return toReturn;
+  return false;
 }
 
 
