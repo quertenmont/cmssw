@@ -67,21 +67,37 @@ elif sys.argv[1]=='0':
                  filename = vals[2].strip()[1:-1] + '_' + vals[3].strip()[1:-1] + '.root'
                  if  (Type==0):
                     makedirs("Results/Type0")
-                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type0_' +filename, "Results/Type0/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type0_' +filename, "Results/Type0/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0])
                  elif(Type==2):
                     makedirs("Results/Type2")
-                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type2_' +filename, "Results/Type2/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type2_' +filename, "Results/Type2/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2])
                  elif(Type==3):
                     makedirs("Results/Type3")
-                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type3_' +filename, "Results/Type3/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 15, 15])
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type3_' +filename, "Results/Type3/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3])
                  elif(Type==4):
                     makedirs("Results/Type4")
-                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type4_' +filename, "Results/Type4/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type4_' +filename, "Results/Type4/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4])
                  elif(Type==5):
                     makedirs("Results/Type5")
-                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type5_' +filename, "Results/Type5/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type5_' +filename, "Results/Type5/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5])
+
+#                 if  (Type==0):
+#                    makedirs("Results/Type0")
+#                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type0_' +filename, "Results/Type0/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+#                 elif(Type==2):
+#                    makedirs("Results/Type2")
+#                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type2_' +filename, "Results/Type2/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+#                 elif(Type==3):
+#                    makedirs("Results/Type3")
+#                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type3_' +filename, "Results/Type3/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 15, 15])
+#                 elif(Type==4):
+#                    makedirs("Results/Type4")
+#                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type4_' +filename, "Results/Type4/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+#                 elif(Type==5):
+#                    makedirs("Results/Type5")
+#                    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", [('Histos_Type5_' +filename, "Results/Type5/Histos_" + filename)], '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])                    
         f.close()
-	LaunchOnCondor.SendCluster_Submit()
+#	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
         print 'MERGING FILE AND PREDICTING BACKGROUNDS'  
