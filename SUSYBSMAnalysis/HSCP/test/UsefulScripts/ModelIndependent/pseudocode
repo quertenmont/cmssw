@@ -1,0 +1,59 @@
+double fastEstimateOfTheAcceptance(double trueCharginoMass, double trueCharginoLifeTime, inputLHEFile)
+{
+   //compute mass requirement given the true LL mass
+   int MassReq = min((int(trueCharginoMass * 0.6)/100), 3);
+
+   //prepare the output of the function
+   double acceptance = 0;
+
+   //load probability maps
+   TFile* InputFile = new TFile("EXO-13-006-ProbabilityMaps.root");
+   TH3F* Pon = (TH3F*)InputFile->Get("P_On(k)");
+   TH3F* Pof = (TH3F*)InputFile->Get("P_Of("+MassReq+",k)");   
+
+   //Loop on LHE file
+   for event in inputLHEFile: {
+      double LLPart1_Pon = 0;
+      double LLPart2_Pon = 0;
+      double LLPart1_Pof = 0;
+      double LLPart2_Pof = 0;
+      for genParticle in event {
+         if(genParticle is not long-lived)continue;  //only consider LL particles
+         if(genParticle outside acceptance)continue; //don't waste time with lowPt or forward particles
+
+         //Compute the probability that the particle survive till the end of the muon system
+         double x = 11.0;
+         if(fabs(genParticle.eta)<0.3) x = 7.0;
+         if(fabs(genParticle.eta)<0.5) x = 8.0;
+         if(fabs(genParticle.eta)<0.8) x = 9.5;
+         if(fabs(genParticle.eta)<1.1) x = 10.0;            
+         double survProb = exp(- (genParticle.mass*x)/(genParticle.p*trueCharginoLifeTime));
+         
+         //Get particle probability   
+         int BinX = histoTrigger->GetXaxis()->FindBin(genParticle.pt);
+         int BinY = histoTrigger->GetYaxis()->FindBin(genParticle.beta
+         int BinZ = histoTrigger->GetZaxis()->FindBin(fabs(genParticle.eta) );
+
+         if(genParticle is the first LL particle of the event){
+            LLPart1_Pon = Pon->GetBinContent(BinX, BinY, BinZ)  * survProb;
+            LLPart1_Pof = Pof->GetBinContent(BinX, BinY, BinZ);
+         }else{
+            LLPart2_Pon = Pon->GetBinContent(BinX, BinY, BinZ)  * survProb;
+            LLPart2_Pof = Pof->GetBinContent(BinX, BinY, BinZ);
+         }
+      }//end of the loop on genParticles
+ 
+      //Estimate the probability that this event pass the online and offline selection
+      double EventOnProb = LLPart1_Pon + LLPart2_Pon - LLPart1_Pon*LLPart2_Pon;
+      double EventOfProb = LLPart1_Pof + LLPart2_Pof - LLPart1_Pof*LLPart2_Pof;
+
+      //add the probability that the event pass the selection to the acceptance
+      acceptance += EventOnProb * EventOfProb;
+   }//end of the loop on the events
+
+   //normalize the acceptance to the number of events
+   acceptance  /= inputLHEFile.size();
+
+   //all done
+   return acceptance;
+}

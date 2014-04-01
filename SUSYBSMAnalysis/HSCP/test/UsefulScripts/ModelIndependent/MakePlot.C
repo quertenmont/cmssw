@@ -91,27 +91,49 @@ void MakePlot()
 
 //Rebin to accomodate the large number of pT bin
    for(unsigned int i=0;i<histoNames.size();i++){
-      Beta_Map[i]->Rebin3D(4,1,1, "");
+      Beta_Map[i]->Rebin3D(8,1,1, "");
+      Beta_Map[i]->Scale(1.0/8);
    }
 
 
-  int NBins = Beta_Map[0]->GetNbinsX();
-  int NCol = 5;
+  int NBins = std::min(Beta_Map[0]->GetNbinsX(), 12);
+  int NCol = 2;
   int NRow = NBins/NCol + (NBins%NCol==0?0:1);
   printf("Bins = %i NCol=%i NRow=%i\n",NBins, NCol, NRow);
-  TH2F* frame = new TH2F("frame", "frame", 10, 0.0, 1.0, 10, 0.0, 2.1);
+  TH2F* frame = new TH2F("frame", "frame;#beta;|#eta|", 10, 0.0, 1.0, 10, 0.0, 2.1);
 
   for(unsigned int i=0;i<histoNames.size();i++){
-      c1 = new TCanvas("c1","c1",600*NCol,600*NRow);
-      c1->Divide(NCol,NRow);
+      TCanvas* c1 = new TCanvas("c1","c1",600*NCol,600*NRow);
+      TPaveText* T = new TPaveText(0.0, 0.95, 1.0, 1.0);
+      T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
+      T->SetTextSize(41);  //font size
+      T->SetFillColor(0);
+      T->SetTextAlign(22);
+      T->AddText("CMS Preliminary  -  #sqrt{s} = 8 TeV  -  Simulation");
+      T->Draw("same");
 
+      c1->cd(0);
+      TPad* p1 = new TPad("p1", "p1", 0.0, 0.0, 1.0, 0.95); p1->Draw();
+      p1->Divide(NCol,NRow);
       std::vector<TObject*> toBeDeleted;             
       for(int x=1;x<=NBins;x++){
-         (c1->cd(x))->SetLogz(true);
+         (p1->cd(x))->SetLogz(true);
+         (p1->cd(x))->SetRightMargin(0.12);
+
          char Buffer[256]; sprintf(Buffer, "p_{T}=[%i, %i] GeV/c", (int)Beta_Map[i]->GetXaxis()->GetBinLowEdge(x), (int)Beta_Map[i]->GetXaxis()->GetBinUpEdge(x));
          TPaveText* T = new TPaveText(0.2,0.99,0.8,0.94, "NDC");   T->SetFillColor(0); T->SetTextAlign(22); T->AddText(Buffer);
          Beta_Map[i]->GetXaxis()->SetRange(x,x);
          TH2F* proj = (TH2F*)Beta_Map[i]->Project3D((TString(histoNames[i].c_str())+Buffer)+"_zy");
+         proj->GetXaxis()->SetTitle("#beta");
+         proj->GetXaxis()->SetTitleOffset(0.0);
+         proj->GetYaxis()->SetTitle("|#eta|");
+         proj->GetYaxis()->SetTitleOffset(0.0);
+//         if(i==0)proj->GetZaxis()->SetTitle("entries");
+//         if(i==2)proj->GetZaxis()->SetTitle("P^{on}(k)");
+//         if(i>=9){
+//                 sprintf(Buffer, "P^{of}(%i GeV/c^{2}, k)", (i-9)*100);
+//                 proj->GetZaxis()->SetTitle(Buffer);
+//         }
          frame->Draw("Axis");
          proj->Draw("same COLZ text E");
          proj->Rebin2D(2,1);  if(i>0)proj->Scale(1.0/2.0);
@@ -119,13 +141,58 @@ void MakePlot()
          toBeDeleted.push_back(proj);
          toBeDeleted.push_back(T);
       }
-      c1->cd(0);
+      c1->cd();
+
 
       char plotindex[255];sprintf(plotindex,"%02i_",i);
       c1->SaveAs((TString("pictures/")+plotindex)+histoNames[i]+".png");
+      c1->SaveAs((TString("pictures/")+plotindex)+histoNames[i]+".pdf");
+      c1->SaveAs((TString("pictures/")+plotindex)+histoNames[i]+".C");
 //      for(unsigned int d=0;d<toBeDeleted.size();d++){delete toBeDeleted[d];}
       delete c1;
    }
+   InputFile->Close();
+
+
+   //CLEANUP THE ROOT FILE FOR PUBLIC USAGE
+   TFile* InputFileIn  = new TFile("pictures/Histos.root", "READ");
+   TFile* InputFileOut = new TFile("pictures/EXO-13-006-ProbabilityMaps.root", "RECREATE");
+
+   TH3F* histo = NULL;
+
+   histo = (TH3F*)GetObjectFromPath(InputFileIn, "Beta_Gen");
+   histo->SetTitle("Number of single particle event generated");
+   histo->SetName("NGenEvents");
+   histo->Write();
+
+   histo = (TH3F*)GetObjectFromPath(InputFileIn, "Norm_Beta_Triggered");
+   histo->SetTitle("Probability to pass single muon trigger requirements");
+   histo->SetName("P_On(k)");
+   histo->Write();
+
+   histo = (TH3F*)GetObjectFromPath(InputFileIn, "Norm_Beta_SelectedM0");
+   histo->SetTitle("Probability to pass offline requirements with M_{req} = 0 GeV/c^{2}");
+   histo->SetName("P_Off(k,0GeV)");
+   histo->Write();
+
+   histo = (TH3F*)GetObjectFromPath(InputFileIn, "Norm_Beta_SelectedM1");
+   histo->SetTitle("Probability to pass offline requirements with M_{req} = 100 GeV/c^{2}");
+   histo->SetName("P_Off(k,100GeV)");
+   histo->Write();
+
+   histo = (TH3F*)GetObjectFromPath(InputFileIn, "Norm_Beta_SelectedM2");
+   histo->SetTitle("Probability to pass offline requirements with M_{req} = 200 GeV/c^{2}");
+   histo->SetName("P_Off(k,200GeV)");
+   histo->Write();
+
+   histo = (TH3F*)GetObjectFromPath(InputFileIn, "Norm_Beta_SelectedM3");
+   histo->SetTitle("Probability to pass offline requirements with M_{req} = 300 GeV/c^{2}");
+   histo->SetName("P_Off(K,300GeV)");
+   histo->Write();
+
+
+   InputFileOut->Close();
+
 }
 
 

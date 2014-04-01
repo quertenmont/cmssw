@@ -46,7 +46,6 @@ using namespace reweight;
 //the define here is simply need to load FWLITE code from the include
 #define FWLITE
 #include "../../ICHEP_Analysis/Analysis_Step3.C"
-
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
 // check if the event is passing trigger or not --> note that the function has two part (one for 2011 analysis and the other one for 2012)
@@ -67,6 +66,14 @@ void computeSimpleLimits(string outpath, string ChannelName, string SignalName, 
    double NSign = SignEff*Lumi;
    double Scale = 1.0;
    while(NSign>100){NSign/=10.0; Scale*=10.0;}
+
+//    double SF = 1.0;
+//         if(Pred==44.0 ){SF = 0.95; } // SF = Hybrid/Asymptotic  M>0
+//    else if(Pred== 5.6 ){SF = 1.07; } // SF = Hybrid/Asymptotic  M>100
+//    else if(Pred== 0.56){SF = 1.38; } // SF = Hybrid/Asymptotic  M>200
+//    else if(Pred== 0.02){SF = 2.00; } // SF = Hybrid/Asymptotic  M>300
+//    else{printf("ERROR SF CANNOT BE COMPUTED.... YOU SHOULD USE FULL HYBRID LIMITS\n");}
+
 
    FILE* pFile = fopen(outpath.c_str(), "w");
    fprintf(pFile, "imax 1\n");
@@ -97,7 +104,9 @@ void computeSimpleLimits(string outpath, string ChannelName, string SignalName, 
    string CodeToExecute = "cd /tmp/;";
    CodeToExecute += "combine -M Asymptotic        -n " + JobName + " -m " + massStr + rangeStr + " " + outpath + " &> " + outpath + ".log;";
 
+   printf("Execute %s\n", CodeToExecute.c_str());fflush(stdout);
    system(CodeToExecute.c_str());
+   printf("Done\n");
 
    //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
    //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
@@ -123,7 +132,170 @@ void computeSimpleLimits(string outpath, string ChannelName, string SignalName, 
      }
    }
    file->Close();
+
+   return;
+
+/*
+   sprintf(rangeStr," ");//--rMax 1E20 ");
+
+   printf("RunCLS for observedLimit\n");fflush(stdout);
+   double FullHybridSF = limits[5];
+
+      //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
+      CodeToExecute = "cd /tmp/;";
+      CodeToExecute += "combine -M HybridNew -n " + JobName + " -m " + massStr + rangeStr + " " + outpath + ";";
+//      CodeToExecute += "cd $OLDPWD; cp /tmp/shape_" + JobName + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
+      system(CodeToExecute.c_str());
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+".HybridNew.mH"+massStr+".root").c_str());
+      if(!file || file->IsZombie())return;
+      tree = (TTree*)file->Get("limit");
+      if(!tree)return;
+      tree->GetBranch("mh"              )->SetAddress(&Tmass    );
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("limitErr"        )->SetAddress(&TlimitErr);
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==-1    ){ limits[5] = Tlimit/Scale;
+        }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      printf("Done\n");fflush(stdout);
+
+      FullHybridSF = limits[5]/FullHybridSF;
+      limits[0] *= FullHybridSF;
+      limits[1] *= FullHybridSF;
+      limits[2] *= FullHybridSF;
+      limits[3] *= FullHybridSF;
+      limits[4] *= FullHybridSF;
+
+      //uncomment to return before computing the full hybrid limits
+      return;
+
+      //Create grid to find expected limits in Cls
+      //Number of different signal strengths to try
+      int gridPoints=30;
+      //Normalize to 10/fb
+      double Down2 = 0.5*limits[0]*Scale;
+      double Up2 = 1.3*limits[4]*Scale;
+      double Step=(Up2-Down2)/gridPoints;
+
+      CodeToExecute = "cd /tmp/;";
+      for (int i=0; i<gridPoints+1; i++) {
+        printf("RunCLS for expectedLimit %i/%i\n", i, gridPoints);fflush(stdout);
+
+	char Seed[1024];
+	sprintf(Seed,"%i",i);
+        char PointStr[1024];
+
+	double Point = Down2 + i*Step;
+        sprintf(PointStr,"%6.8f",Point);
+	//Don't include mass string here or else it won't work
+//	CodeToExecute += "combine " + outpath + " -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + JobName +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> " + outpath + "Exp.log;";
+      CodeToExecute += "combine " + outpath + " -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + JobName +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 " + rangeStr + " --singlePoint " + PointStr + ";";// >> " + outpath + "Exp.log;";
+      }
+
+      CodeToExecute += "hadd -f higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root higgsCombine"+JobName+".HybridNew.mH120.*.root >> shape_" + JobName + "Exp.log;";
+      CodeToExecute += "combine " + outpath + " -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.5 >>  " + outpath + "Exp.log;";
+      CodeToExecute += "combine " + outpath + " -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.16 >>  " + outpath +  "Exp.log;";
+      CodeToExecute += "combine " + outpath + " -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.84 >>  " + outpath +  "Exp.log;";
+      CodeToExecute += "combine " + outpath + " -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.025 >>  " + outpath +  "Exp.log;";
+      CodeToExecute += "combine " + outpath + " -M HybridNew --grid=higgsCombine"+JobName+".HybridNew.mH"+massStr+"grid.root -n " + JobName + "Expected --expectedFromGrid 0.975 >>  " + outpath +  "Exp.log;";
+//      CodeToExecute += "cd $OLDPWD; cp /tmp/shape_" + JobName + "Exp.* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
+
+      printf("RunCLS for expectedLimit execute\n");fflush(stdout);
+      system(CodeToExecute.c_str());
+      printf("Done\n");fflush(stdout);
+
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.500.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.500.root").c_str()); return;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.500f){ limits[2] = Tlimit/Scale;;
+        }else{printf("Quantil %f should be 0.5 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+      
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.160.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.160.root").c_str()); return;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.160f){ limits[1] = Tlimit/Scale;
+        }else{printf("Quantil %f should be 0.16 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.840.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.840.root").c_str()); return;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.840f){ limits[3] = Tlimit/Scale;
+        }else{printf("Quantil %f should be 0.84 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.025.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.025.root").c_str()); return;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.025f){ limits[0] = Tlimit/Scale;
+        }else{printf("Quantil %f should be 0.025 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.975.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+JobName+"Expected.HybridNew.mH120.quant0.975.root").c_str()); return;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.975f){ limits[4] = Tlimit/Scale;
+        }else{printf("Quantil %f should be 0.975 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+*/
 }
+
 
 void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double paperMassCut=0)
 {
@@ -297,7 +469,7 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
                                dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, false, useClusterCleaning);
                        }
 
-                       printf("Run=%6i Event=%6i --> %6.2f   %6.2f\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), track->pt(), dedxMObj->dEdx());
+//                       printf("Run=%6i Event=%6i --> %6.2f   %6.2f\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), track->pt(), dedxMObj->dEdx());
 
 
 
@@ -326,7 +498,7 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
 
        system("mkdir -p pictures");
        string outputname ="pictures/Std_"+samples[s].Name+".txt";
-       FILE* pFile = fopen(outputname.c_str(), "w");
+       char OutTxt[20000]; sprintf(OutTxt,"");
        printf("%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Offline=%6.2f%%+-%6.2f%%\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)));      
        for(unsigned int M=0;M<6;M++){
 
@@ -337,13 +509,17 @@ void StandardAnalysis_Acceptance(string MODE="COMPILE", int TypeMode_=0, double 
                else         {NPred= 0.02;NPredErr=0.004;NData= 0;}
 
                double limits[] = {-1, -1, -1, -1, -1, -1};
+               printf("Compute the limits for M=%i\n", M);fflush(stdout);
                computeSimpleLimits(string("/tmp/combine_")+MODE+".dat", "TkTOF", MODE, NData, NPred, 1.0 + NPredErr/NPred, NSEventsM[M]/NEvents, 1.0 + sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)), 1.32, IntegratedLuminosity8TeV, 1.044, limits);
 
-               fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%  Limits=%E %E %E %E %E %E\n",MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)), limits[0], limits[1], limits[2], limits[3], limits[4], limits[5]);      
+               sprintf(OutTxt, "%s%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%  Limits=%E %E %E %E %E %E\n",OutTxt, MODE.c_str(), M*100.0, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEventsM[M]/NEvents, 100.0*sqrt(pow(sqrt(NSEventsMErr[M])/NEvents,2)+pow(NSEventsM[M]*sqrt(NEventsErr)/pow(NEvents,2),2)), limits[0], limits[1], limits[2], limits[3], limits[4], limits[5]);      
        }	
 
        double limits[] = {-1, -1, -1, -1, -1, -1};
-       fprintf(pFile, "%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%  Limits=%E %E %E %E %E %E\n",MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), limits[0], limits[1], limits[2], limits[3], limits[4], limits[5]);      
+       sprintf(OutTxt, "%s%30s M>%3.0f Efficiencies: Trigger=%6.2f%%+-%6.2f%%  Presel=%6.2f%%+-%6.2f%% Offline=%6.2f%%+-%6.2f%%  Limits=%E %E %E %E %E %E\n",OutTxt, MODE.c_str(), paperMassCut, 100.0*NTEvents/NEvents, 100.0*sqrt(pow(sqrt(NTEventsErr)/NEvents,2)+pow(NTEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NPSEvents/NEvents, 100.0*sqrt(pow(sqrt(NPSEventsErr)/NEvents,2)+pow(NPSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), 100.0*NSEvents/NEvents, 100.0*sqrt(pow(sqrt(NSEventsErr)/NEvents,2)+pow(NSEvents*sqrt(NEventsErr)/pow(NEvents,2),2)), limits[0], limits[1], limits[2], limits[3], limits[4], limits[5]);      
+
+       FILE* pFile = fopen(outputname.c_str(), "w");
+      fprintf(pFile, "%s", OutTxt);
       fclose(pFile);
 
 
