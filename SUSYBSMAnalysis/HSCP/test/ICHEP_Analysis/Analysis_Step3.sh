@@ -12,7 +12,6 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
-  gSystem->Load("libDataFormatsTrackerRecHit2D.so");
- .x DumpInfo.C++("Results/Type4/", 263,-1);
+  .x Analysis_Step3.C++("ANALYSE_140_to_140", 1, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 50.0, 1.5);
 EOF
 
