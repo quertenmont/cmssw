@@ -4,7 +4,8 @@ import urllib
 import string
 import os
 import sys
-import LaunchOnCondor
+import SUSYBSMAnalysis.HSCP.LaunchOnCondor as LaunchOnCondor 
+
 
 FarmDirectory = "MERGE"
 
