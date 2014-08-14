@@ -1,18 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-#Sets whether in CMSSW 4_2 or 5
-from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
-
 ####################################################################################
 #   BEAMSPOT + TRAJECTORY BUILDERS
 ####################################################################################
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
-
-
-
-
 
 ####################################################################################
 #   DEDX ESTIMATORS 
@@ -179,24 +172,8 @@ from TrackingTools.TrackAssociator.default_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
-#remove to avoid geometry loader conflict --> geometry should be loaded from the main cfg
-#from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-#from Geometry.CaloEventSetup.CaloGeometry_cff import *
-#from Geometry.CaloEventSetup.CaloTopology_cfi import *
-#from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
-#from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-#from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
-#from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
-#from Geometry.DTGeometry.dtGeometry_cfi import *
-#from Geometry.RPCGeometry.rpcGeometry_cfi import *
-#from Geometry.CSCGeometry.cscGeometry_cfi import *
-#from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-
 
 from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
-
-
-
 HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    TrackAssociatorParameterBlock, #Needed for ECAL/Track Matching
 
@@ -245,27 +222,14 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
 
 from RecoMuon.Configuration.RecoMuon_cff import *
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
-
-if CMSSW4_2 or CMSSW4_4:
-    refittedStandAloneMuons = standAloneMuons.clone()
-    refittedStandAloneMuons.STATrajBuilderParameters.DoRefit=True
-
 MTancientMuonSeed = ancientMuonSeed.clone()
 MTancientMuonSeed.DTRecSegmentLabel = "dt4DSegmentsMT"
 MTSAMuons = standAloneMuons.clone()
 MTSAMuons.InputObjects="MTancientMuonSeed"
 RefitMTSAMuons=MTSAMuons.clone()
 RefitMTSAMuons.STATrajBuilderParameters.DoRefit=True
-
-if CMSSW4_4:
-   from RecoMuon.MuonIdentification.muons1stStep_cfi import *
-   MTMuons = muons1stStep.clone()
-elif CMSSW4_2:
-   from RecoMuon.MuonIdentification.muons_cfi import *
-   MTMuons = muons.clone()
-else:
-   from RecoMuon.MuonIdentification.muons1stStep_cfi import * 
-   MTMuons = muons1stStep.clone()
+from RecoMuon.MuonIdentification.muons1stStep_cfi import * 
+MTMuons = muons1stStep.clone()
 
 MTMuons.inputCollectionTypes = cms.vstring('outer tracks')
 #MTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("MTSAMuons",""))
@@ -303,6 +267,7 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2 + dedxHitInfo + dt4DSegmentsMT + muontiming + MuonOnlySeq + HSCParticleProducer)
+#HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2 + dedxHitInfo + dt4DSegmentsMT + muontiming + MuonOnlySeq + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2  + dt4DSegmentsMT + muontiming + MuonOnlySeq + HSCParticleProducer)
 
 

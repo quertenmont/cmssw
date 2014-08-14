@@ -148,10 +148,7 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }}
 
   // compute the ECAL contribution
-//  auto_ptr<ValueMap<HSCPCaloInfo> > CaloInfoMap(new ValueMap<HSCPCaloInfo> );
-//  ValueMap<HSCPCaloInfo>::Filler    filler(*CaloInfoMap);
-//  std::vector<HSCPCaloInfo> CaloInfoColl(hscp->size());
-   if(useBetaFromEcal){
+  if(useBetaFromEcal){
   int Index=0;
   caloInfoColl->resize(hscp->size());
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate, Index++) {

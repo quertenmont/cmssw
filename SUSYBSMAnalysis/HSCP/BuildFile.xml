@@ -39,6 +39,4 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="hepmc"/>
-<export>
-  <lib name="1"/>
-</export>
+<flags   EDM_PLUGIN="1"/>
