@@ -155,7 +155,7 @@ void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit, float trackM
           hscpDeDxInfo.detIds.push_back(thit.geographicalId());
           hscpDeDxInfo.localPosXs.push_back(HitLocalPos.x());
           hscpDeDxInfo.localPosYs.push_back(HitLocalPos.y());
-          hscpDeDxInfo.clusterIndices.push_back(0);
+          hscpDeDxInfo.clusterIndices.push_back(clus.key());
        }else if(clus.isStrip() && !thit.isMatched()){
           if(!useStrip) return;
 
@@ -168,7 +168,7 @@ void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit, float trackM
           hscpDeDxInfo.detIds.push_back(thit.geographicalId());
           hscpDeDxInfo.localPosXs.push_back(HitLocalPos.x());
           hscpDeDxInfo.localPosYs.push_back(HitLocalPos.y());
-          hscpDeDxInfo.clusterIndices.push_back(0);
+          hscpDeDxInfo.clusterIndices.push_back(clus.key());
        }else if(clus.isStrip() && thit.isMatched()){
           if(!useStrip) return;
           const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
@@ -183,7 +183,8 @@ void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit, float trackM
           hscpDeDxInfo.detIds.push_back(thit.geographicalId());
           hscpDeDxInfo.localPosXs.push_back(HitLocalPos.x());
           hscpDeDxInfo.localPosYs.push_back(HitLocalPos.y());
-          hscpDeDxInfo.clusterIndices.push_back(0);
+          const OmniClusterRef monoClusterRef = matchedHit->monoClusterRef();
+          hscpDeDxInfo.clusterIndices.push_back(monoClusterRef.key());
 
           auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
           NSaturating = 0;
@@ -194,7 +195,8 @@ void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit, float trackM
           hscpDeDxInfo.detIds.push_back(thit.geographicalId());
           hscpDeDxInfo.localPosXs.push_back(HitLocalPos.x());
           hscpDeDxInfo.localPosYs.push_back(HitLocalPos.y());
-          hscpDeDxInfo.clusterIndices.push_back(0);
+          const OmniClusterRef stereoClusterRef = matchedHit->stereoClusterRef();
+          hscpDeDxInfo.clusterIndices.push_back(stereoClusterRef.key());
        }
 }
 
