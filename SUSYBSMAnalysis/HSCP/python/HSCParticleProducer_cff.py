@@ -268,6 +268,7 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 ####################################################################################
 
 #HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2 + dedxHitInfo + dt4DSegmentsMT + muontiming + MuonOnlySeq + HSCParticleProducer)
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2  + dt4DSegmentsMT + muontiming + MuonOnlySeq + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter  + dedxHitInfo + dt4DSegmentsMT + muontiming + MuonOnlySeq)
+#HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter  + dedxHarm2 + dt4DSegmentsMT + muontiming + MuonOnlySeq)
 
 

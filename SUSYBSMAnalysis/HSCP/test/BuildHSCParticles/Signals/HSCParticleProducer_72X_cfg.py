@@ -22,7 +22,7 @@ process.source = cms.Source("PoolSource",
 process.source.duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 
 for i in range(0,25):
-   process.source.fileNames.extend(["file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_%04i.root" % i])
+   process.source.fileNames.extend(["file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_X_2014-08-06-0200/src/SUSYBSMAnalysis/HSCP/test/BuildHSCParticles/Signals/../../../../../SampleProd/FARM_RECO/outputs/gluino1TeV_RECO_%04i.root" % i])
 
 process.GlobalTag.globaltag = 'START72_V1::All'
 
@@ -36,8 +36,7 @@ process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
 process.HSCPTrigger = process.hltHighLevel.clone()
-#process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
-process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "RECO" )
+process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
 process.HSCPTrigger.HLTPaths = ["*"] #not apply any trigger filter for MC
 process.HSCPTrigger.andOr = cms.bool( True ) #OR
 process.HSCPTrigger.throw = cms.bool( False )
