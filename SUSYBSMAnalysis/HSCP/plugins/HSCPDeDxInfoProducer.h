@@ -1,5 +1,5 @@
-#ifndef TrackRecoDeDx_DeDxEstimatorProducer_H
-#define TrackRecoDeDx_DeDxEstimatorProducer_H
+#ifndef TrackRecoDeDx_HSCPDeDxInfoProducer_H
+#define TrackRecoDeDx_HSCPDeDxInfoProducer_H
 // user include files
 
 #include <memory>
@@ -21,42 +21,28 @@
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-
-#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/ProductDeDxDiscriminator.h"
-#include "RecoTracker/DeDx/interface/SmirnovDeDxDiscriminator.h"
-#include "RecoTracker/DeDx/interface/ASmirnovDeDxDiscriminator.h"
-#include "RecoTracker/DeDx/interface/BTagLikeDeDxDiscriminator.h"
-
-
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
-
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
 
 //
 // class declaration
 //
 
-class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
+class HSCPDeDxInfoProducer : public edm::stream::EDProducer<> {
 public:
-  explicit DeDxEstimatorProducer(const edm::ParameterSet&);
-  ~DeDxEstimatorProducer();
+  explicit HSCPDeDxInfoProducer(const edm::ParameterSet&);
+  ~HSCPDeDxInfoProducer();
 
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
-  void   processHit(const TrackingRecHit * recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
+  void   processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, susybsm::HSCPDeDxInfo& hscpDeDxInfo,  LocalPoint HitLocalPos);
 
   // ----------member data ---------------------------
-  BaseDeDxEstimator*                m_estimator;
 
   edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
@@ -81,6 +67,10 @@ private:
 
   std::vector< std::vector<float> > calibGains; 
   unsigned int m_off;
+
+  std::string       Reccord;
+  std::string       ProbabilityMode;
+  TH3F*             Prob_ChargePath;
 };
 
 #endif
