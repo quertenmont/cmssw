@@ -1,0 +1,297 @@
+13-Aug-2014 15:05:15 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0000.root
+13-Aug-2014 15:05:19 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0000.root
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 13-Aug-2014 15:06:00.862 CEST
+%MSG-w SiStripQuality:  MeasurementTrackerEventProducer:MeasurementTrackerEvent  13-Aug-2014 15:06:01 CEST Run: 1 Event: 1
+The cabling should always include the active feds in runInfo and possibly have some morethere are instead 59 feds only active in runInfo
+%MSG
+13-Aug-2014 15:06:21 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0000.root
+13-Aug-2014 15:06:21 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0001.root
+13-Aug-2014 15:06:21 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0001.root
+13-Aug-2014 15:06:27 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0001.root
+13-Aug-2014 15:06:27 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0002.root
+13-Aug-2014 15:06:27 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0002.root
+13-Aug-2014 15:06:34 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0002.root
+13-Aug-2014 15:06:34 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0003.root
+13-Aug-2014 15:06:34 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0003.root
+13-Aug-2014 15:06:40 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0003.root
+13-Aug-2014 15:06:40 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0004.root
+13-Aug-2014 15:06:40 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0004.root
+13-Aug-2014 15:06:46 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0004.root
+13-Aug-2014 15:06:46 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0005.root
+13-Aug-2014 15:06:46 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0005.root
+13-Aug-2014 15:06:53 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0005.root
+13-Aug-2014 15:06:53 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0006.root
+13-Aug-2014 15:06:53 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0006.root
+13-Aug-2014 15:07:00 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0006.root
+13-Aug-2014 15:07:00 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0007.root
+13-Aug-2014 15:07:00 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0007.root
+13-Aug-2014 15:07:07 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0007.root
+13-Aug-2014 15:07:07 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0008.root
+13-Aug-2014 15:07:07 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0008.root
+13-Aug-2014 15:07:13 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0008.root
+13-Aug-2014 15:07:13 CEST  Initiating request to open file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0009.root
+13-Aug-2014 15:07:13 CEST  Successfully opened file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0009.root
+13-Aug-2014 15:07:20 CEST  Closed file file:/afs/cern.ch/user/q/querten/workspace/public/14_08_12_Run2HSCP/CMSSW_7_2_0_pre3/src/SampleProd/FARM_Reco/outputs/gluino1TeV_RECO_0009.root
+
+TrigReport ---------- Event  Summary ------------
+TrigReport Events total = 250 passed = 243 failed = 7
+
+TrigReport ---------- Path   Summary ------------
+TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
+TrigReport     1    0        250        243          7          0 p1
+
+TrigReport -------End-Path   Summary ------------
+TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
+TrigReport     0    0        250        250          0          0 endPath1
+
+TrigReport ---------- Modules in Path: p1 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0        250        250          0          0 nEventsBefSkim
+TrigReport     1    1        250        250          0          0 allGenParticles
+TrigReport     1    2        250        250          0          0 genParticles
+TrigReport     1    3        250        250          0          0 HSCPTrigger
+TrigReport     1    4        250        250          0          0 generalTracksSkim
+TrigReport     1    5        250        250          0          0 offlineBeamSpot
+TrigReport     1    6        250        250          0          0 MeasurementTrackerEvent
+TrigReport     1    7        250        250          0          0 TrackRefitterSkim
+TrigReport     1    8        250        250          0          0 dedxSkimNPHarm2
+TrigReport     1    9        250        243          7          0 DedxFilter
+TrigReport     1   10        243        243          0          0 HSCPSkimMuonEcalDetIds
+TrigReport     1   11        243        243          0          0 highPtTrackEcalDetIds
+TrigReport     1   12        243        243          0          0 reducedHSCPEcalRecHitsEB
+TrigReport     1   13        243        243          0          0 reducedHSCPEcalRecHitsEE
+TrigReport     1   14        243        243          0          0 reducedHSCPhbhereco
+TrigReport     1   15        243        243          0          0 muonsSkim
+TrigReport     1   16        243        243          0          0 HSCPIsolation01
+TrigReport     1   17        243        243          0          0 HSCPIsolation03
+TrigReport     1   18        243        243          0          0 HSCPIsolation05
+TrigReport     1   19        243        243          0          0 ak5PFJetsPt15
+TrigReport     1   20        243        243          0          0 nEventsBefEDM
+TrigReport     1   21        243        243          0          0 offlineBeamSpot
+TrigReport     1   22        243        243          0          0 TrackRefitter
+TrigReport     1   23        243        243          0          0 dedxHarm2
+TrigReport     1   24        243        243          0          0 dedxTru40
+TrigReport     1   25        243        243          0          0 dedxNPHarm2
+TrigReport     1   26        243        243          0          0 dedxNPTru40
+TrigReport     1   27        243        243          0          0 dedxNSHarm2
+TrigReport     1   28        243        243          0          0 dedxNSTru40
+TrigReport     1   29        243        243          0          0 dedxProd
+TrigReport     1   30        243        243          0          0 dedxASmi
+TrigReport     1   31        243        243          0          0 dedxNPProd
+TrigReport     1   32        243        243          0          0 dedxNPASmi
+TrigReport     1   33        243        243          0          0 dedxNSTHarm2
+TrigReport     1   34        243        243          0          0 dt4DSegmentsMT
+TrigReport     1   35        243        243          0          0 muontiming
+TrigReport     1   36        243        243          0          0 ancientMuonSeed
+TrigReport     1   37        243        243          0          0 MTancientMuonSeed
+TrigReport     1   38        243        243          0          0 MTSAMuons
+TrigReport     1   39        243        243          0          0 RefitMTSAMuons
+TrigReport     1   40        243        243          0          0 MTMuons
+TrigReport     1   41        243        243          0          0 MuonSegmentProducer
+TrigReport     1   42        243        243          0          0 MTmuontiming
+TrigReport     1   43        243        243          0          0 refittedStandAloneMuons
+TrigReport     1   44        243        243          0          0 HSCParticleProducer
+
+TrigReport ------ Modules in End-Path: endPath1 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     0    0        250        250          0          0 Out
+
+TrigReport ---------- Module Summary ------------
+TrigReport    Visited        Run     Passed     Failed      Error Name
+TrigReport        250        250        250          0          0 nEventsBefSkim
+TrigReport        250        250        250          0          0 allGenParticles
+TrigReport        250        250        250          0          0 genParticles
+TrigReport        250        250        250          0          0 HSCPTrigger
+TrigReport        250        250        250          0          0 generalTracksSkim
+TrigReport        493        250        250          0          0 offlineBeamSpot
+TrigReport        250        250        250          0          0 MeasurementTrackerEvent
+TrigReport        250        250        250          0          0 TrackRefitterSkim
+TrigReport        250        250        250          0          0 dedxSkimNPHarm2
+TrigReport        250        250        243          7          0 DedxFilter
+TrigReport        243        243        243          0          0 HSCPSkimMuonEcalDetIds
+TrigReport        243        243        243          0          0 highPtTrackEcalDetIds
+TrigReport        243        243        243          0          0 reducedHSCPEcalRecHitsEB
+TrigReport        243        243        243          0          0 reducedHSCPEcalRecHitsEE
+TrigReport        243        243        243          0          0 reducedHSCPhbhereco
+TrigReport        243        243        243          0          0 muonsSkim
+TrigReport        243        243        243          0          0 HSCPIsolation01
+TrigReport        243        243        243          0          0 HSCPIsolation03
+TrigReport        243        243        243          0          0 HSCPIsolation05
+TrigReport        243        243        243          0          0 ak5PFJetsPt15
+TrigReport        243        243        243          0          0 nEventsBefEDM
+TrigReport        243        243        243          0          0 TrackRefitter
+TrigReport        243        243        243          0          0 dedxHarm2
+TrigReport        243        243        243          0          0 dedxTru40
+TrigReport        243        243        243          0          0 dedxNPHarm2
+TrigReport        243        243        243          0          0 dedxNPTru40
+TrigReport        243        243        243          0          0 dedxNSHarm2
+TrigReport        243        243        243          0          0 dedxNSTru40
+TrigReport        243        243        243          0          0 dedxProd
+TrigReport        243        243        243          0          0 dedxASmi
+TrigReport        243        243        243          0          0 dedxNPProd
+TrigReport        243        243        243          0          0 dedxNPASmi
+TrigReport        243        243        243          0          0 dedxNSTHarm2
+TrigReport        243        243        243          0          0 dt4DSegmentsMT
+TrigReport        243        243        243          0          0 muontiming
+TrigReport        243        243        243          0          0 ancientMuonSeed
+TrigReport        243        243        243          0          0 MTancientMuonSeed
+TrigReport        243        243        243          0          0 MTSAMuons
+TrigReport        243        243        243          0          0 RefitMTSAMuons
+TrigReport        243        243        243          0          0 MTMuons
+TrigReport        243        243        243          0          0 MuonSegmentProducer
+TrigReport        243        243        243          0          0 MTmuontiming
+TrigReport        243        243        243          0          0 refittedStandAloneMuons
+TrigReport        243        243        243          0          0 HSCParticleProducer
+TrigReport        250        250        250          0          0 TriggerResults
+TrigReport        250        250        250          0          0 Out
+
+TimeReport ---------- Event  Summary ---[sec]----
+TimeReport CPU/event = 0.277446 Real/event = 0.288826
+
+TimeReport ---------- Path   Summary ---[sec]----
+TimeReport             per event          per path-run 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport   0.268015   0.279392   0.268015   0.279392 p1
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event          per path-run 
+
+TimeReport -------End-Path   Summary ---[sec]----
+TimeReport             per event       per endpath-run 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport   0.008567   0.008571   0.008567   0.008571 endPath1
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event       per endpath-run 
+
+TimeReport ---------- Modules in Path: p1 ---[sec]----
+TimeReport             per event      per module-visit 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport   0.000002   0.000004   0.000002   0.000004 nEventsBefSkim
+TimeReport   0.003245   0.003251   0.003245   0.003251 allGenParticles
+TimeReport   0.001886   0.001890   0.001886   0.001890 genParticles
+TimeReport   0.000025   0.000062   0.000025   0.000062 HSCPTrigger
+TimeReport   0.006769   0.007107   0.006769   0.007107 generalTracksSkim
+TimeReport   0.000118   0.000131   0.000118   0.000131 offlineBeamSpot
+TimeReport   0.029112   0.036270   0.029112   0.036270 MeasurementTrackerEvent
+TimeReport   0.018110   0.018158   0.018110   0.018158 TrackRefitterSkim
+TimeReport   0.000131   0.000133   0.000131   0.000133 dedxSkimNPHarm2
+TimeReport   0.000151   0.000178   0.000151   0.000178 DedxFilter
+TimeReport   0.000079   0.000080   0.000081   0.000083 HSCPSkimMuonEcalDetIds
+TimeReport   0.012732   0.012779   0.013099   0.013148 highPtTrackEcalDetIds
+TimeReport   0.000050   0.000051   0.000051   0.000053 reducedHSCPEcalRecHitsEB
+TimeReport   0.000025   0.000027   0.000026   0.000028 reducedHSCPEcalRecHitsEE
+TimeReport   0.007495   0.007529   0.007711   0.007746 reducedHSCPhbhereco
+TimeReport   0.000094   0.000096   0.000096   0.000098 muonsSkim
+TimeReport   0.007527   0.007534   0.007744   0.007751 HSCPIsolation01
+TimeReport   0.007488   0.007496   0.007704   0.007712 HSCPIsolation03
+TimeReport   0.007494   0.007512   0.007710   0.007729 HSCPIsolation05
+TimeReport   0.000053   0.000055   0.000054   0.000057 ak5PFJetsPt15
+TimeReport   0.000001   0.000003   0.000001   0.000003 nEventsBefEDM
+TimeReport   0.000000   0.000000   0.000000   0.000000 offlineBeamSpot
+TimeReport   0.002158   0.002161   0.002220   0.002223 TrackRefitter
+TimeReport   0.000127   0.000129   0.000130   0.000132 dedxHarm2
+TimeReport   0.000091   0.000092   0.000093   0.000095 dedxTru40
+TimeReport   0.000088   0.000090   0.000091   0.000092 dedxNPHarm2
+TimeReport   0.000080   0.000082   0.000082   0.000084 dedxNPTru40
+TimeReport   0.000046   0.000050   0.000048   0.000052 dedxNSHarm2
+TimeReport   0.000042   0.000043   0.000043   0.000045 dedxNSTru40
+TimeReport   0.000157   0.000158   0.000161   0.000163 dedxProd
+TimeReport   0.000130   0.000132   0.000134   0.000136 dedxASmi
+TimeReport   0.000133   0.000135   0.000137   0.000139 dedxNPProd
+TimeReport   0.000127   0.000128   0.000130   0.000132 dedxNPASmi
+TimeReport   0.000089   0.000091   0.000092   0.000094 dedxNSTHarm2
+TimeReport   0.024044   0.024138   0.024737   0.024833 dt4DSegmentsMT
+TimeReport   0.006615   0.007146   0.006805   0.007352 muontiming
+TimeReport   0.000541   0.000543   0.000556   0.000559 ancientMuonSeed
+TimeReport   0.000300   0.000302   0.000309   0.000311 MTancientMuonSeed
+TimeReport   0.014225   0.014257   0.014634   0.014668 MTSAMuons
+TimeReport   0.020461   0.020498   0.021051   0.021089 RefitMTSAMuons
+TimeReport   0.002222   0.002224   0.002286   0.002288 MTMuons
+TimeReport   0.000034   0.000036   0.000035   0.000037 MuonSegmentProducer
+TimeReport   0.001995   0.001997   0.002052   0.002054 MTmuontiming
+TimeReport   0.020803   0.020822   0.021403   0.021422 refittedStandAloneMuons
+TimeReport   0.049823   0.049865   0.051258   0.051302 HSCParticleProducer
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event      per module-visit 
+
+TimeReport ------ Modules in End-Path: endPath1 ---[sec]----
+TimeReport             per event      per module-visit 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport   0.006218   0.006235   0.006218   0.006235 Out
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event      per module-visit 
+
+TimeReport ---------- Module Summary ---[sec]----
+TimeReport             per event        per module-run      per module-visit 
+TimeReport        CPU       Real        CPU       Real        CPU       Real Name
+TimeReport   0.000046   0.000048   0.000046   0.000048   0.000046   0.000048 TriggerResults
+TimeReport   0.000002   0.000004   0.000002   0.000004   0.000002   0.000004 nEventsBefSkim
+TimeReport   0.003245   0.003251   0.003245   0.003251   0.003245   0.003251 allGenParticles
+TimeReport   0.001886   0.001890   0.001886   0.001890   0.001886   0.001890 genParticles
+TimeReport   0.000025   0.000062   0.000025   0.000062   0.000025   0.000062 HSCPTrigger
+TimeReport   0.006769   0.007107   0.006769   0.007107   0.006769   0.007107 generalTracksSkim
+TimeReport   0.000118   0.000131   0.000118   0.000131   0.000060   0.000066 offlineBeamSpot
+TimeReport   0.029112   0.036270   0.029112   0.036270   0.029112   0.036270 MeasurementTrackerEvent
+TimeReport   0.018110   0.018158   0.018110   0.018158   0.018110   0.018158 TrackRefitterSkim
+TimeReport   0.000131   0.000133   0.000131   0.000133   0.000131   0.000133 dedxSkimNPHarm2
+TimeReport   0.000151   0.000178   0.000151   0.000178   0.000151   0.000178 DedxFilter
+TimeReport   0.000079   0.000080   0.000081   0.000083   0.000081   0.000083 HSCPSkimMuonEcalDetIds
+TimeReport   0.012732   0.012779   0.013099   0.013148   0.013099   0.013148 highPtTrackEcalDetIds
+TimeReport   0.000050   0.000051   0.000051   0.000053   0.000051   0.000053 reducedHSCPEcalRecHitsEB
+TimeReport   0.000025   0.000027   0.000026   0.000028   0.000026   0.000028 reducedHSCPEcalRecHitsEE
+TimeReport   0.007495   0.007529   0.007711   0.007746   0.007711   0.007746 reducedHSCPhbhereco
+TimeReport   0.000094   0.000096   0.000096   0.000098   0.000096   0.000098 muonsSkim
+TimeReport   0.007527   0.007534   0.007744   0.007751   0.007744   0.007751 HSCPIsolation01
+TimeReport   0.007488   0.007496   0.007704   0.007712   0.007704   0.007712 HSCPIsolation03
+TimeReport   0.007494   0.007512   0.007710   0.007729   0.007710   0.007729 HSCPIsolation05
+TimeReport   0.000053   0.000055   0.000054   0.000057   0.000054   0.000057 ak5PFJetsPt15
+TimeReport   0.000001   0.000003   0.000001   0.000003   0.000001   0.000003 nEventsBefEDM
+TimeReport   0.002158   0.002161   0.002220   0.002223   0.002220   0.002223 TrackRefitter
+TimeReport   0.000127   0.000129   0.000130   0.000132   0.000130   0.000132 dedxHarm2
+TimeReport   0.000091   0.000092   0.000093   0.000095   0.000093   0.000095 dedxTru40
+TimeReport   0.000088   0.000090   0.000091   0.000092   0.000091   0.000092 dedxNPHarm2
+TimeReport   0.000080   0.000082   0.000082   0.000084   0.000082   0.000084 dedxNPTru40
+TimeReport   0.000046   0.000050   0.000048   0.000052   0.000048   0.000052 dedxNSHarm2
+TimeReport   0.000042   0.000043   0.000043   0.000045   0.000043   0.000045 dedxNSTru40
+TimeReport   0.000157   0.000158   0.000161   0.000163   0.000161   0.000163 dedxProd
+TimeReport   0.000130   0.000132   0.000134   0.000136   0.000134   0.000136 dedxASmi
+TimeReport   0.000133   0.000135   0.000137   0.000139   0.000137   0.000139 dedxNPProd
+TimeReport   0.000127   0.000128   0.000130   0.000132   0.000130   0.000132 dedxNPASmi
+TimeReport   0.000089   0.000091   0.000092   0.000094   0.000092   0.000094 dedxNSTHarm2
+TimeReport   0.024044   0.024138   0.024737   0.024833   0.024737   0.024833 dt4DSegmentsMT
+TimeReport   0.006615   0.007146   0.006805   0.007352   0.006805   0.007352 muontiming
+TimeReport   0.000541   0.000543   0.000556   0.000559   0.000556   0.000559 ancientMuonSeed
+TimeReport   0.000300   0.000302   0.000309   0.000311   0.000309   0.000311 MTancientMuonSeed
+TimeReport   0.014225   0.014257   0.014634   0.014668   0.014634   0.014668 MTSAMuons
+TimeReport   0.020461   0.020498   0.021051   0.021089   0.021051   0.021089 RefitMTSAMuons
+TimeReport   0.002222   0.002224   0.002286   0.002288   0.002286   0.002288 MTMuons
+TimeReport   0.000034   0.000036   0.000035   0.000037   0.000035   0.000037 MuonSegmentProducer
+TimeReport   0.001995   0.001997   0.002052   0.002054   0.002052   0.002054 MTmuontiming
+TimeReport   0.020803   0.020822   0.021403   0.021422   0.021403   0.021422 refittedStandAloneMuons
+TimeReport   0.049823   0.049865   0.051258   0.051302   0.051258   0.051302 HSCParticleProducer
+TimeReport   0.006218   0.006235   0.006218   0.006235   0.006218   0.006235 Out
+TimeReport        CPU       Real        CPU       Real        CPU       Real Name
+TimeReport             per event        per module-run      per module-visit 
+
+T---Report end!
+
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 SiStripQuality       -w MeasurementTrack                       1        1
+    2 fileAction           -s file_close                            10       10
+    3 fileAction           -s file_open                             20       20
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 SiStripQuality       1/1                               
+    2 fileAction           PostProcessEvent PostProcessEvent PostEndRun
+    3 fileAction           pre-events       pre-events       PostProcessEvent
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Warning                 1                   1
+System                 30                  30
