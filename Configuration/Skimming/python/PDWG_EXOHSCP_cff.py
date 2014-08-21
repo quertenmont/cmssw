@@ -183,7 +183,8 @@ ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
 #                                                                          #
 ############################################################################
 
-exoticaHSCPSeq = cms.Sequence(trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05+ak5PFJetsPt15)
+nEventsBefSkim  = cms.EDProducer("EventCountProducer")
+exoticaHSCPSeq = cms.Sequence(nEventsBefSkim+trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05+ak5PFJetsPt15)
 
 
 ############################################################################
@@ -196,6 +197,7 @@ exoticaHSCPSeq = cms.Sequence(trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIso
 EXOHSCPSkim_EventContent=cms.PSet(
     outputCommands = cms.untracked.vstring(
       "drop *",
+      "keep edmMergeableCounter_*_*_*",
       "keep GenEventInfoProduct_generator_*_*",
       "keep L1GlobalTriggerReadoutRecord_*_*_*",
       "keep recoVertexs_offlinePrimaryVertices_*_*",
