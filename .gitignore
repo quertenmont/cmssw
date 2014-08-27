@@ -1,2 +1,5 @@
 __init__.py
 *.pyc
+Configuration/Generator
+Configuration/GenProduction
+SUSYBSMAnalysis/HSCP/test/UsefulScripts/SampleProduction/FARM*
