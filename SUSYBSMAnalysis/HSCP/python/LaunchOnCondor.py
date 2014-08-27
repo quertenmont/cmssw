@@ -31,6 +31,8 @@ Jobs_FinalCmds    = []
 Jobs_RunHere      = 0
 
 useLSF = True
+LSFlog = False
+runInteractively = False
 
 def CreateTheConfigFile(argv):
         global Jobs_Name
@@ -103,7 +105,7 @@ def CreateTheShellFile(argv):
                 	shell_file.write('cd -\n')
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
-	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated ");\n')
+	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated -Wno-unused-local-typedefs ");\n')
                 shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x -D__USE_XOPEN2K8 ");\n')
                 shell_file.write('   cout << "Compilling with the following arguments: " << makeshared << endl;\n')
 	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
@@ -172,14 +174,21 @@ def CreateTheCmdFile():
 	cmd_file.close()
 
 def AddJobToCmdFile():
+        global runInteractively
         global useLSF
 	global Path_Shell
         global Path_Cmd
 	global Path_Log
         Path_Log   = Farm_Directories[2]+Jobs_Index+Jobs_Name
         cmd_file=open(Path_Cmd,'a')
-	if useLSF:
-		cmd_file.write("bsub -u /dev/null -q " + Jobs_Queue + " -J " + Jobs_Name+Jobs_Index + " '" + os.getcwd() + "/"+Path_Shell + " 0 ele'\n")
+
+        if runInteractively:
+           cmd_file.write("sh "+ os.getcwd() + "/"+Path_Shell + "\n")
+	elif useLSF:
+           if LSFlog :
+		cmd_file.write("bsub -q " + Jobs_Queue + " -J " + Jobs_Name+Jobs_Index + " '" + os.getcwd() + "/"+Path_Shell + " 0 ele'\n")
+           else :
+                cmd_file.write("bsub -o /dev/null -q " + Jobs_Queue + " -J " + Jobs_Name+Jobs_Index + " '" + os.getcwd() + "/"+Path_Shell + " 0 ele'\n")
 	else:
         	cmd_file.write('\n')
 	        cmd_file.write('Executable              = %s\n'     % Path_Shell)
@@ -224,6 +233,9 @@ def SendCluster_Create(FarmDirectory, JobName):
 	global Jobs_Name
 	global Jobs_Count
         global Farm_Directories
+        global runInteractively
+
+        if(runInteractively): useLSF=True
 
 	#determine if the submission system is LSF batch or condor
 	command_out = commands.getstatusoutput("bjobs")[1]
