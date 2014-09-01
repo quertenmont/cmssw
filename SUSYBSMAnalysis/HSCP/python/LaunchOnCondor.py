@@ -31,7 +31,7 @@ Jobs_FinalCmds    = []
 Jobs_RunHere      = 0
 
 useLSF = True
-LSFlog = False
+LSFlog = True
 runInteractively = False
 
 def CreateTheConfigFile(argv):

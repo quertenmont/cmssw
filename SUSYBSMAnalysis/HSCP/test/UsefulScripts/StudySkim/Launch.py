@@ -24,7 +24,8 @@ if sys.argv[1]=='1':
    LaunchOnCondor.SendCluster_Submit()
 
 if sys.argv[1]=='2':
-   LaunchOnCondor.runInteractively = True
+   #LaunchOnCondor.runInteractively = True
+   LaunchOnCondor.LSFlog = False
    JobName = "Analyze"
    FarmDirectory = "FARM_Analyze"
    LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
