@@ -30,25 +30,11 @@ TrackRefitterSkim = TrackRefitter.clone()
 TrackRefitterSkim.src = "generalTracksSkim"
 
 #compute dEdx associate to the interesting tracks
-dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitterSkim"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim"),
-
-    estimator      = cms.string('generic'),
-    exponent       = cms.double(-2.0),
-
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(False),
-    MeVperADCStrip = cms.double(3.61e-06*265),
-    MeVperADCPixel = cms.double(3.61e-06),
-
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(True),
-)
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
+dedxSkimNPHarm2 = dedxHarmonic2.clone()
+dedxSkimNPHarm2.tracks                     = cms.InputTag("TrackRefitterSkim")
+dedxSkimNPHarm2.trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim")
+dedxSkimNPHarm2.UsePixel                   = cms.bool(False)
 
 #Filter based on dEdx and other quantities
 DedxFilter = cms.EDFilter("HSCPFilter",
@@ -207,9 +193,9 @@ EXOHSCPSkim_EventContent=cms.PSet(
       "keep recoTracks_generalTracksSkim_*_*",
       "keep recoTrackExtras_generalTracksSkim_*_*",
       "keep TrackingRecHitsOwned_generalTracksSkim_*_*",
-      'keep *_dt1DRecHits_*_*',
+#      'keep *_dt1DRecHits_*_*',
       'keep *_dt4DSegments_*_*',
-      'keep *_csc2DRecHits_*_*',
+#      'keep *_csc2DRecHits_*_*',
       'keep *_cscSegments_*_*',
       'keep *_rpcRecHits_*_*',
       'keep recoTracks_standAloneMuons_*_*',
