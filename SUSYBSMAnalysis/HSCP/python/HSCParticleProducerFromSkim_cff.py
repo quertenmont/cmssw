@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from SUSYBSMAnalysis.HSCP.HSCParticleProducer_cff import *
 
 TrackRefitter.src                      = "generalTracksSkim"
+
 muontiming.MuonCollection              = cms.InputTag("muonsSkim")
 HSCParticleProducer.tracksIsolation    = cms.InputTag("generalTracksSkim")
 HSCParticleProducer.muons              = cms.InputTag("muonsSkim")
@@ -15,3 +16,8 @@ HSCParticleProducer.TrackAssociatorParameters.EERecHitCollectionLabel   = 'reduc
 HSCParticleProducer.TrackAssociatorParameters.HBHERecHitCollectionLabel = 'reducedHSCPhbhereco'
 HSCParticleProducer.TrackAssociatorParameters.HBHERecHitCollectionLabel = 'reducedHSCPhbhereco'
 HSCParticleProducer.TrackAssociatorParameters.useHO                     = False
+
+
+
+MeasurementTrackerEvent.pixelClusterProducer = "generalTracksSkim"
+MeasurementTrackerEvent.stripClusterProducer = "generalTracksSkim"

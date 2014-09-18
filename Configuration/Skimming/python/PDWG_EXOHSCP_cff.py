@@ -1,12 +1,18 @@
-TRACK_PT = 20.0
 import FWCore.ParameterSet.Config as cms
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
-from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
+#global variable used in the skimming
+TRACK_PT = 20.0
 
-generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
+############################################################################
+#                                                                          #
+#    FILTER EVENTS BASED ON TRACK PT, MUON PT and dEDX                     #
+#                                                                          #
+############################################################################
+
+#Skim the track collection, in order to keep only potential candidates
+from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
+generalTracksSkim = AlignmentTrackSelector.clone(
     src = 'generalTracks',
-#	src = 'TrackRefitter',
     filter = False,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
@@ -16,26 +22,28 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 )
 trackerSeq = cms.Sequence( generalTracksSkim)
 
-
+#Refit the skimmed track collection in order to reobtain the trajectory, needed for dEdx computations
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
 TrackRefitterSkim = TrackRefitter.clone()
 TrackRefitterSkim.src = "generalTracksSkim"
 
-
+#compute dEdx associate to the interesting tracks
 from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
 dedxSkimNPHarm2 = dedxHarmonic2.clone()
 dedxSkimNPHarm2.tracks                     = cms.InputTag("TrackRefitterSkim")
 dedxSkimNPHarm2.trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim")
 dedxSkimNPHarm2.UsePixel                   = cms.bool(False)
 
+#Filter based on dEdx and other quantities
 DedxFilter = cms.EDFilter("HSCPFilter",
      inputMuonCollection = cms.InputTag("muons"),
-	 inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
-	 inputDedxCollection =  cms.InputTag("dedxSkimNPHarm2"),
+     inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
+     inputDedxCollection =  cms.InputTag("dedxSkimNPHarm2"),
      SAMuPtMin = cms.double(60),
-	 trkPtMin = cms.double(TRACK_PT),
-	 dedxMin =cms.double(3.0),
+     trkPtMin = cms.double(TRACK_PT),
+     dedxMin =cms.double(3.0),
      dedxMaxLeft =cms.double(2.8),
      ndedxHits = cms.int32(3),
      etaMin= cms.double(-2.4),
@@ -46,61 +54,67 @@ DedxFilter = cms.EDFilter("HSCPFilter",
      filter = cms.bool(True)
 
 )
-
 dedxSeq = cms.Sequence(offlineBeamSpot + MeasurementTrackerEvent + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
 
 
+############################################################################
+#                                                                          #
+#    SAVE ECAL HITS CLOSE TO MUONS OR HIGH PT TRACKS                       #
+#                                                                          #
+############################################################################
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
+HSCPSkimMuonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
+   inputCollection = cms.InputTag("muons")	
+)
 
-muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
-								inputCollection = cms.InputTag("muons")
-								)
 highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
-									   #TrackAssociatorParameterBlock
-									   TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
-									   inputCollection = cms.InputTag("generalTracksSkim"),
-									   TrackPt=cms.double(TRACK_PT)
-									   )
-
-
-
-detIdProduceSeq = cms.Sequence(muonEcalDetIds+highPtTrackEcalDetIds)
+   TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
+   inputCollection = cms.InputTag("generalTracksSkim"),
+   TrackPt=cms.double(TRACK_PT)
+)
 
 reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
      recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
      interestingDetIdCollections = cms.VInputTag(
-	         #high p_t tracker track ids
-	         cms.InputTag("highPtTrackEcalDetIds"),
-             #muons
-             cms.InputTag("muonEcalDetIds")
-             ),
+	     cms.InputTag("highPtTrackEcalDetIds"),
+             cms.InputTag("HSCPSkimMuonEcalDetIds")
+     ),
      reducedHitsCollection = cms.string('')
 )
 reducedHSCPEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
      recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
      interestingDetIdCollections = cms.VInputTag(
-	         #high p_t tracker track ids
-	         cms.InputTag("highPtTrackEcalDetIds"),
-             #muons
-             cms.InputTag("muonEcalDetIds")
-             ),
+	     cms.InputTag("highPtTrackEcalDetIds"),
+             cms.InputTag("HSCPSkimMuonEcalDetIds")
+     ),
      reducedHitsCollection = cms.string('')
 )
+ecalSeq = cms.Sequence(HSCPSkimMuonEcalDetIds+highPtTrackEcalDetIds+reducedHSCPEcalRecHitsEB+reducedHSCPEcalRecHitsEE)
 
 
-ecalSeq = cms.Sequence(detIdProduceSeq+reducedHSCPEcalRecHitsEB+reducedHSCPEcalRecHitsEE)
-
+############################################################################
+#                                                                          #
+#    SAVE HCAL HITS CLOSE TO HIGH PT TRACKS                                #
+#    FIXME: WOULD BE GOOD TO ALSO SAVE HITS CLOSE TO MUONS                 #
+############################################################################
 
 reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
-									 recHitsLabel = cms.InputTag("hbhereco",""),
-									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
-									 inputCollection = cms.InputTag("generalTracksSkim"),
-									 TrackPt=cms.double(TRACK_PT),
-									 reducedHitsCollection = cms.string('')
+     recHitsLabel = cms.InputTag("hbhereco",""),
+     TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
+     inputCollection = cms.InputTag("generalTracksSkim"),
+     TrackPt=cms.double(TRACK_PT),
+     reducedHitsCollection = cms.string('')
 )
-
 hcalSeq = cms.Sequence(reducedHSCPhbhereco)
+
+
+############################################################################
+#                                                                          #
+#    NEED TO ASSIGN THE REFITTED TRACK TO THE MUONS                        #
+#    SINCE ONLY THE LATTER IS SAVED TO THE ROOT FILE                       #
+############################################################################
+
 
 muonsSkim = cms.EDProducer("UpdatedMuonInnerTrackRef",
     MuonTag        = cms.untracked.InputTag("muons"),
@@ -112,6 +126,11 @@ muonsSkim = cms.EDProducer("UpdatedMuonInnerTrackRef",
 muonSeq = cms.Sequence(muonsSkim)
 
 
+############################################################################
+#                                                                          #
+#    SAVE ISOLATION VARIABLE IN ORDER TO BE CAPABLE OF DROPPING ALL        #
+#    OTHER OBJECTS (this saves a lot of space)                             #
+############################################################################
 
 TrackAssociatorParametersForHSCPIsol = TrackAssociatorParameterBlock.TrackAssociatorParameters.clone()
 TrackAssociatorParametersForHSCPIsol.useHO = cms.bool(False)
@@ -120,7 +139,6 @@ TrackAssociatorParametersForHSCPIsol.DTRecSegment4DCollectionLabel = cms.InputTa
 TrackAssociatorParametersForHSCPIsol.EERecHitCollectionLabel       = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 TrackAssociatorParametersForHSCPIsol.EBRecHitCollectionLabel       = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 TrackAssociatorParametersForHSCPIsol.HBHERecHitCollectionLabel     = cms.InputTag("hbhereco")
-
 
 HSCPIsolation01 = cms.EDProducer("ProduceIsolationMap",
       inputCollection  = cms.InputTag("generalTracksSkim"),
@@ -136,40 +154,36 @@ HSCPIsolation03.IsolationConeDR  = cms.double(0.3)
 HSCPIsolation05 = HSCPIsolation01.clone()
 HSCPIsolation05.IsolationConeDR  = cms.double(0.5)
 
-exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
-  phoTag = cms.InputTag("photons::RECO"),
-  selectEE = cms.bool(True),
-  ecalisoOffsetEB = cms.double(4.2),
-  ecalisoSlopeEB = cms.double(0.006),
-  hcalisoOffsetEB = cms.double(2.2),
-  hcalisoSlopeEB = cms.double(0.0025),
-  hadoveremEB = cms.double(0.05),
-  minPhoEtEB = cms.double(20.),
-  trackIsoOffsetEB = cms.double(2.),
-  trackIsoSlopeEB =  cms.double(0.001),
-  etaWidthEB  = cms.double(0.013),
 
-  ecalisoOffsetEE = cms.double(4.2),
-  ecalisoSlopeEE = cms.double(0.006),
-  hcalisoOffsetEE = cms.double(2.2),
-  hcalisoSlopeEE = cms.double(0.0025),
-  hadoveremEE = cms.double(0.05),
-  minPhoEtEE = cms.double(20.),
-  trackIsoOffsetEE = cms.double(2.),
-  trackIsoSlopeEE =  cms.double(0.001),
-  etaWidthEE  = cms.double(0.03),
-
-
-
+ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
+     src = cms.InputTag( "ak5PFJets" ),
+     filter = cms.bool( False ),
+     etMin = cms.double( 15.0 )
 )
 
 
-exoticaHSCPSeq = cms.Sequence(trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
-exoticaHSCPIsoPhotonSeq = cms.Sequence(exoticaRecoIsoPhotonSeq + trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+
+############################################################################
+#                                                                          #
+#    DEFINE THE COMPLETE EXO HSCP SKIM SEQUENCE BELLOW                     #
+#                                                                          #
+############################################################################
+
+nEventsBefSkim  = cms.EDProducer("EventCountProducer")
+exoticaHSCPSeq = cms.Sequence(nEventsBefSkim+trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05+ak5PFJetsPt15)
+
+
+############################################################################
+#                                                                          #
+#    DEFINE THE EXO HSCPSkim EVENT CONTENT                                 #
+#                                                                          #
+############################################################################
+
 
 EXOHSCPSkim_EventContent=cms.PSet(
     outputCommands = cms.untracked.vstring(
       "drop *",
+      "keep edmMergeableCounter_*_*_*",
       "keep GenEventInfoProduct_generator_*_*",
       "keep L1GlobalTriggerReadoutRecord_*_*_*",
       "keep recoVertexs_offlinePrimaryVertices_*_*",
@@ -179,9 +193,9 @@ EXOHSCPSkim_EventContent=cms.PSet(
       "keep recoTracks_generalTracksSkim_*_*",
       "keep recoTrackExtras_generalTracksSkim_*_*",
       "keep TrackingRecHitsOwned_generalTracksSkim_*_*",
-      'keep *_dt1DRecHits_*_*',
+#      'keep *_dt1DRecHits_*_*',
       'keep *_dt4DSegments_*_*',
-      'keep *_csc2DRecHits_*_*',
+#      'keep *_csc2DRecHits_*_*',
       'keep *_cscSegments_*_*',
       'keep *_rpcRecHits_*_*',
       'keep recoTracks_standAloneMuons_*_*',
@@ -198,8 +212,10 @@ EXOHSCPSkim_EventContent=cms.PSet(
       'keep *_HSCPIsolation01__*',
       'keep *_HSCPIsolation03__*',
       'keep *_HSCPIsolation05__*',
-      'keep recoPFJets_ak4PFJets__*',
+      'keep recoPFJets_ak5PFJetsPt15__*',
       'keep recoPFMETs_pfMet__*',
       'keep recoBeamSpot_offlineBeamSpot__*',
       )
-    )
+)
+
+
