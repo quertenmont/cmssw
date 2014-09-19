@@ -7,10 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
-<<<<<<< HEAD
-=======
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
->>>>>>> quertenmont/Run2HSCP_v4
 
 ####################################################################################
 #   HIT-DEDX Information
@@ -116,9 +113,3 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 ####################################################################################
 
 HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + MeasurementTrackerEvent + TrackRefitter  + dedxHitInfo + muontiming + HSCParticleProducer)
-<<<<<<< HEAD
-=======
-
->>>>>>> quertenmont/Run2HSCP_v4
-
-
