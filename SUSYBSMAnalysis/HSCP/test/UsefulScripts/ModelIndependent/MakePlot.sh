@@ -1,8 +1,8 @@
 #!/bin/bash
 root -l -b << EOF
   TString makeshared(gSystem->GetMakeSharedLib());
-  TString dummy = makeshared.ReplaceAll("-W ", "-D__USE_XOPEN2K8 ");
-  TString dummy = makeshared.ReplaceAll("-Wshadow ", "");
+  TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated  -D__USE_XOPEN2K8  ");
+  TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
@@ -11,6 +11,5 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
   gSystem->Load("libAnalysisDataFormatsSUSYBSMObjects.so");
-  .x StabilityCheck.C+("Analyze");
   .x MakePlot.C+
 EOF
