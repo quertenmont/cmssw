@@ -19,7 +19,7 @@ def numberOfEvents(file):
 	return NEntries	
 
 
-PCLDATASET = '/StreamExpress/Run2015C-PromptCalibProdSiStripGains-Express-v1/ALCAPROMPT' #used if usePCL==True
+PCLDATASET = '/StreamExpress/Run2015D-PromptCalibProdSiStripGains-Express-v4/ALCAPROMPT' #used if usePCL==True
 CALIBTREEPATH = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/GR15' #used if usePCL==False
 #CALIBTREEPATH = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12"
 #CALIBTREEPATH = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
@@ -43,7 +43,7 @@ firstRun = int(opt.firstRun)
 lastRun  = int(opt.lastRun)
 MC=""
 publish = (opt.publish=='True')
-mail = "loic.quertenmont@gmail.com"
+mail = "loic.quertenmont@gmail.com sandro.di.mattia@cern.ch Jean-Laurent.Agram@cern.ch martin.delcourt@uclouvain.be"
 automatic = True;
 usePCL = (opt.usePCL=='True')
 maxNEvents = 2000000
@@ -100,17 +100,31 @@ if(usePCL==True):
       if(FileList==""):firstRun=run;
       NEvents = int(NEventsDasOut)
       if(NEvents<=3000):continue #only keep runs with at least 3K events
-      FileList+="#run=" + str(run) + " -->  NEvents="+str(NEvents/1000).rjust(8)+"K\n"
+
+      FileListTmp="#run=" + str(run) + " -->  NEvents="+str(NEvents/1000).rjust(8)+"K\n"
       resultsFiles = commands.getstatusoutput(initEnv+"das_client.py  --limit=9999 --query='file dataset="+PCLDATASET+" run="+str(run)+"'")
       if(int(resultsFiles[0])!=0 or results[1].find('Error:')>=0):
          print ("issue with getting the list of files from das, skip this run")
          print resultsFiles
          continue
+      missingFiles = 0
+      goodFiles = 0
       for f in resultsFiles[1].splitlines():
          if(not f.startswith('/')):continue
-         FileList+='calibTreeList.extend(["'+f+'"])\n'
-      NTotalEvents += NEvents;
-      print("Current number of events to process is " + str(NTotalEvents))
+         if(int(commands.getstatusoutput('cmsLs ' + f)[0])>0):
+            missingFiles+=1
+         else:
+            FileListTmp+='calibTreeList.extend(["'+f+'"])\n'
+            goodFiles+=1
+
+      #consider that run only if there are less than 10% missing files
+      if(missingFiles<0.1*(goodFiles+missingFiles)):      
+         FileList+=FileListTmp
+         NTotalEvents += NEvents;
+         print("Current number of events to process is " + str(NTotalEvents))
+      else:
+         print("ignore run " + str(run) + " because it has %i/%i file missing" % (missingFiles, missingFiles+goodFiles) )
+
       if(automatic==True and NTotalEvents >= maxNEvents):break;
 else:
    print("Get the list of calibTree from castor (cmsLs" + CALIBTREEPATH + ")")
@@ -164,10 +178,10 @@ os.system("sed -i 's|XXX_GT_XXX|"+globaltag+"|g' "+newDirectory+"/*_cfg.py")
 os.system("sed -i 's|XXX_PCL_XXX|"+str(usePCL)+"|g' "+newDirectory+"/*_cfg.py")
 os.chdir(newDirectory);
 if(os.system("sh sequence.sh \"" + name + "\" \"CMS Preliminary  -  Run " + str(firstRun) + " to " + str(lastRun) + "\"")!=0):
-	os.system('echo "Gain calibration failed" | mail -s "Gain calibration failed ('+name+')" ' + mail)        
+	if(publish==True):os.system('echo "Gain calibration failed" | mail -s "Gain calibration failed ('+name+')" ' + mail)        
 else:
 	if(publish==True):os.system("sh sequence.sh " + name);
-	os.system('echo "Gain calibration done\nhttps://test-stripcalibvalidation.web.cern.ch/test-stripcalibvalidation/CalibrationValidation/ParticleGain/" | mail -s "Gain calibration done ('+name+')" ' + mail)
+	if(publish==True):os.system('echo "Gain calibration done\nhttps://test-stripcalibvalidation.web.cern.ch/test-stripcalibvalidation/CalibrationValidation/ParticleGain/" | mail -s "Gain calibration done ('+name+')" ' + mail)
 
 if(usePCL==True):
    #Make the same results using the calibTrees for comparisons
