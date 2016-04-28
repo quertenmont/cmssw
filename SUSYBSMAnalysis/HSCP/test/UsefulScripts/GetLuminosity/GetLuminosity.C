@@ -28,7 +28,8 @@
 #include "DataFormats/FWLite/interface/Run.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
-#include "../../ICHEP_Analysis/Analysis_Samples.h"
+#include "../../AnalysisCode/Analysis_Global.h"
+#include "../../AnalysisCode/Analysis_Samples.h"
 
 using namespace fwlite;
 
@@ -40,21 +41,27 @@ struct stRun {
 };
 
 void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap);
-void DumpJson(const std::vector<stRun*>& RunMap, char* FileName);
+void DumpJson(const std::vector<stRun*>& RunMap, string FileName);
 void RemoveRunsAfter(unsigned int RunMax, const std::vector<stRun*>& RunMap, std::vector<stRun*>& NewRunMap);
 
 void GetLuminosity()
 {
-  //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
+   std::vector<stSample> samples;
    vector<string> inputFiles;
-   GetInputFiles(inputFiles, "Data");
+   InitBaseDirectory();
+   GetSampleDefinition(samples , "../../AnalysisCode/Analysis_Samples.txt");
+   for(unsigned int s=0;s<samples.size();s++){
+      if(samples[s].Type!=0)continue;
+      GetInputFiles(samples[s], BaseDirectory, inputFiles);
+   }
+
    std::vector<stRun*> RunMap;
    GetLumiBlocks_Core(inputFiles, RunMap);
    DumpJson(RunMap, "out.json");
 
-   std::vector<stRun*> RunMapBefRPC;
-   RemoveRunsAfter(165970, RunMap, RunMapBefRPC);
-   DumpJson(RunMapBefRPC, "out_beforeRPCChange.json");
+//   std::vector<stRun*> RunMapBefRPC;
+//   RemoveRunsAfter(165970, RunMap, RunMapBefRPC);
+ //  DumpJson(RunMapBefRPC, "out_beforeRPCChange.json");
 }
 
 void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap)
@@ -108,8 +115,8 @@ void RemoveRunsAfter(unsigned int RunMax, const std::vector<stRun*>& RunMap, std
 }
 
 
-void DumpJson(const std::vector<stRun*>& RunMap, char* FileName){
-   FILE* json = fopen(FileName,"w");
+void DumpJson(const std::vector<stRun*>& RunMap, string FileName){
+   FILE* json = fopen(FileName.c_str(),"w");
    fprintf(json,"{");
    for(unsigned int r=0;r<RunMap.size();r++){
       stRun* tmp =  RunMap[r];

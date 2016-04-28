@@ -127,6 +127,9 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
   trackingRecHit_iterator start,stop;
   reco::Track track;
 
+  //FIXME the code bellow need to be updated
+  //does not work so well anymore because tracking recHits are not saved in AOD.
+
   if(      candidate.hasMuonRef() && candidate.muonRef()->combinedMuon()  .isNonnull()){
      start = candidate.muonRef()->combinedMuon()->recHitsBegin();
      stop  = candidate.muonRef()->combinedMuon()->recHitsEnd();
@@ -143,6 +146,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
     stop  = candidate.staTrack().recHitsEnd();
   } else return;
 */
+
 
   for(trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
     if ( (*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
@@ -176,6 +180,8 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
     ThisHit.id = (RPCDetId)(*recHit)->geographicalId().rawId();
     hits.push_back(ThisHit);
   }
+
+
   // here we go on with the RPC procedure
   std::sort(hits.begin(), hits.end());
   int lastbx=-7;
@@ -188,10 +194,12 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
   }
   result.isCandidate = (outOfTime&&increasing);
 
+
   //result.beta = 1; // here we should get some pattern-based estimate
   algo(hits);
   result.beta = beta();
   candidate.setRpc(result);
+
 }
 
 
