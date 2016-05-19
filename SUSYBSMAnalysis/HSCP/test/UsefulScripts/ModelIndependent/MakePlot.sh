@@ -5,11 +5,12 @@ root -l -b << EOF
   TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   gSystem->Load("libDataFormatsFWLite.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
   gSystem->Load("libAnalysisDataFormatsSUSYBSMObjects.so");
+  gInterpreter->SetClassAutoparsing(false);
   .x MakePlot.C+
 EOF

@@ -9,6 +9,7 @@ namespace edm     { class TriggerResults; class TriggerResultsByName; class Inpu
 namespace reweight{ class PoissonMeanShifter;}
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"

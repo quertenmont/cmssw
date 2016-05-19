@@ -7,12 +7,13 @@ root -l -b << EOF
   cout << "Compilling with the following arguments: " << makeshared << endl;
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   gSystem->Load("libDataFormatsFWLite.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
   gSystem->Load("libAnalysisDataFormatsSUSYBSMObjects.so");
+  gInterpreter->SetClassAutoparsing(false);
   .x TriggerStudy.C+("", "")
 
   .x TriggerStudy.C+("GMStau_13TeV_M1029WiTS", "/nfs/home/fynu/quertenmont/scratch/15_05_13_HSCP_SampleProd/CMSSW_7_4_2/src/SUSYBSMAnalysis/HSCP/test/UsefulScripts/SampleProduction/WiTS/FARM_EDM/outputs/GMStau_13TeV_M1029.root")

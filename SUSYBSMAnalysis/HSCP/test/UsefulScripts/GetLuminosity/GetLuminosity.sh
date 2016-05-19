@@ -4,9 +4,10 @@ root -l -b << EOF
   TString dummy = makeshared.ReplaceAll("-W ", "-D__USE_XOPEN2K8 ");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   gSystem->Load("libDataFormatsFWLite.so");
   gSystem->Load("libDataFormatsCommon.so");
+  gInterpreter->SetClassAutoparsing(false);
   .x GetLuminosity.C+
 EOF
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.0.3/bin:$PATH
