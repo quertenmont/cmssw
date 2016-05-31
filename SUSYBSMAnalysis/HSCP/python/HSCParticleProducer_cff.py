@@ -1,43 +1,42 @@
 import FWCore.ParameterSet.Config as cms
 
-####################################################################################
-#   BEAMSPOT + TRAJECTORY BUILDERS
-####################################################################################
-
-from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
-from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
-from RecoTracker.TrackProducer.TrackRefitters_cff import *
 
 ####################################################################################
-#   HIT-DEDX Information
+#   Save Isolation info around tracks
 ####################################################################################
 
-dedxHitInfo               = cms.EDProducer("HSCPDeDxInfoProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
+from TrackingTools.TrackAssociator.default_cfi import *
 
-    Reccord            = cms.untracked.string("SiStripDeDxMip_3D_Rcd"),
-    Formula            = cms.untracked.uint32(0),
-    ProbabilityMode    = cms.untracked.string("Accumulation"),
+TrackAssociatorParametersForHSCPIsol = TrackAssociatorParameterBlock.TrackAssociatorParameters.clone()
+TrackAssociatorParametersForHSCPIsol.useHO = cms.bool(False)
+TrackAssociatorParametersForHSCPIsol.CSCSegmentCollectionLabel     = cms.InputTag("cscSegments")
+TrackAssociatorParametersForHSCPIsol.DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments")
+TrackAssociatorParametersForHSCPIsol.EERecHitCollectionLabel       = cms.InputTag("reducedEcalRecHitsEE")
+TrackAssociatorParametersForHSCPIsol.EBRecHitCollectionLabel       = cms.InputTag("reducedEcalRecHitsEB")
+TrackAssociatorParametersForHSCPIsol.HBHERecHitCollectionLabel     = cms.InputTag("reducedHcalRecHits", "hbhereco")
+TrackAssociatorParametersForHSCPIsol.HORecHitCollectionLabel       = cms.InputTag("reducedHcalRecHits", "horeco")
 
-    UseStrip           = cms.bool(True),
-    UsePixel           = cms.bool(True),
-    MeVperADCStrip     = cms.double(3.61e-06*265),
-    MeVperADCPixel     = cms.double(3.61e-06),
-
-    UseCalibration     = cms.bool(False),
-    calibrationPath    = cms.string("file:Gains.root"),
-    ShapeTest          = cms.bool(True),
+HSCPIsolation = cms.EDProducer("ProduceIsolationMap",
+      inputCollection  = cms.InputTag("generalTracks"),
+      IsolationConeDR  = cms.vdouble(0.1, 0.3, 0.5),
+      TkIsolationPtCut = cms.vdouble(10, 10, 10),
+      Label            = cms.vstring('R01', 'R03', 'R05'),
+      TKLabel          = cms.InputTag("generalTracks"),
+      TrackAssociatorParameters=TrackAssociatorParametersForHSCPIsol,
+      CandidateMinPt   = cms.double(10),
 )
 
 
 ####################################################################################
-#   MUON TIMING
+#   Save muon segments in a compressed format
 ####################################################################################
 
-from RecoMuon.MuonIdentification.muonTiming_cfi import *
-muontiming.MuonCollection = cms.InputTag("muons")
-muontiming.TimingFillerParameters.UseECAL=False
+MuonSegmentProducer = cms.EDProducer("MuonSegmentProducer",
+   CSCSegments        = cms.InputTag("cscSegments"),
+   DTSegments         = cms.InputTag("dt4DSegments"),
+)
+
 
 ####################################################################################
 #   HSCParticle Producer
@@ -58,13 +57,13 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    filter = cms.bool(True),
 
    #WHAT (BETA) INFORMATION TO COMPUTE
-   useBetaFromTk      = cms.bool(True),
-   useBetaFromMuon    = cms.bool(True),
-   useBetaFromRpc     = cms.bool(True),
-   useBetaFromEcal    = cms.bool(True),
+   useBetaFromTk      = cms.bool(True),  #does nothing because we have all the info saved in EDM format
+   useBetaFromMuon    = cms.bool(True),  #does nothing because we have all the info saved in EDM format
+   useBetaFromRpc     = cms.bool(False), #must be updated for AOD
+   useBetaFromEcal    = cms.bool(False), #must be updated for AOD and 74X
 
    #TAG OF THE REQUIRED INPUT COLLECTION (ONLY ACTIVATED CALCULATOR)
-   tracks             = cms.InputTag("TrackRefitter"),
+   tracks             = cms.InputTag("generalTracks"),
    tracksIsolation    = cms.InputTag("generalTracks"),
    muons              = cms.InputTag("muons"),
    MTmuons            = cms.InputTag("muons"),
@@ -73,9 +72,9 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    rpcRecHits         = cms.InputTag("rpcRecHits"),
 
    #TRACK SELECTION FOR THE HSCP SEED
-   minMuP             = cms.double(25),
-   minTkP             = cms.double(25),
-   maxTkChi2          = cms.double(25),
+   minMuP             = cms.double(20),
+   minTkP             = cms.double(20),
+   maxTkChi2          = cms.double(20),
    minTkHits          = cms.uint32(3),
    minSAMuPt          = cms.double(70),
    minMTMuPt          = cms.double(70),
@@ -111,6 +110,5 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + MeasurementTrackerEvent + TrackRefitter  + dedxHitInfo + muontiming + HSCParticleProducer)
-
+HSCParticleProducerSeq = cms.Sequence(HSCPIsolation * MuonSegmentProducer * HSCParticleProducer)
 
