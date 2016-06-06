@@ -36,6 +36,7 @@ class HSCPHLTFilter : public edm::EDFilter {
 
       std::string TriggerProcess;
       edm::EDGetTokenT< trigger::TriggerEvent > trEvToken;
+      edm::EDGetTokenT< edm::TriggerResults > trResultsToken;
       std::map<std::string, bool > DuplicateMap;
 
       unsigned int CountEvent;
@@ -56,6 +57,8 @@ HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
 
    TriggerProcess        = iConfig.getParameter<std::string>         ("TriggerProcess");
    trEvToken = consumes< trigger::TriggerEvent >( edm::InputTag( "hltTriggerSummaryAOD" ) );
+   trResultsToken = consumes <edm::TriggerResults> (edm::InputTag (std::string("TriggerResults"), std::string(""), TriggerProcess));
+
    MuonTrigger1Mask      = iConfig.getParameter<int>                 ("MuonTrigger1Mask");
    PFMetTriggerMask      = iConfig.getParameter<int>                 ("PFMetTriggerMask");
    L2MuMETTriggerMask    = iConfig.getParameter<int>                 ("L2MuMETTriggerMask");
@@ -91,9 +94,16 @@ bool HSCPHLTFilter::isDuplicate(unsigned int Run, unsigned int Event){
 /////////////////////////////////////////////////////////////////////////////////////
 bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   edm::TriggerResultsByName tr = iEvent.triggerResultsByName(TriggerProcess);
+   edm::Handle <edm::TriggerResults> trResultsHandle;
+   iEvent.getByToken (trResultsToken,  trResultsHandle);
+   if (!trResultsHandle.isValid())
+      printf("NoValidTrigger\n");
+   edm::TriggerResultsByName tr = edm::TriggerResultsByName(trResultsHandle.isValid()?trResultsHandle.product():0,
+         trResultsHandle.isValid()?&(iEvent.triggerNames(*trResultsHandle.product())):0);
    if(!tr.isValid()){    printf("NoValidTrigger\n");  }
-
+   
+//   edm::TriggerResultsByName tr = iEvent.triggerResultsByName(TriggerProcess);
+//   if(!tr.isValid()){    printf("NoValidTrigger\n");  }
 
    if(RemoveDuplicates) {
      if(isDuplicate(iEvent.eventAuxiliary().run(),iEvent.eventAuxiliary().event()))return false;

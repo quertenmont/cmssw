@@ -5,7 +5,7 @@ isSignal = False
 isBckg = False
 isData = True
 isSkimmedSample = False
-GTAG = 'GR_P_V56'
+GTAG = '80X_dataRun2_Prompt_v8'
 OUTPUTFILE = 'HSCP.root'
 LUMITOPROCESS = ''
 

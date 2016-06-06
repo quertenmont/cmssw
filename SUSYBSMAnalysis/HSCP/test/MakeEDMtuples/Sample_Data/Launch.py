@@ -15,7 +15,7 @@ import collections # kind of map
 #script parameters #feel free to edit those
 JSON = 'lumiToProcess.txt' #'/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt'   
 LOCALTIER   = 'T2_BE_UCL'
-DATASETMASKS = ['/DoubleMuon/Run2015*-PromptReco-v*/AOD', '/SingleMuon/Run2015*-PromptReco-v*/AOD', '/MET/Run2015*-PromptReco-v*/AOD']
+DATASETMASKS = ['/DoubleMuon/Run2016*-PromptReco-v*/AOD', '/SingleMuon/Run2016*-PromptReco-v*/AOD', '/MET/Run2016*-PromptReco-v*/AOD']
 ISLOCAL     = False #automatically assigned
 
 
@@ -38,7 +38,8 @@ def IsGoodLumi(R, L):
    return False
 
 def GetRunFromFile(F):
-   return int(F.split('/')[8])*1000+int(F.split('/')[9])   
+   print F
+   return int(F.split('/')[8]+F.split('/')[9])   
 
    
 def getChunksFromList(MyList, n):
@@ -53,14 +54,14 @@ def initProxy():
 
 def filesFromDataset(dataset):
    ISLOCAL=False
-   command_out = commands.getstatusoutput('das_client.py --limit=0 --query "site dataset='+dataset+' | grep site.name,site.dataset_fraction"')
+   command_out = commands.getstatusoutput('das_client --limit=0 --query "site dataset='+dataset+' | grep site.name,site.dataset_fraction"')
    for site in command_out[1].split('\n'):
       if(LOCALTIER in site and '100.00%' in site): 
          ISLOCAL=True
          break
 
    Files = {}
-   command_out = commands.getstatusoutput('das_client.py --limit=0 --query "file dataset='+dataset+'"')
+   command_out = commands.getstatusoutput('das_client --limit=0 --query "file dataset='+dataset+'"')
    for f in command_out[1].split():
       run = GetRunFromFile(f)
       if(not IsGoodRun(run)):continue
@@ -95,8 +96,8 @@ if sys.argv[1]=='1':
 
    datasetList = []
    for DATASETMASK in DATASETMASKS:
-      command_out = commands.getstatusoutput('das_client.py --limit=0 --query "dataset='+DATASETMASK+'"')
-      print 'das_client.py --limit=0 --query "dataset='+DATASETMASK+'"'
+      command_out = commands.getstatusoutput('das_client --limit=0 --query "dataset='+DATASETMASK+'"')
+      print 'das_client --limit=0 --query "dataset='+DATASETMASK+'"'
       print command_out
       datasetList += command_out[1].split()
 
@@ -129,7 +130,7 @@ if sys.argv[1]=='1':
                f.write("isBckg = False\n")
                f.write("isData = True\n")
                f.write("isSkimmedSample = False\n")
-               f.write("GTAG = 'GR_P_V56'\n")
+               f.write("GTAG = '80X_dataRun2_Prompt_v8'\n")
                f.write("OUTPUTFILE = 'out.root'\n" )
                f.write("LUMITOPROCESS = '" +  os.getcwd()+"/"+JSON+"'\n")
                f.write("\n")
