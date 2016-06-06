@@ -19,6 +19,8 @@ MuonTrigger1Mask       = 0
 PFMetTriggerMask       = 0
 L2MuMETTriggerMask     = 0
 
+TransferDirectlyToStorage = True
+
 LumiFiles = []
 FilesToPush = []
 
@@ -154,30 +156,39 @@ if sys.argv[1] == '1':
 
 if sys.argv[1] == '2':
    print "Merging EDM files ..."
-   print "Grid certificate is needed for the final lcg-cp command ..."
-   initProxy()
-
    FarmDirectory = "MERGECrab"
-   EndPath       = "%s/Prompt2016_v2" % StorageDir
+   MergeTemplateName = "Merge_Template_cfg.py"
+   EndPath = ""
+
+   if TransferDirectlyToStorage:
+      print "Grid certificate is needed for the final lcg-cp command ..."
+      initProxy()
+      EndPath = "%s/HSCP2016" % StorageDir
+   else:
+      EndPath = "%s/%s/outputs" % (os.getcwd(), FarmDirectory)
+
    if not os.path.isdir(EndPath):
       os.system("mkdir -p %s" % EndPath)
    runs = getRunList(AllLumisFile)
-
-#   LaunchOnCondor.Jobs_RunHere = 1
-   MergeTemplateName = "Merge_Template_cfg.py"
    createMergeConfigTemplate(MergeTemplateName)
    LaunchOnCondor.SendCluster_Create(FarmDirectory, "HSCPEdmMerge")
    for run in runs:
       paths = ["%s/DoubleMuon/crab_Run%s_DoubleMuon/*/0000/" % (StorageDir, run),
                "%s/MET/crab_Run%s_MET/*/0000/" % (StorageDir, run),
                "%s/SingleMuon/crab_Run%s_SingleMuon/*/0000/" % (StorageDir, run)]
-      LaunchOnCondor.Jobs_InitCmds   = ['export HOME=/home/fynu/jzobec', 'export X509_USER_PROXY=$HOME/x509_user_proxy/x509_proxy']
-      LaunchOnCondor.Jobs_FinalCmds  = ['rm -rf %s/Run2016_%s.root' % (EndPath, run)]
-      LaunchOnCondor.Jobs_FinalCmds += ["lcg-cp -D srmv2 -b file://${PWD}/Run2016_%s.root srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2\?SFN=%s/Run2016_%s.root" % (run, EndPath, run)] # if you do not use zsh, change '\?' -> '?'
       createToMergeList(paths)
+
+      LaunchOnCondor.Jobs_InitCmds   = ['export HOME=%s' % os.environ['HOME'], 'export X509_USER_PROXY=$HOME/x509_user_proxy/x509_proxy']
+      LaunchOnCondor.Jobs_FinalCmds  = ['rm -f %s/Run2016_%s.root' % (EndPath, run)]
+
+      if TransferDirectlyToStorage:
+         LaunchOnCondor.Jobs_FinalCmds += ["lcg-cp -n 10 -D srmv2 -b file://${PWD}/Run2016_%s.root srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2\?SFN=%s/Run2016_%s.root" % (run, EndPath, run)] # if you do not use zsh, change '\?' -> '?'
+         LaunchOnCondor.Jobs_FinalCmds += ["rm -f Run2016_%s.root" % run]
+      else:
+         LaunchOnCondor.Jobs_FinalCmds += ["mv Run2016_%s.root %s" % (run, EndPath)]
+
       LaunchOnCondor.Jobs_Queue = '8nh'
       LaunchOnCondor.SendCluster_Push(["CMSSW", MergeTemplateName, 'XXX_SAVEPATH_XXX', 'Run2016_%s.root' % run])
    LaunchOnCondor.SendCluster_Submit()
    os.system("rm -f %s" % MergeTemplateName)
-
 
