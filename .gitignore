@@ -4,3 +4,11 @@ __init__.py
 .#*
 #*#
 *~
+Configuration/Generator/
+core.*
+SUSYBSMAnalysis/HSCP/test/AnalysisCode/FARM*
+SUSYBSMAnalysis/HSCP/test/AnalysisCode/Results*
+*.d
+*.pcm
+*.so
+.__afs*

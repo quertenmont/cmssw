@@ -20,41 +20,42 @@ def checkInputFile(url):
 
 samples = [
 #SampleName, generator config file, NJobs, NEvents/Job
-  ['Gluino_13TeV_M200' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Gluino_13TeV_M600' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_600_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Gluino_13TeV_M1200', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_1200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Gluino_13TeV_M1800', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_1800_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Gluino_13TeV_M2400', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_2400_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+#  ['Gluino_13TeV_M200' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+#  ['Gluino_13TeV_M600' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_600_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+#  ['Gluino_13TeV_M1200', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_1200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+#  ['Gluino_13TeV_M1800', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_1800_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+#  ['Gluino_13TeV_M2400', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgluino_M_2400_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
 
-  ['Stop_13TeV_M200' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Stop_13TeV_M600' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_600_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Stop_13TeV_M1200', 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_1200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Stop_13TeV_M1800', 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_1800_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
-  ['Stop_13TeV_M2400', 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_2400_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+  ['Stop_13TeV_M200' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff.py', 1, 100], #FIXME
+#  ['Stop_13TeV_M600' , 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_600_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+#  ['Stop_13TeV_M1200', 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_1200_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
+  ['Stop_13TeV_M1800', 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_1800_TuneCUETP8M1_13TeV_pythia8_cff.py', 1, 100],  #FIXME
+#  ['Stop_13TeV_M2400', 'Configuration/GenProduction/python/ThirteenTeV/HSCPstop_M_2400_TuneCUETP8M1_13TeV_pythia8_cff.py', 100, 100],
 
-  ['GMStau_13TeV_M156', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_156_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['GMStau_13TeV_M308', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_308_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['GMStau_13TeV_M651', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_651_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['GMStau_13TeV_M1029', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_1029_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['GMStau_13TeV_M1599', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_1599_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['GMStau_13TeV_M156', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_156_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['GMStau_13TeV_M308', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_308_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['GMStau_13TeV_M651', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_651_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['GMStau_13TeV_M1029', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_1029_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['GMStau_13TeV_M1599', 'Configuration/GenProduction/python/ThirteenTeV/HSCPgmstau_M_1599_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
 
-  ['PPStau_13TeV_M156', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_156_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['PPStau_13TeV_M308', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_308_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['PPStau_13TeV_M651', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_651_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['PPStau_13TeV_M156', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_156_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['PPStau_13TeV_M308', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_308_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['PPStau_13TeV_M651', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_651_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
   ['PPStau_13TeV_M1029', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_1029_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
-  ['PPStau_13TeV_M1599', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_1599_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
+#  ['PPStau_13TeV_M1599', 'Configuration/GenProduction/python/ThirteenTeV/HSCPppstau_M_1599_TuneZ2star_13TeV_pythia6_cff.py', 100, 100],
 ]
 
 doTimeShift = False
 if sys.argv[1]=='1':  #GEN-SIM-DIGI-RECO-AOD in one shot
    #this is common to all samples, so we need to do it only once
-   os.system('cmsDriver.py --filein file:step1.root --fileout XXX_OUTPUT_XXX_XXX_I_XXX.root --mc --eventcontent AODSIM --datatier GEN-SIM-DIGI-AOD --conditions auto:run2_mc --step HLT:GRun,RAW2DIGI,L1Reco,RECO --python_filename RECO_Template_cfg.py --magField 38T_PostLS1 --geometry Extended2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --no_exec -n -1')
+#   os.system('cmsDriver.py --filein file:step1.root --fileout XXX_OUTPUT_XXX_XXX_I_XXX.root --mc --eventcontent AODSIM --datatier GEN-SIM-DIGI-AOD --conditions auto:run2_mc --step HLT:GRun,RAW2DIGI,L1Reco,RECO --python_filename RECO_Template_cfg.py --magField 38T_PostLS1 --geometry Extended2015 --era Run2_25ns --no_exec -n -1')
+   os.system('cmsDriver.py --filein file:step1.root --fileout XXX_OUTPUT_XXX_XXX_I_XXX.root --mc --eventcontent AODSIM --datatier GEN-SIM-DIGI-AOD --conditions auto:run2_mc --step HLT:GRun,RAW2DIGI,L1Reco,RECO --python_filename RECO_Template_cfg.py  --era Run2_2016 --no_exec -n -1')
 
    for S in samples:
       if('HSCP' in S[1]):
-         os.system('cmsDriver.py ' + S[1] + ' --fileout file:step1.root --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions auto:run2_mc --step GEN,SIM,DIGI,L1,DIGI2RAW --python_filename GEN_SIM_Template_cfg.py --magField 38T_PostLS1 --geometry Extended2015 --customise SimG4Core/CustomPhysics/Exotica_HSCP_SIM_cfi.customise,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --no_exec -n 10')
+         os.system('cmsDriver.py ' + S[1] + ' --fileout file:step1.root --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions auto:run2_mc --step GEN,SIM,DIGI,L1,DIGI2RAW --python_filename GEN_SIM_Template_cfg.py  --era Run2_2016 --no_exec -n 10')
       else:
-         os.system('cmsDriver.py ' + S[1] + ' --fileout file:step1.root --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions auto:run2_mc --step GEN,SIM,DIGI,L1,DIGI2RAW --python_filename GEN_SIM_Template_cfg.py --magField 38T_PostLS1 --geometry Extended2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --no_exec -n 10')
+         os.system('cmsDriver.py ' + S[1] + ' --fileout file:step1.root --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions auto:run2_mc --step GEN,SIM,DIGI,L1,DIGI2RAW --python_filename GEN_SIM_Template_cfg.py  --era Run2_2016 --no_exec -n 10')
 
       lines = ""
       with open("GEN_SIM_Template_cfg.py", "r") as f:

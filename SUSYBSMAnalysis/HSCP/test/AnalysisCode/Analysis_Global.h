@@ -172,7 +172,7 @@ void InitBaseDirectory(){
    // BaseDirectory is defined as a function of the host you are running on
    if(host.find("ucl.ac.be")!=std::string::npos){
       //BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_8/12_08_16/"; //for run1
-      BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/2015/"; //for run2
+      BaseDirectory = "/nfs/user/quertenmont/HSCP/2015/"; //for run2
    }else if(host.find("cern.ch")!=std::string::npos){
       //BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
       //BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/";    //for run1
