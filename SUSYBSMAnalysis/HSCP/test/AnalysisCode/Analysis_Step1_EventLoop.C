@@ -261,7 +261,7 @@ std::cout<<"B\n";
 
 
    //create histogram file and run the analyis
-   HistoFile = new TFile((string(Buffer)+"/Histos_"+samples[0].Name+"_"+samples[0].FileName+".root").c_str(),"RECREATE");
+   HistoFile = new TFile((string(Buffer)+"/Histos_"+samples[0].Name+"_"+ReplacePartOfString(samples[0].FileName, "/", "_")+".root").c_str(),"RECREATE");
 std::cout<<"C\n";
 
    Analysis_Step1_EventLoop(Buffer);
