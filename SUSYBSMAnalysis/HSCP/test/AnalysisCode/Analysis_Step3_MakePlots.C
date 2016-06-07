@@ -644,8 +644,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Data13TeV15->SetMarkerSize(1.0);
       Data13TeV15->SetLineColor(kBlack);
       Data13TeV15->SetFillColor(0);
-      Data13TeV15->Draw("P same");
-//      getGarwoodErrorBars(Data13TeV15)->Draw("P E1 same");
+//      Data13TeV15->Draw("P same");
+      getGarwoodErrorBars(Data13TeV15)->Draw("P E1 same");
    }
 
    if(Data13TeV16){
@@ -655,8 +655,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Data13TeV16->SetMarkerSize(1.0);
       Data13TeV16->SetLineColor(1);
       Data13TeV16->SetFillColor(0);
-      Data13TeV16->Draw("P same");
-//      getGarwoodErrorBars(Data13TeV16)->Draw("P E1 same");
+//      Data13TeV16->Draw("P same");
+      getGarwoodErrorBars(Data13TeV16)->Draw("P E1 same");
    }
 
 
