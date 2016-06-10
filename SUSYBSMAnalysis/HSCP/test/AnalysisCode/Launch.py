@@ -14,16 +14,23 @@ LaunchOnCondor.Jobs_Queue = '8nh'
 #the vector below contains the "TypeMode" of the analyses that should be run
 AnalysesToRun = [0,2]#,4]#,3,5]
 
+CMSSW_74X_VERSION = '7_4_14'
+base80X = os.environ['CMSSW_BASE']
+base74X = ""
+dirs = base80X.split('/')
+for i in range(0, len(dirs)-1):
+   base74X+=dirs[i]+'/'
+base74X+='CMSSW_'+CMSSW_74X_VERSION
 
 if len(sys.argv)==1:       
-	print "Please pass in argument a number between 1 and 5"
+        print "Please pass in argument a number between 1 and 5"
         print "  1  - Submit the Core of the (TkOnly+TkTOF) Analysis                 --> submitting %d x #SignalPoints jobs" % len(AnalysesToRun)
         print "  2  - Merge all output files and estimate backgrounds                --> submitting %d                 jobs"  % len(AnalysesToRun)
         print "  3  - Run the control plot macro                                     --> interactive"
         print "  4o - Run the Optimization macro based on best Exp Limit             --> submitting %d x #SignalPoints jobs (OPTIONAL)"  % len(AnalysesToRun)
         print "  4  - compute the limits from the cuts set in Analysis_Cuts.txt file --> submitting %d x #SignalPoints jobs (cut must edited by hand in Analysis_Cuts.txt)"  % len(AnalysesToRun)
         print "  5  - Run the exclusion plot macro                                   --> interactive"
-	sys.exit()
+        sys.exit()
 
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
@@ -114,6 +121,18 @@ elif sys.argv[1]=='4':
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
 
+        if not os.path.isdir('%s/src/HiggsAnalysis'):
+           print 'Error: %s/src/HiggsAnalysis does not exist' % base74X
+           print 'Make sure you set up the correct CMSSW_7_4_X version and path in base74X variable.'
+           print 'Exiting.'
+           os.exit()
+        if not os.path.islink('%s/src/HiggsAnalysis' % base80X)):
+           print 'Creating the symlink to HiggsAnalysis/CombinedLimit tool from 74X'
+           print 'cd %s/src && ln -s %s/src/HiggsAnalysis' % (base80X, base74X)
+           os.system('cd %s/src && ln -s %s/src/HiggsAnalysis' % (base80X, base74X))
+
+        LaunchOnCondor.Jobs_InitCmds += ['cd %s/src' % base74X, 'eval `scramv1 runtime -sh`', 'cd -']
+
         f = open('Analysis_Samples.txt','r')
         for line in f :
            if(line.startswith('#')):continue
@@ -123,12 +142,12 @@ elif sys.argv[1]=='4':
               if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue     
               skip = False
 
-#              #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)
+              #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)
 #              if(vals[2].find("8TeV")>=0):
 #                  key = vals[2]
 #                  key = key.replace("8TeV","7TeV")
 #                  f2= open('Analysis_Samples.txt','r')
-#                  for line2 in f2 :                     
+#                  for line2 in f2 :
 #                     vals2=line2.split(',')
 #                     if(vals2[1]==vals[1] and vals2[2] == key): skip = True;
 #                  if(skip==True): continue;
@@ -144,7 +163,7 @@ elif sys.argv[1]=='5':
         print 'EXCLUSION'
         os.system('sh Analysis_Step4_LimitComputation.sh')
 else:
-	print 'Unknown case: use an other argument or no argument to get help'
+        print 'Unknown case: use an other argument or no argument to get help'
 
 
 
