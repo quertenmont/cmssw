@@ -121,12 +121,12 @@ elif sys.argv[1]=='4':
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
 
-        if not os.path.isdir('%s/src/HiggsAnalysis'):
+        if not os.path.isdir('%s/src/HiggsAnalysis' % base74X):
            print 'Error: %s/src/HiggsAnalysis does not exist' % base74X
            print 'Make sure you set up the correct CMSSW_7_4_X version and path in base74X variable.'
            print 'Exiting.'
-           os.exit()
-        if not os.path.islink('%s/src/HiggsAnalysis' % base80X)):
+           sys.exit()
+        if not os.path.islink('%s/src/HiggsAnalysis' % base80X):
            print 'Creating the symlink to HiggsAnalysis/CombinedLimit tool from 74X'
            print 'cd %s/src && ln -s %s/src/HiggsAnalysis' % (base80X, base74X)
            os.system('cd %s/src && ln -s %s/src/HiggsAnalysis' % (base80X, base74X))
@@ -157,7 +157,7 @@ elif sys.argv[1]=='4':
               Path = "Results/Type"+str(Type)+"/"
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4_LimitComputation.C", '"COMPUTELIMIT13TeV"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
         f.close()
-        LaunchOnCondor.SendCluster_Submit()
+#        LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='5':
         print 'EXCLUSION'
