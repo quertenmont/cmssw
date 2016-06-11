@@ -155,9 +155,9 @@ elif sys.argv[1]=='4':
 #              #print vals[2] + "   " + str(skip)
 
               Path = "Results/Type"+str(Type)+"/"
-              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4_LimitComputation.C", '"COMPUTELIMIT13TeV"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
+              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4_LimitComputation.C", '"COMBINE_Run2"', '"'+Path+'"', vals[2] ]) #compute 2015, 2016 and 2015+2016 in the same job
         f.close()
-#        LaunchOnCondor.SendCluster_Submit()
+        LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='5':
         print 'EXCLUSION'

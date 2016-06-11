@@ -179,7 +179,23 @@ printf("Test %s\n", MODE.c_str());
       if(MODE.find("OPTIMIZE")!=string::npos){    Optimize(InputPattern, Data, signal, SHAPESTRING!="", false);     return;} //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
    }
 
-   if(MODE.find("COMBINE")!=string::npos){
+   if(MODE.find("COMPUTELIMIT2015")!=string::npos || MODE.find("OPTIMIZE2015")!=string::npos){
+      if(signal.find("13TeV")!=string::npos){Data = "Data13TeV"; SQRTS=1315.0; EXCLUSIONDIR+="13TeV15"; }
+      printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
+
+      if(MODE.find("COMPUTELIMIT")!=string::npos){Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);      return;}
+      if(MODE.find("OPTIMIZE")!=string::npos){    Optimize(InputPattern, Data, signal, SHAPESTRING!="", false);     return;} //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
+   }
+
+   if(MODE.find("COMPUTELIMIT2016")!=string::npos || MODE.find("OPTIMIZE2016")!=string::npos){
+      if(signal.find("13TeV")!=string::npos){Data = "Data13TeV16"; SQRTS=1316.0; EXCLUSIONDIR+="13TeV16"; }
+      printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
+
+      if(MODE.find("COMPUTELIMIT")!=string::npos){Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);      return;}
+      if(MODE.find("OPTIMIZE")!=string::npos){    Optimize(InputPattern, Data, signal, SHAPESTRING!="", false);     return;} //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
+   }
+
+   if(MODE.find("COMBINE_Run1")!=string::npos){
       printf("COMBINE!!!\n");
 
       string signal7TeV = signal; if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
@@ -199,9 +215,37 @@ printf("Test %s\n", MODE.c_str());
       Combine(InputPattern, signal7TeV, signal8TeV);
       return;
    }
-   if(MODE.find("7TeV" )!=string::npos){Data = "Data7TeV"; SQRTS=7.0 ; EXCLUSIONDIR+="7TeV" ; }
-   if(MODE.find("8TeV" )!=string::npos){Data = "Data8TeV"; SQRTS=8.0 ; EXCLUSIONDIR+="8TeV" ; }
-   if(MODE.find("13TeV")!=string::npos){Data = "Data8TeV"; SQRTS=13.0; EXCLUSIONDIR+="13TeV"; }
+
+
+   if(MODE.find("COMBINE_Run2")!=string::npos){
+      printf("COMBINE!!!\n");
+
+      string signal13TeV15 = signal + "W13TeV15";
+      string signal13TeV16 = signal + "W13TeV16";
+
+      string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
+
+      //2015 Limits
+      printf("2015 Data ...\n");
+      Data = "Data13TeV"; SQRTS=1315.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"13TeV15";
+      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+
+      //2016 Limits
+      printf("2016 Data ...\n");
+      Data = "Data13TeV16"; SQRTS=1316.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"13TeV16";
+      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+
+      //Combined Limits
+      printf("Combining ...\n");
+      EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=131615.0;
+      Combine(InputPattern, signal13TeV15, signal13TeV16);
+      return;
+   }
+   if     (MODE.find("7TeV"   )!=string::npos){Data = "Data7TeV"   ; SQRTS=7.0   ; EXCLUSIONDIR+="7TeV"   ; }
+   else if(MODE.find("8TeV"   )!=string::npos){Data = "Data8TeV"   ; SQRTS=8.0   ; EXCLUSIONDIR+="8TeV"   ; }
+   else if(MODE.find("13TeV15")!=string::npos){Data = "Data13TeV"  ; SQRTS=1315.0; EXCLUSIONDIR+="13TeV15"; }
+   else if(MODE.find("13TeV16")!=string::npos){Data = "Data13TeV16"; SQRTS=1316.0; EXCLUSIONDIR+="13TeV16"; }
+   else if(MODE.find("13TeV"  )!=string::npos){Data = "Data13TeV"  ; SQRTS=13.0  ; EXCLUSIONDIR+="13TeV"  ; }
    printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
 
    
@@ -212,7 +256,8 @@ printf("Test %s\n", MODE.c_str());
 //   string LQPattern  = "Results/Type5/";  //Disabling this analyis
 
    bool Combine = (MODE.find("COMB")!=string::npos);
-   if(Combine){EXCLUSIONDIR+="COMB"; SQRTS=78.0;}
+   if (MODE.find("Run1")!=string::npos){EXCLUSIONDIR+="COMB"; SQRTS=78.0;}
+   if (MODE.find("Run2")!=string::npos){EXCLUSIONDIR+="COMB"; SQRTS=131615.0;}
    if(Combine) {PlotMinScale=1E-6; PlotMaxScale=300;}
 
    string outpath = string("Results/"+SHAPESTRING+EXCLUSIONDIR+"/");
@@ -221,17 +266,23 @@ printf("Test %s\n", MODE.c_str());
    //determine the list of models that are considered
    GetSampleDefinition(samples);
 
-   if(SQRTS!=78.0) keepOnlySamplesAtSQRTS(samples, SQRTS);
+   if(SQRTS!=78.0 && SQRTS!=131615.0) keepOnlySamplesAtSQRTS(samples, SQRTS);
 
    for(unsigned int s=0;s<samples.size();s++){
     if(samples[s].Type!=2)continue;
     //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
 
-    if(SQRTS== 7.0  && samples[s].Name.find( "_7TeV")==string::npos){continue;}
-    if(SQRTS== 8.0  && samples[s].Name.find( "_8TeV")==string::npos){continue;}
-    if(SQRTS==13.0  && samples[s].Name.find("_13TeV")==string::npos){continue;}
+    if(SQRTS== 7.0    && samples[s].Name.find( "_7TeV")==string::npos){continue;}
+    if(SQRTS== 8.0    && samples[s].Name.find( "_8TeV")==string::npos){continue;}
+    if(SQRTS==13.0    && samples[s].Name.find("_13TeV")==string::npos){continue;}
+    if(SQRTS==1315.0  && samples[s].Name.find("_13TeV")==string::npos){continue;}
+    if(SQRTS==1316.0  && samples[s].Name.find("_13TeV")==string::npos){continue;}
 //    if(SQRTS==78.0){if(samples[s].Name.find("_7TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_7TeV"),5, ""); } }
     if(SQRTS==78.0){if(samples[s].Name.find("_8TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_8TeV"),5, ""); } }
+    if(SQRTS==131615.0){
+       if  (samples[s].Name.find("_13TeV")==string::npos){continue;}
+       else{samples[s].Name.replace(samples[s].Name.find("_13TeV"),samples[s].Name.size()-samples[s].Name.find("_13TeV"), "");}
+    }
 
     modelMap[samples[s].ModelName()].push_back(samples[s]);   
     if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
@@ -2870,42 +2921,90 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 }
 
 
-bool Combine(string InputPattern, string signal7, string signal8){
+bool Combine(string InputPattern, string signal1, string signal2){
 //   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
 //   int s = CurrentSampleIndex;
   int TypeMode = TypeFromPattern(InputPattern);
 
    string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
-
-   //Get Optimal cut from sample11
-   stAllInfo result11 =  stAllInfo(InputPattern+"/EXCLUSION7TeV/"+signal7+".txt");
-   //Get Optimal cut from sample12
-   stAllInfo result12 =  stAllInfo(InputPattern+"/EXCLUSION8TeV/"+signal8+".txt");
-
-   stAllInfo result = result12;
-   char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
-
-   string signal = signal7;
-   if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
-   char TypeStr[100] ;sprintf(TypeStr,"Type%i", TypeMode);
-   string JobName = TypeStr+signal;
-
-   FILE* pFileTmp = NULL;
-
-   bool is7TeVPresent = true;
-   pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal7)+".dat").c_str(), "r");
-   if(!pFileTmp){is7TeVPresent=false;}else{fclose(pFileTmp);}
-   if(TypeMode==3) is7TeVPresent=false;
-
-   bool is8TeVPresent = true;
-   pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal8)+".dat").c_str(), "r");
-   if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
-
-
+   string JobName;
+   stAllInfo result11;
+   stAllInfo result12;
+   stAllInfo result;
+   string signal;
    string CodeToExecute = "combineCards.py ";
-   if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal7)+".dat ";
-   if(is8TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal8)+".dat ";
+   char massStr[255];
+
+   if (signal1.find("13TeV")==string::npos && signal2.find("13TeV")==string::npos){
+      //Get Optimal cut from sample11
+      result11 =  stAllInfo(InputPattern+"/EXCLUSION7TeV/"+signal1+".txt");
+      //Get Optimal cut from sample12
+      result12 =  stAllInfo(InputPattern+"/EXCLUSION8TeV/"+signal2+".txt");
+
+      result = result12;
+      sprintf(massStr,"%.0f",result.Mass);
+
+      signal = signal1;
+      if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
+      char TypeStr[100] ;sprintf(TypeStr,"Type%i", TypeMode);
+      JobName = TypeStr+signal;
+
+      FILE* pFileTmp = NULL;
+
+      bool is7TeVPresent = true;
+      pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal1)+".dat").c_str(), "r");
+      if(!pFileTmp){is7TeVPresent=false;}else{fclose(pFileTmp);}
+      if(TypeMode==3) is7TeVPresent=false;
+
+      bool is8TeVPresent = true;
+      pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal2)+".dat").c_str(), "r");
+      if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
+
+
+      if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal1)+".dat ";
+      if(is8TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal2)+".dat ";
+   }
+
+   else {
+      size_t toBreak1   = signal1.find("W13TeV");
+      size_t toBreak2   = signal2.find("W13TeV");
+      string signal11   = signal1.substr(0, toBreak1);
+      string signal12   = signal2.substr(0, toBreak1);
+      string EXCLUSION1 = "/EXCLUSION"+signal1.substr(toBreak1+1, signal1.size()-toBreak1-1);
+      string EXCLUSION2 = "/EXCLUSION"+signal2.substr(toBreak2+1, signal2.size()-toBreak2-1);
+      //Get Optimal cut from sample11
+      result11 =  stAllInfo(InputPattern+EXCLUSION1+"/"+signal11+".txt");
+      //Get Optimal cut from sample22
+      result12 =  stAllInfo(InputPattern+EXCLUSION2+"/"+signal12+".txt");
+      char TypeStr[100] ;sprintf(TypeStr,"Type%i", TypeMode);
+      JobName = TypeStr+signal11;
+
+      result = result12;
+      sprintf(massStr,"%.0f",result.Mass);
+
+      signal = signal11;
+      if     (signal.find("_13TeV15")!=string::npos){signal.replace(signal.find("_13TeV15"),8, "");}
+      else if(signal.find("_13TeV16")!=string::npos){signal.replace(signal.find("_13TeV16"),8, "");}
+      else if(signal.find("_13TeV")  !=string::npos){signal.replace(signal.find("_13TeV"  ),6, "");}
+
+      FILE* pFileTmp = NULL;
+
+      bool is2015Present = true;
+      pFileTmp = fopen((InputPattern+EXCLUSION1+"/shape_"+(TypeStr+signal11)+".dat").c_str(), "r");
+      if(!pFileTmp){is2015Present=false;}else{fclose(pFileTmp);}
+      if(TypeMode!=0 && TypeMode!=2) is2015Present=false;
+
+      bool is2016Present = true;
+      pFileTmp = fopen((InputPattern+EXCLUSION2+"/shape_"+(TypeStr+signal12)+".dat").c_str(), "r");
+      if(!pFileTmp){is2016Present=false;}else{fclose(pFileTmp);}
+
+
+      if(is2015Present)CodeToExecute+="   " + InputPattern+EXCLUSION1+"/shape_"+(TypeStr+signal11)+".dat ";
+      if(is2016Present)CodeToExecute+="   " + InputPattern+EXCLUSION2+"/shape_"+(TypeStr+signal12)+".dat ";
+   }
+
+
 
    CodeToExecute+=" > " + outpath+"shape_"+JobName+".dat ";
 
@@ -2914,7 +3013,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
 
    result.XSec_Th = 1.0;
    //Muon only uses just 2012
-   if(TypeMode==3) {
+   if(TypeMode==3 && signal1.find("7TeV")!=string::npos && signal2.find("8TeV")!=string::npos) {
      result.XSec_Obs=result12.XSec_Obs/result12.XSec_Th;
      result.XSec_Exp=result12.XSec_Exp/result12.XSec_Th;
      result.XSec_ExpUp=result12.XSec_ExpUp/result12.XSec_Th;
