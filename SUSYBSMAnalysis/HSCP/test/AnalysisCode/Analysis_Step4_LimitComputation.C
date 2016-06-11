@@ -148,6 +148,9 @@ std::map<std::string, std::vector<stSample> > modelMap;
 
 string SHAPESTRING="";
 
+void Analysis_Step4_LimitComputation(){
+   return;
+}
 
 void Analysis_Step4_LimitComputation(string MODE="COMPILE", string InputPattern="", string signal=""){
   setTDRStyle();
@@ -266,7 +269,7 @@ printf("Test %s\n", MODE.c_str());
    //determine the list of models that are considered
    GetSampleDefinition(samples);
 
-   if(SQRTS!=78.0 && SQRTS!=131615.0) keepOnlySamplesAtSQRTS(samples, SQRTS);
+   if(SQRTS!=78.0 && SQRTS!=131615.0 && SQRTS!=131516.0) keepOnlySamplesAtSQRTS(samples, SQRTS);
 
    for(unsigned int s=0;s<samples.size();s++){
     if(samples[s].Type!=2)continue;
@@ -279,12 +282,16 @@ printf("Test %s\n", MODE.c_str());
     if(SQRTS==1316.0  && samples[s].Name.find("_13TeV")==string::npos){continue;}
 //    if(SQRTS==78.0){if(samples[s].Name.find("_7TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_7TeV"),5, ""); } }
     if(SQRTS==78.0){if(samples[s].Name.find("_8TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_8TeV"),5, ""); } }
-    if(SQRTS==131615.0){
+    if(SQRTS==131615.0 || SQRTS==131516.0){
        if  (samples[s].Name.find("_13TeV")==string::npos){continue;}
-       else{samples[s].Name.replace(samples[s].Name.find("_13TeV"),samples[s].Name.size()-samples[s].Name.find("_13TeV"), "");}
+       else{
+          samples[s].Name = ReplacePartOfString (samples[s].Name,"_13TeV16", "");
+          samples[s].Name = ReplacePartOfString (samples[s].Name,"_13TeV15", "");
+          samples[s].Name = ReplacePartOfString (samples[s].Name,"_13TeV"  , "");
+       }
     }
 
-    modelMap[samples[s].ModelName()].push_back(samples[s]);   
+    modelMap[samples[s].ModelName()].push_back(samples[s]);
     if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
    }
 
@@ -713,7 +720,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = new TGraph(sizeof(THXSEC8TeV_Gluino_Mass)/sizeof(double),THXSEC8TeV_Gluino_Mass,THXSEC8TeV_Gluino_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC8TeV_Gluino_Mass)/sizeof(double),THXSEC8TeV_Gluino_Mass,THXSEC8TeV_Gluino_Low,THXSEC8TeV_Gluino_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13){ 
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){ 
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_Gluino_Mass)/sizeof(double),THXSEC13TeV_Gluino_Mass,THXSEC13TeV_Gluino_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC13TeV_Gluino_Mass)/sizeof(double),THXSEC13TeV_Gluino_Mass,THXSEC13TeV_Gluino_Low,THXSEC13TeV_Gluino_High, PlotMinScale, PlotMaxScale);
          }else{
@@ -728,7 +735,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = new TGraph(sizeof(THXSEC8TeV_Stop_Mass)/sizeof(double),THXSEC8TeV_Stop_Mass,THXSEC8TeV_Stop_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC8TeV_Stop_Mass)/sizeof(double),THXSEC8TeV_Stop_Mass,THXSEC8TeV_Stop_Low,THXSEC8TeV_Stop_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13){
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_Stop_Mass)/sizeof(double),THXSEC13TeV_Stop_Mass,THXSEC13TeV_Stop_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC13TeV_Stop_Mass)/sizeof(double),THXSEC13TeV_Stop_Mass,THXSEC13TeV_Stop_Low,THXSEC13TeV_Stop_High, PlotMinScale, PlotMaxScale);
          }else{
@@ -743,7 +750,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_GMStau_Mass)/sizeof(double),THXSEC8TeV_GMStau_Mass,THXSEC8TeV_GMStau_Low,THXSEC8TeV_GMStau_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13){ 
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){ 
 //            #Prospino xsection that I get looks very weird, use pythia for the time being
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_GMStau_Mass)/sizeof(double),THXSEC13TeV_GMStau_Mass,THXSEC13TeV_GMStau_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC13TeV_GMStau_Mass)/sizeof(double),THXSEC13TeV_GMStau_Mass,THXSEC13TeV_GMStau_Low,THXSEC13TeV_GMStau_High, PlotMinScale, PlotMaxScale);
@@ -764,7 +771,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_PPStau_Mass)/sizeof(double),THXSEC8TeV_PPStau_Mass,THXSEC8TeV_PPStau_Low,THXSEC8TeV_PPStau_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13){
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){
 //            #Prospino xsection that I get looks very weird, use pythia for the time being
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_PPStau_Mass)/sizeof(double),THXSEC13TeV_PPStau_Mass,THXSEC13TeV_PPStau_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC13TeV_PPStau_Mass)/sizeof(double),THXSEC13TeV_PPStau_Mass,THXSEC13TeV_PPStau_Low,THXSEC13TeV_PPStau_High, PlotMinScale, PlotMaxScale);
@@ -1037,15 +1044,15 @@ std::cout<<"TESTD\n";
 
    c1 = new TCanvas("c1", "c1",600,600);
    c1->SetLogy(true);
-   frame = new TH1D("frame", "frame", 1,50, 2650);
-   frame->GetXaxis()->SetNdivisions(505);
-   frame->SetTitle("");
-   frame->SetStats(kFALSE);
-   frame->GetXaxis()->SetTitle("Mass (GeV)");
-   frame->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   frame->GetYaxis()->SetTitleOffset(1.40);
-   frame->SetMaximum(PlotMaxScale);
-   frame->SetMinimum(PlotMinScale);
+//   frame = new TH1D("frame", "frame", 1,50, 2650);
+//   frame->GetXaxis()->SetNdivisions(505);
+//   frame->SetTitle("");
+//   frame->SetStats(kFALSE);
+//   frame->GetXaxis()->SetTitle("Mass (GeV)");
+//   frame->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
+//   frame->GetYaxis()->SetTitleOffset(1.40);
+//   frame->SetMaximum(PlotMaxScale);
+//   frame->SetMinimum(PlotMinScale);
    frame->Draw("AXIS");
 
    if(!Combine) {
@@ -1148,13 +1155,13 @@ std::cout<<"F\n";
 if(Combine){
 
    c1 = new TCanvas("c1", "c1",600,600);
-   frame = new TH1D("frame", "frame", 1,90, 570);
-   frame->GetXaxis()->SetNdivisions(505);
-   frame->SetTitle("");
-   frame->SetStats(kFALSE);
-   frame->GetXaxis()->SetTitle("Mass (GeV)");
-   frame->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   frame->GetYaxis()->SetTitleOffset(1.40);
+//   frame = new TH1D("frame", "frame", 1,90, 570);
+//   frame->GetXaxis()->SetNdivisions(505);
+//   frame->SetTitle("");
+//   frame->SetStats(kFALSE);
+//   frame->GetXaxis()->SetTitle("Mass (GeV)");
+//   frame->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
+//   frame->GetYaxis()->SetTitleOffset(1.40);
    frame->SetMaximum(20);
    frame->SetMinimum(1e-3);
    frame->Draw("AXIS");
@@ -1921,6 +1928,7 @@ void DrawModelLimitWithBand(string InputPattern){
       LEG->SetHeader(headerstr.c_str());
       LEG->SetFillColor(0); 
       LEG->SetBorderSize(0);
+      fprintf (stderr, "k/kMax = (%u / %lu)\tN=%u out of %lu\n", k+1, modelVector.size(), N, modelMap[modelVector[k]].size());
       LEG->AddEntry(graphtheory,  modelMap[modelVector[k]][0].ModelLegend().c_str() ,"L");
       LEG->AddEntry(graphexp    , "Expected"             ,"L");
       LEG->AddEntry(ExpErr      , "Expected #pm 1#sigma" ,"F");
@@ -2129,9 +2137,11 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    CurrentSampleIndex        = JobIdToIndex(signal,samples); 
    if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
 
-   if(Data.find("7TeV")!=string::npos){SQRTS=7.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
-   if(Data.find("8TeV")!=string::npos){SQRTS=8.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
-   if(Data.find("13TeV")!=string::npos){SQRTS=13.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
+   if      (Data.find("7TeV"   )!=string::npos){SQRTS=7.0;   } //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
+   else if (Data.find("8TeV"   )!=string::npos){SQRTS=8.0;   } //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
+   else if (Data.find("13TeV15")!=string::npos){SQRTS=1315.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
+   else if (Data.find("13TeV16")!=string::npos){SQRTS=1316.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
+   else if (Data.find("13TeV"  )!=string::npos){SQRTS=13.0;  } //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);
 
    //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
    if((signal.find("Gluino")!=string::npos || signal.find("Stop")!=string::npos) && signal.find("N")!=string::npos && TypeMode==3) return;
@@ -2201,12 +2211,17 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
          if(TypeMode_!=TypeMode)continue; //Not reading the cut line for the right TypeMode 
 
          string signalNameWithoutEnergy = signal;
-         char str7TeV[]="_7TeV";
-         char str8TeV[]="_8TeV";
-         char str13TeV[]="_13TeV";
-         if(signalNameWithoutEnergy.find(str7TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str7TeV), string(str7TeV).length());
-         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
-         if(signalNameWithoutEnergy.find(str13TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str13TeV), string(str13TeV).length()); 
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_7TeV"   , "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_8TeV"   , "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV15", "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV16", "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_137TeV" , "");
+
+//         if(signalNameWithoutEnergy.find(str7TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str7TeV), str7TeV.length());
+//         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
+//         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
+//         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
+//         if(signalNameWithoutEnergy.find(str13TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str13TeV), string(str13TeV).length()); 
 
 
          //printf("%s vs %s\n",Name_.c_str(), signalNameWithoutEnergy.c_str());
