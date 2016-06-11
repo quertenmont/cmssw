@@ -1117,8 +1117,8 @@ std::cout<<"F\n";
               if(MaxEntry>0 && ientry>MaxEntry)break;
               NMCevents += GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
             }
-            if(samples[s].Type==1)SampleWeight = GetSampleWeightMC(IntegratedLuminosity,FileName, samples[s].XSec, ev.size(), NMCevents, numberOfMatchingSamples(samples[s].Name, samplesFull));
-            else                  SampleWeight = GetSampleWeight  (IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
+            if(samples[s].Type==1)SampleWeight = GetSampleWeightMC((samples[s].Name.find("13TeV16")==string::npos)?IntegratedLuminosity13TeV15:IntegratedLuminosity13TeV16,FileName, samples[s].XSec, ev.size(), NMCevents, numberOfMatchingSamples(samples[s].Name, samplesFull));
+            else                  SampleWeight = GetSampleWeight  ((samples[s].Name.find("13TeV16")==string::npos)?IntegratedLuminosity13TeV15:IntegratedLuminosity13TeV16,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
          }
 
 	 if(SampleWeight==0) continue; //If sample weight 0 don't run, happens Int Lumi before change = 0
