@@ -2999,9 +2999,9 @@ bool Combine(string InputPattern, string signal1, string signal2){
       sprintf(massStr,"%.0f",result.Mass);
 
       signal = signal11;
-      if     (signal.find("_13TeV15")!=string::npos){signal.replace(signal.find("_13TeV15"),8, "");}
-      else if(signal.find("_13TeV16")!=string::npos){signal.replace(signal.find("_13TeV16"),8, "");}
-      else if(signal.find("_13TeV")  !=string::npos){signal.replace(signal.find("_13TeV"  ),6, "");}
+      signal = ReplacePartOfString(signal, "_13TeV16", "");}
+      signal = ReplacePartOfString(signal, "_13TeV15", "");}
+      signal = ReplacePartOfString(signal, "_13TeV"  , "");}
 
       FILE* pFileTmp = NULL;
 
