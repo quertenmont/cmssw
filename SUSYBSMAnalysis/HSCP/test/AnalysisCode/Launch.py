@@ -142,7 +142,7 @@ elif sys.argv[1]=='4':
               if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue     
               skip = False
 
-              #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)
+#              #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)
 #              if(vals[2].find("8TeV")>=0):
 #                  key = vals[2]
 #                  key = key.replace("8TeV","7TeV")
