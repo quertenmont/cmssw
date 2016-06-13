@@ -2999,9 +2999,9 @@ bool Combine(string InputPattern, string signal1, string signal2){
       sprintf(massStr,"%.0f",result.Mass);
 
       signal = signal11;
-      signal = ReplacePartOfString(signal, "_13TeV16", "");}
-      signal = ReplacePartOfString(signal, "_13TeV15", "");}
-      signal = ReplacePartOfString(signal, "_13TeV"  , "");}
+      signal = ReplacePartOfString(signal, "_13TeV16", "");
+      signal = ReplacePartOfString(signal, "_13TeV15", "");
+      signal = ReplacePartOfString(signal, "_13TeV"  , "");
 
       FILE* pFileTmp = NULL;
 
