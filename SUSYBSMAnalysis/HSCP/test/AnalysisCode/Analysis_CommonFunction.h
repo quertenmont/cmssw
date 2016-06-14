@@ -670,7 +670,7 @@ class dedxGainCorrector{
             if(tmp->InheritsFrom("TTree")){
                string dirName = ObjList->At(i)->GetName();
                unsigned int FirstRun, LastRun;  sscanf(dirName.c_str(), "Gains_%d_to_%d", &FirstRun, &LastRun);
-               printf("Add a new gain srarting at run %d\n", FirstRun);
+               printf("Add a new gain starting at run %d\n", FirstRun);
                
                TTree* t1 = (TTree*) tmp;
                unsigned int  tree_DetId;   t1->SetBranchAddress("DetId"             ,&tree_DetId      );

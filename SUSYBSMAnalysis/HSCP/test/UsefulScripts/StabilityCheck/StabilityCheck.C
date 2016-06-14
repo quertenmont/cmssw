@@ -452,15 +452,15 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
                //(dEdxHitPerLumiIt->second)[2+hitDeDx[h].subDet]->Fill(hitDeDx[h].dedx); 
             }
 
-            DeDxData dedxMin1Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.1, fake?HIPemulator:NULL);
-            DeDxData dedxMin2Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.2, fake?HIPemulator:NULL);
-            DeDxData dedxMin3Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.3, fake?HIPemulator:NULL);
-            DeDxData dedxMin4Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.4, fake?HIPemulator:NULL);
-            DeDxData dedxSObj = computedEdx(dedxHits, dEdxSF, dEdxTemplates, true, useClusterCleaning, TypeMode==5, false, tkGains, true, true, 99, false, 1, 0.0, fake?HIPemulator:NULL);
-            DeDxData dedxMObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?HIPemulator:NULL);
-            DeDxData dedxMTObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , true, tkGains, true, true, 99, false, 1, 0.0, fake?HIPemulator:NULL);
-            DeDxData dedxMSObj = computedEdx(dedxHits, dEdxSF, NULL,          false,useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?HIPemulator:NULL);
-            DeDxData dedxMPObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, false, true, 99, false, 1, 0.0, fake?HIPemulator:NULL);
+            DeDxData dedxMin1Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.15, fake?&HIPemulator:NULL);
+            DeDxData dedxMin2Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.2, fake?&HIPemulator:NULL);
+            DeDxData dedxMin3Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.3, fake?&HIPemulator:NULL);
+            DeDxData dedxMin4Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.4, fake?&HIPemulator:NULL);
+            DeDxData dedxSObj = computedEdx(dedxHits, dEdxSF, dEdxTemplates, true, useClusterCleaning, TypeMode==5, false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxMObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxMTObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , true, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxMSObj = computedEdx(dedxHits, dEdxSF, NULL,          false,useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxMPObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, false, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
 
             const reco::MuonTimeExtra* tof = NULL;
             const reco::MuonTimeExtra* dttof = NULL;

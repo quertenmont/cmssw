@@ -190,7 +190,7 @@ void InitBaseDirectory(){
    }else if(host.find("fnal.gov")!=std::string::npos){
      BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/lpchscp/2012HSCPEDMFiles/"; //for run1
    }else if(host.find("ingrid-ui")!=std::string::npos){
-      BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/2015/"; // run2 ingrid
+      BaseDirectory = "/storage/data/cms/store/user/querten/HSCP/2015/"; // run2 ingrid
    }else if(host.find(".cis.gov.pl")!=std::string::npos){
       BaseDirectory = "root://se.cis.gov.pl//cms/store/user/fruboes/HSCP/15_03_25_HSCP_Run2EDMFiles/"; // run2 Swierk
    }else{
