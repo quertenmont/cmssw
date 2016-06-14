@@ -502,7 +502,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        Hscp_hasCalo         [NHSCPs] = hscp.hasCaloInfo();
        Hscp_type            [NHSCPs] = hscp.type();
 
-      if(track.isNonnull() && Hscp_hasTrack[NHSCPs]){
+      if(track.isNonnull() && Hscp_hasTrack){
          Track_p            [NHSCPs] = track->p();
          Track_pt           [NHSCPs] = track->pt();
          Track_pt_err       [NHSCPs] = track->ptError();
@@ -538,7 +538,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
       }
 
-      if(muon.isNonnull() && Hscp_hasMuon[NHSCPs]){
+      if(muon.isNonnull() && Hscp_hasMuon){
          Muon_p             [NHSCPs] = muon->p();
          Muon_pt            [NHSCPs] = muon->pt();
          Muon_eta           [NHSCPs] = muon->eta();
@@ -592,7 +592,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
       }
 
-      if(Hscp_hasRpc[NHSCPs]){
+      if(Hscp_hasRpc){
          Rpc_beta           [NHSCPs] = hscp.rpc().beta;
       }
 
