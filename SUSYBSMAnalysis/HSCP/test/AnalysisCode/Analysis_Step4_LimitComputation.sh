@@ -8,7 +8,9 @@ root -l -b << EOF
    gSystem->SetIncludePath("-I$ROOFITSYS/include");
    //.x Analysis_Step4_LimitComputation.C++("Final7TeV", "", "");
    //.x Analysis_Step4_LimitComputation.C++("Final8TeV", "", "");
-   //.x Analysis_Step4_LimitComputation.C++("FinalCOMB", "", "");
-   .x Analysis_Step4_LimitComputation.C++("Final13TeV", "", "");
+   //.x Analysis_Step4_LimitComputation.C++("FinalCOMBRun1", "", "");
+   .x Analysis_Step4_LimitComputation.C++("Final13TeV15" , "", "");
+   .x Analysis_Step4_LimitComputation.C++("Final13TeV16" , "", "");
+   .x Analysis_Step4_LimitComputation.C++("FinalCOMBINERun2", "", "");
 EOF
 

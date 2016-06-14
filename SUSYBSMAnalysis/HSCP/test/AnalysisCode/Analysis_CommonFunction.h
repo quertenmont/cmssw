@@ -3,9 +3,20 @@
 #include "Analysis_Global.h"
 #include "Analysis_PlotFunction.h"
 #include "TVector3.h"
+#include <string>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 // general purpose code 
+std::string ReplacePartOfString (std::string s, std::string a, std::string b){
+   size_t pos=0;
+   string toReturn=s;
+   while(1){
+      pos = toReturn.find(a, pos);
+      if (pos==std::string::npos) break;
+      toReturn.replace(pos++,a.size(),b);
+   }
+   return toReturn;
+}
 
 // return the TypeMode from a string inputPattern
 int TypeFromPattern(const std::string& InputPattern){
