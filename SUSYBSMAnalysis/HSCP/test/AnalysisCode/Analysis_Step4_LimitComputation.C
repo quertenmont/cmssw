@@ -2215,7 +2215,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
          signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_8TeV"   , "");
          signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV15", "");
          signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV16", "");
-         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_137TeV" , "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV"  , "");
 
 //         if(signalNameWithoutEnergy.find(str7TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str7TeV), str7TeV.length());
 //         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
@@ -2237,7 +2237,17 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
          break; 
       }
       fclose(pFile);
-      if(OptimCutIndex<0){printf("DID NOT FIND THE CUT TO USE FOR THIS SAMPLE %s\n",signal.c_str());return;}
+      if(OptimCutIndex<0){printf("DID NOT FIND THE CUT TO USE FOR THIS SAMPLE %s\n",signal.c_str());
+         string signalNameWithoutEnergy = signal;
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_7TeV"   , "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_8TeV"   , "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV15", "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV16", "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV"  , "");
+
+	 fprintf(stderr, "%s was changed to %s\n", signal.c_str(), signalNameWithoutEnergy.c_str());
+
+	      return;}
    }
 
    //normalise the signal samples to XSection * IntLuminosity

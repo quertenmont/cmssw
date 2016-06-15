@@ -12,8 +12,9 @@ import collections
 PrimaryDatasetsToMatch = "/*/Run2016*-PromptReco-v*/AOD"
 GlobalTag              = "80X_dataRun2_Prompt_v8"
 StorageSite            = 'T2_BE_UCL'
-AllLumisFile           = "Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt"
+AllLumisFile           = "lumiToProcess.txt"
 StorageDir             = "/storage/data/cms/store/user/jozobec"
+LumisPerJob            = 5
 
 MuonTrigger1Mask       = 0
 PFMetTriggerMask       = 0
@@ -79,7 +80,7 @@ def createCrabConfigFile (lumiFileName, dataset):
    f.write("config.section_('Data')\n")
    f.write("config.Data.inputDataset = '%s'\n" % dataset)
    f.write("config.Data.publication = False\n")
-   f.write("config.Data.unitsPerJob = 50\n")
+   f.write("config.Data.unitsPerJob = %i\n" % LumisPerJob)
    f.write("config.Data.splitting = 'LumiBased'\n")
    f.write("config.Data.inputDBS = 'global'\n")
    f.write("config.Data.lumiMask = '%s'\n" % lumiFileName)
@@ -182,8 +183,7 @@ if sys.argv[1] == '2':
       LaunchOnCondor.Jobs_FinalCmds  = ['rm -f %s/Run2016_%s.root' % (EndPath, run)]
 
       if TransferDirectlyToStorage:
-         LaunchOnCondor.Jobs_FinalCmds += ["lcg-cp -n 10 -D srmv2 -b file://${PWD}/Run2016_%s.root srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2\?SFN=%s/Run2016_%s.root" % (run, EndPath, run)] # if you do not use zsh, change '\?' -> '?'
-         LaunchOnCondor.Jobs_FinalCmds += ["rm -f Run2016_%s.root" % run]
+         LaunchOnCondor.Jobs_FinalCmds += ["lcg-cp -v -n 10 -D srmv2 -b file://${PWD}/Run2016_%s.root srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2\?SFN=%s/Run2016_%s.root && rm -f Run2016_%s.root" % (run, EndPath, run, run)] # if you do not use zsh, change '\?' to '?'
       else:
          LaunchOnCondor.Jobs_FinalCmds += ["mv Run2016_%s.root %s" % (run, EndPath)]
 
@@ -191,4 +191,21 @@ if sys.argv[1] == '2':
       LaunchOnCondor.SendCluster_Push(["CMSSW", MergeTemplateName, 'XXX_SAVEPATH_XXX', 'Run2016_%s.root' % run])
    LaunchOnCondor.SendCluster_Submit()
    os.system("rm -f %s" % MergeTemplateName)
+
+
+
+if sys.argv[1] == '3':
+   print "Validating the content and estimating the total integrated luminosity..."
+   EndPath = ""
+   if TransferDirectlyToStorage:
+      EndPath = "%s/HSCP2016" % StorageDir
+   else:
+      FarmDirectory = "MERGECrab"
+      EndPath = "%s/%s/outputs" % (os.getcwd(), FarmDirectory)
+   listOfProcessedFiles = os.popen('find %s -maxdepth 1 -name "Run2016_*.root" | sort -V' % EndPath).read().split()
+   f = open ("Analysis_Samples_tmp.txt", 'w')
+   for line in listOfProcessedFiles:
+      f.write("\"CMSSW_8_0\", 0, \"Data13TeV16\", \"%s\", \"Data\", \"NoPU\", 0, 0.0000000000E+00, 0, 0.000, 0.000, 0.000\n" % line)
+   f.close()
+
 
