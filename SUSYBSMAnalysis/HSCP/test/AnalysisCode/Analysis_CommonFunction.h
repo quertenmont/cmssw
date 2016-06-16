@@ -3,9 +3,20 @@
 #include "Analysis_Global.h"
 #include "Analysis_PlotFunction.h"
 #include "TVector3.h"
+#include <string>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 // general purpose code 
+std::string ReplacePartOfString (std::string s, std::string a, std::string b){
+   size_t pos=0;
+   string toReturn=s;
+   while(1){
+      pos = toReturn.find(a, pos);
+      if (pos==std::string::npos) break;
+      toReturn.replace(pos++,a.size(),b);
+   }
+   return toReturn;
+}
 
 // return the TypeMode from a string inputPattern
 int TypeFromPattern(const std::string& InputPattern){
@@ -659,7 +670,7 @@ class dedxGainCorrector{
             if(tmp->InheritsFrom("TTree")){
                string dirName = ObjList->At(i)->GetName();
                unsigned int FirstRun, LastRun;  sscanf(dirName.c_str(), "Gains_%d_to_%d", &FirstRun, &LastRun);
-               printf("Add a new gain srarting at run %d\n", FirstRun);
+               printf("Add a new gain starting at run %d\n", FirstRun);
                
                TTree* t1 = (TTree*) tmp;
                unsigned int  tree_DetId;   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
