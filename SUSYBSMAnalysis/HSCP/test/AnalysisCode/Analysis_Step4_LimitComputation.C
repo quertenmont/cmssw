@@ -2215,7 +2215,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
          signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_8TeV"   , "");
          signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV15", "");
          signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV16", "");
-         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_137TeV" , "");
+         signalNameWithoutEnergy = ReplacePartOfString (signalNameWithoutEnergy, "_13TeV"  , "");
 
 //         if(signalNameWithoutEnergy.find(str7TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str7TeV), str7TeV.length());
 //         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
