@@ -5,7 +5,7 @@ import os,sys,time
 import collections # kind of map
 
 gains        = "/afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain"
-whitelist    = [272760, 273402, 273592, 274094, 274198, 274387, 274421, 274954, 275282, 275370]
+whitelist    = [272760, 273402, 273592, 274094, 274198, 274387, 274421, 275282, 275370]
 useWhitelist = True
 
 def GetAppliedIntervals ():
@@ -106,4 +106,4 @@ if sys.argv[1] == '1':
 if sys.argv[1] == '2':
     os.system('rm -rf Gains')
     os.system('sh CombineGains.sh')
-    os.syetem('hadd -f Data13TeVGains_v2.root Gains2015.root Gains/Gains.root')
+    os.system('hadd -f Data13TeVGains_v2.root Gains2015.root Gains/*.root')

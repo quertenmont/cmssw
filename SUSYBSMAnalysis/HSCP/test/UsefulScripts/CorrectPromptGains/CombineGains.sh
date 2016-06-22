@@ -18,8 +18,5 @@ root -l -b << EOF
   .x CombineGains.C++();
 EOF
 
-rm -f Gains/Gains.root
-hadd -f Gains/Gains.root Gains/Gains_*.root
-
 exit 0
 
