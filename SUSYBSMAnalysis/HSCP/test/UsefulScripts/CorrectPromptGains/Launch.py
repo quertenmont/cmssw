@@ -5,8 +5,10 @@ import os,sys,time
 import collections # kind of map
 
 gains        = "/afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain"
-whitelist    = [272760, 273402, 273592, 274094, 274198, 274387, 274421, 275282, 275370]
+whitelist    = [272760, 273592, 274094, 274198, 274387, 274421, 275282, 275370]
+blacklist    = [273402, 273592]
 useWhitelist = True
+useBlacklist = False
 
 def GetAppliedIntervals ():
     A = os.popen('conddb list SiStripApvGain_FromParticles_GR10_v1_express | grep SiStripApvGain').read().split()
@@ -75,6 +77,18 @@ def ForceWhitelist (inputList):
                break
     return toReturn
 
+def ForceBlacklist (inputList):
+    toReturn = []
+    for entry in inputList:
+       Match = False
+       for j in range(0, len(blacklist)):
+           if (entry[0] == blacklist[j]):
+               Match = True
+               break
+       if not Match:
+          toReturn.append(entry)
+    return toReturn
+
 def CombineGainsList (correctGains, appliedGains):
     toReturn = []
     for corGain in correctGains:
@@ -99,11 +113,12 @@ if sys.argv[1] == '1':
     appliedGains = GetAppliedGains()
     correctGains = GetAvailableGains()
     if useWhitelist: correctGains = ForceWhitelist(correctGains)
+    if useBlacklist: correctGains = ForceBlacklist(correctGains)
 
     promptGains = CombineGainsList (correctGains, appliedGains)
     WriteTXT ("gains.txt", promptGains)
 
 if sys.argv[1] == '2':
-    os.system('rm -rf Gains')
+    os.system('rm -rf Gains Data13TeVGains_v2.root')
     os.system('sh CombineGains.sh')
     os.system('hadd -f Data13TeVGains_v2.root Gains2015.root Gains/*.root')
