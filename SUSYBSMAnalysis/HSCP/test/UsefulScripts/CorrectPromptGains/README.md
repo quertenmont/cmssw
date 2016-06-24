@@ -15,7 +15,17 @@ Gains applied online on prompt data can be found using `conddb`, which gives you
 
 Now we know which payloads are applied on prompt data for which run range. Correct gains are any of the gains listed in the previously mentioned directory. Script then merely combines them, and creates a file `gains.txt` in the first step which can be edited. Script also supports whitelisting or blacklisting specific payloads which may be detrimental to use for the analysis.
 
+To run the first step, run
+```
+python Launch.py 1
+```
+
 After the `gains.txt` file has been checked and everything is in order, `CombineGains.sh` is run, which is just a shell wrapper that runs `CombineGains.C` which creates a new gains file, which is valid for a run range specified in `gains.txt`. Lastly the script uses `hadd -f` to merge those files and combines it with `2015` gains file.
+
+To run the second step, producing the final gains file, run
+```
+python Launch.py 2
+```
 
 ## TO-DO
 `CombineGains.C` usually segfaults: it tries to produce the final file twice, and since that file exists already it crashes. All the files required to run are still produced and are good, so fixing is not necessary, but it would be nice to have it run without segfaults.
