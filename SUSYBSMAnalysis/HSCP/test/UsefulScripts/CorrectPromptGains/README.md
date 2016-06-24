@@ -18,6 +18,9 @@ Gains applied online on prompt data can be found using `conddb`, which gives you
 
 Now we know which payloads are applied on prompt data for which run range. Correct gains are any of the gains listed in the previously mentioned directory. Script then merely combines them, and creates a file `gains.txt` in the first step which can be edited. Script also supports whitelisting or blacklisting specific payloads which may be detrimental to use for the analysis.
 
+File `gains.txt` has the following format:
+| Gains_firstRun_toLastRun | Correct payloads for that run range | Applied payloads for that run range |
+
 To run the first step, run
 ```
 python Launch.py 1
