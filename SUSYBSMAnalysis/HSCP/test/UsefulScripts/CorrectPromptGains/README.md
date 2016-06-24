@@ -20,7 +20,7 @@ To run the first step, run
 python Launch.py 1
 ```
 
-After the `gains.txt` file has been checked and everything is in order, `CombineGains.sh` is run, which is just a shell wrapper that runs `CombineGains.C` which creates a new gains file, which is valid for a run range specified in `gains.txt`. Lastly the script uses `hadd -f` to merge those files and combines it with `2015` gains file.
+After the `gains.txt` file has been checked and everything is in order, `CombineGains.sh` is run, which is just a shell wrapper that runs `CombineGains.C`. This creates a new gains file that is valid for a run range specified in `gains.txt`. Lastly the script uses `hadd -f` to merge those files and combines it with `2015` gains file.
 
 To run the second step, producing the final gains file, run
 ```
