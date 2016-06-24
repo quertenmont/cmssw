@@ -9,7 +9,7 @@ After enough statistics have been collected, correct payloads are computed. Howe
 ```
 correct gains = applied gains * (correct gains / applied gains)
 ```
-meaning the correct gains for _prompt_ datasets are (correct gains / applied gains).
+meaning the correct gains for _prompt_ datasets are (correct gains / applied gains). This is not needed for _re-reco_ as those datasets have correct gains already applied.
 
 Gains applied online on prompt data can be found using `conddb`, which gives you run which had those gains applied at first and the hash checksum of the payload file. You do not know which file it is. It could be any of the files listed in the directories `/afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain`. Names of the directories listed there tell us which run range was used to compute the payloads. Script checks the `Gains_Sqlite.db` files and searches for `PAYLOAD_HASH` entry in the `IOV` table to find a matching payload.
 
