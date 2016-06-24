@@ -21,9 +21,7 @@ Now we know which payloads are applied on prompt data for which run range. Corre
 File `gains.txt` has the following format:
 
 ```
- ------------------------ | ----------------------------------- | ----------------------------------- 
- Gains_firstRun_toLastRun | Correct payloads for that run range | Applied payloads for that run range 
- ------------------------ | ----------------------------------- | ----------------------------------- 
+<Gains_firstRun_toLastRun> <Correct payloads for that run range> <Applied payloads for that run range>
 ```
 
 
