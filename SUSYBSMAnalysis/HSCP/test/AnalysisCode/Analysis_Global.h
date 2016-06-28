@@ -174,13 +174,18 @@ const   float Pileup_MC_Startup2015_25ns[60] = {4.8551E-07, 1.74806E-06, 3.30868
 void InitBaseDirectory(){  
    char* analystTmp=getenv("USER");
    char* hostTmp   =getenv("HOSTNAME");
+   char* remoteStoragePath =getenv("REMOTESTORAGEPATH");
    if(!hostTmp||!analystTmp)return;
    string analyst(analystTmp);
    string host   (hostTmp);
    if(getenv("PWD")!=NULL)host+=string(" PWD=") + getenv("PWD");
 
-   // BaseDirectory is defined as a function of the host you are running on
-   if(host.find("ucl.ac.be")!=std::string::npos){
+   // BaseDirectory is first set for the AAA protocol ...
+   if(remoteStoragePath!=NULL){
+      BaseDirectory = "root://cms-xrd-global.cern.ch/"+string(remoteStoragePath);
+      printf("Accessing remote files using BaseDirectory = %s\n.", BaseDirectory.c_str());
+   // if we give no path to remote storage site, BaseDirectory is then set via hostname
+   }else if(host.find("ucl.ac.be")!=std::string::npos){
       //BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_8/12_08_16/"; //for run1
       BaseDirectory = "/nfs/user/quertenmont/HSCP/2015/"; //for run2
    }else if(host.find("cern.ch")!=std::string::npos){

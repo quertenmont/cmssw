@@ -7,9 +7,13 @@ import sys
 import SUSYBSMAnalysis.HSCP.LaunchOnCondor as LaunchOnCondor 
 import glob
 import commands
+import time
 
 LaunchOnCondor.Jobs_InitCmds       = ['ulimit -c 0;']  #disable production of core dump in case of job crash
 LaunchOnCondor.Jobs_Queue = '8nh'
+
+UseRemoteSamples          = True
+RemoteStorageDir          = '/storage/data/cms/store/user/jozobec/HSCP2016/'
 
 #the vector below contains the "TypeMode" of the analyses that should be run
 AnalysesToRun = [0,2]#,4]#,3,5]
@@ -40,7 +44,6 @@ if CMSSW_VERSION == 'CMSSW_VERSION':
 
 if("CMSSW_8" in CMSSW_VERSION): CMSSW_VERSION = CMSSW_VERSION + " CMSSW_7_4"
 
-
 def skipSamples(type, name):
    if(name.find("AMSB")!=-1 and type!=0):return True; #only consider AMSB in TkOnly analysis
 
@@ -54,12 +57,21 @@ def skipSamples(type, name):
    
    return False
 
+def initProxy():
+   if(not os.path.isfile(os.path.expanduser('~/x509_user_proxy/x509_proxy')) or ((time.time() - os.path.getmtime(os.path.expanduser('~/x509_user_proxy/x509_proxy')))>600)):
+      print "You are going to run on a sample over grid using either CRAB or the AAA protocol, it is therefore needed to initialize your grid certificate"
+      os.system('mkdir -p ~/x509_user_proxy; voms-proxy-init --voms cms -valid 192:00 --out ~/x509_user_proxy/x509_proxy')#all must be done in the same command to avoid environement problems.  Note that the first sourcing is only needed in Louvain
+
+
 if sys.argv[1]=='1':	
+        if UseRemoteSamples:
+           initProxy()
+           initCommand = 'export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;'
         print 'ANALYSIS'
         FarmDirectory = "FARM"
         JobName = "HscpAnalysis"
-	LaunchOnCondor.Jobs_RunHere = 1
-	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
+        LaunchOnCondor.Jobs_RunHere = 1
+        LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
         f= open('Analysis_Samples.txt','r')
         index = -1
         for line in f :
@@ -68,10 +80,13 @@ if sys.argv[1]=='1':
            vals=line.split(',')
            if((vals[0].replace('"','')) in CMSSW_VERSION):
               for Type in AnalysesToRun:
+                 if(UseRemoteSamples and int(vals[1])==0 and vals[3].find('2016')):
+                    LaunchOnCondor.Jobs_InitCmds = ['ulimit -c 0', 'export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;', 'export REMOTESTORAGEPATH='+RemoteStorageDir.replace('/storage/data/cms/store/', '/store/')]
+                 else: LaunchOnCondor.Jobs_InitCmds = ['ulimit -c 0']
                  if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue
                  LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step1_EventLoop.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , Type, vals[2].rstrip() ])
         f.close()
-	LaunchOnCondor.SendCluster_Submit()
+        LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='2':
         print 'MERGING FILE AND PREDICTING BACKGROUNDS'  
