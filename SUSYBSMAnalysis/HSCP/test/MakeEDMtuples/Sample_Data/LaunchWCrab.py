@@ -182,6 +182,7 @@ if sys.argv[1] == '2':
       LaunchOnCondor.Jobs_InitCmds   = ['export HOME=%s' % os.environ['HOME'], 'export X509_USER_PROXY=$HOME/x509_user_proxy/x509_proxy']
       LaunchOnCondor.Jobs_FinalCmds  = ['rm -f %s/Run2016_%s.root' % (EndPath, run)]
 
+
       if TransferDirectlyToStorage:
          LaunchOnCondor.Jobs_FinalCmds += ["lcg-cp -v -n 10 -D srmv2 -b file://${PWD}/Run2016_%s.root srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2\?SFN=%s/Run2016_%s.root && rm -f Run2016_%s.root" % (run, EndPath, run, run)] # if you do not use zsh, change '\?' to '?'
       else:
@@ -202,10 +203,16 @@ if sys.argv[1] == '3':
    else:
       FarmDirectory = "MERGECrab"
       EndPath = "%s/%s/outputs" % (os.getcwd(), FarmDirectory)
-   listOfProcessedFiles = os.popen('find %s -maxdepth 1 -name "Run2016_*.root" | sort -V' % EndPath).read().split()
+   runs = getRunList(AllLumisFile)
    f = open ("Analysis_Samples_tmp.txt", 'w')
-   for line in listOfProcessedFiles:
-      f.write("\"CMSSW_8_0\", 0, \"Data13TeV16\", \"%s\", \"Data\", \"NoPU\", 0, 0.0000000000E+00, 0, 0.000, 0.000, 0.000\n" % line)
+   for run in runs:
+      if os.path.isfile("%s/Run2016_%s.root" % (EndPath, run)):
+         f.write("\"CMSSW_8_0\", 0, \"Data13TeV16\", \"%s/Run2016_%s.root\", \"Data\", \"NoPU\", 0, 0.0000000000E+00, 0, 0.000, 0.000, 0.000\n" % (EndPath, run))
    f.close()
+
+#   listOfProcessedFiles = os.popen('find %s -maxdepth 1 -name "Run2016_*.root" | sort -V' % EndPath).read().split()
+#   for line in listOfProcessedFiles:
+#      f.write("\"CMSSW_8_0\", 0, \"Data13TeV16\", \"%s\", \"Data\", \"NoPU\", 0, 0.0000000000E+00, 0, 0.000, 0.000, 0.000\n" % line)
+#   f.close()
 
 

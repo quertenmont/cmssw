@@ -66,7 +66,6 @@ def initProxy():
 if sys.argv[1]=='1':	
         if UseRemoteSamples:
            initProxy()
-           initCommand = 'export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;'
         print 'ANALYSIS'
         FarmDirectory = "FARM"
         JobName = "HscpAnalysis"
@@ -80,7 +79,7 @@ if sys.argv[1]=='1':
            vals=line.split(',')
            if((vals[0].replace('"','')) in CMSSW_VERSION):
               for Type in AnalysesToRun:
-                 if(UseRemoteSamples and int(vals[1])==0 and vals[3].find('2016')):
+                 if(UseRemoteSamples and int(vals[1])==0 and vals[3].find('2016') != -1):
                     LaunchOnCondor.Jobs_InitCmds = ['ulimit -c 0', 'export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;', 'export REMOTESTORAGEPATH='+RemoteStorageDir.replace('/storage/data/cms/store/', '/store/')]
                  else: LaunchOnCondor.Jobs_InitCmds = ['ulimit -c 0']
                  if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue
@@ -104,6 +103,7 @@ elif sys.argv[1]=='2':
            os.system('find ' + Path + 'Histos_*.root  -type f -size +1024c | xargs hadd -f ' + Path + 'Histos.root ')
            LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step2_BackgroundPrediction.C", '"'+Path+'"'])
         LaunchOnCondor.SendCluster_Submit()
+
 elif sys.argv[1]=='3':
         print 'PLOTTING'
 	os.system('root Analysis_Step3_MakePlots.C++ -l -b -q')
@@ -153,6 +153,7 @@ elif sys.argv[1]=='4':
            if(line.startswith('#')):continue
            vals=line.split(',')
            if(int(vals[1])<2):continue
+#           if vals[2].find("13TeV16") == -1: continue
            for Type in AnalysesToRun:            
               if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue     
               skip = False

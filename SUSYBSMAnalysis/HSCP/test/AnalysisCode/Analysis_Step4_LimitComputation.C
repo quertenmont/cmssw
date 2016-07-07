@@ -2242,7 +2242,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 
    //normalise the signal samples to XSection * IntLuminosity
    double LInt  = H_Lumi->GetBinContent(1);
-   LInt = Data.find("13TeV16")!=string::npos?IntegratedLuminosity13TeV16:IntegratedLuminosity13TeV15;
+//   LInt = Data.find("13TeV16")!=string::npos?IntegratedLuminosity13TeV16:IntegratedLuminosity13TeV15; // from before, but a neat trick
    double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
    double normPU= samples[CurrentSampleIndex].XSec*LInt/(TotalEPU->Integral()>0?TotalEPU->Integral():TotalE->Integral());
 
@@ -2356,7 +2356,7 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
    if(SQRTS==8   ) LumiUnc=1.044;
    if(SQRTS==13  ) LumiUnc=1.027;
    if(SQRTS==1315) LumiUnc=1.027;
-   if(SQRTS==1316) LumiUnc=1.0; // to be determined
+   if(SQRTS==1316) LumiUnc=1.027; // to be determined, for now set as in 2015
 
    if(isnan(float(PredRelErr)))PredRelErr= 1.2;
 
