@@ -205,9 +205,6 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
    return false;
 }
 
-
-
-
 void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", string JobIndexStr="0", string NJobsStr="1")
 {
   printf("DIRNAME = %s\n", DIRNAME.c_str());
@@ -216,9 +213,10 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
 
    std::vector<string> triggers;
    triggers.push_back("Any");
-//   triggers.push_back("HLT_Mu45_eta2p1");
+   triggers.push_back("HLT_Mu45_eta2p1");
    triggers.push_back("HLT_Mu50");
-//   triggers.push_back("HLT_PFMET170_NoiseCleaned");
+   triggers.push_back("HLT_PFMET170_NoiseCleaned");
+   triggers.push_back("HLT_PFMET170_HBECleaned");
 
    std::vector<string> versions;
    versions.push_back("");
@@ -257,6 +255,7 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
 
    InitBaseDirectory();
    GetSampleDefinition(samples , DIRNAME+"/../../AnalysisCode/Analysis_Samples.txt");
+//   GetSampleDefinition(samples , DIRNAME+"/Analysis_Samples_tmp.txt");
    int sampleIdStart, sampleIdEnd; sscanf(JobIndexStr.c_str(),"%d",&sampleIdStart); sampleIdEnd=sampleIdStart;
    keepOnlyTheXtoYSamples(samples,sampleIdStart,sampleIdEnd);
    keepOnlyValidSamples(samples);
@@ -275,13 +274,13 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
       bool isMC     = (samples[s].Type==1);
       bool isSignal = (samples[s].Type>=2);
 
-      if(isData){ 
+      if(isData){  // 2016 values
          dEdxSF [0] = 1.00000;
-         dEdxSF [1] = 1.21836;
+         dEdxSF [1] = 1.41822;
          dEdxTemplates = loadDeDxTemplate("../../../data/Data13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
       }else{  
-         dEdxSF [0] = 1.09708;
-         dEdxSF [1] = 1.01875;
+         dEdxSF [0] = 1.09711;
+         dEdxSF [1] = 1.09256;
          dEdxTemplates = loadDeDxTemplate("../../../data/MC13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
       }
 

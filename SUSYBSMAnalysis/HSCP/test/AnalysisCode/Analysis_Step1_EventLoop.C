@@ -241,15 +241,23 @@ std::cout<<"A\n";
 
    //initialize LumiReWeighting
    //FIXME  pileup scenario must be updated based on data/mc
-   if(samples[0].Pileup=="S15"){        for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Startup2015_25ns[i]);
-   }else if(samples[0].Pileup=="NoPU"){ for(int i=0; i<60; ++i) BgLumiMC.push_back(TrueDist2015_f[i]); //Push same as data to garantee no PU reweighting
-   }else if (samples[0].Pileup=="S10"){ for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
-   }else{                               for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
+   bool is2016 = (samples[0].Name.find("13TeV16")!=std::string::npos)?true:false;
+   if(samples[0].Pileup=="S15"){        for(int i=0; i<100; ++i) BgLumiMC.push_back(Pileup_MC_Startup2015_25ns[i]);
+   }else if(samples[0].Pileup=="NoPU" && !is2016){ for(int i=0; i<100; ++i) BgLumiMC.push_back(TrueDist2015_f[i]); //Push same as 2015 data to garantee no PU reweighting
+   }else if(samples[0].Pileup=="NoPU" && is2016) { for(int i=0; i<100; ++i) BgLumiMC.push_back(TrueDist2016_f[i]); //Push same as 2016 data to garantee no PU reweighting
+   }else if (samples[0].Pileup=="S10"){ for(int i=0; i<100; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
+   }else{                               for(int i=0; i<100; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
    }
 std::cout<<"A1\n";
 
-   for(int i=0; i<60; ++i) TrueDist    .push_back(TrueDist2015_f[i]);
-   for(int i=0; i<60; ++i) TrueDistSyst.push_back(TrueDist2015_XSecShiftUp_f[i]);
+   if (!is2016){
+      for(int i=0; i<100; ++i) TrueDist    .push_back(TrueDist2015_f[i]);
+      for(int i=0; i<100; ++i) TrueDistSyst.push_back(TrueDist2015_XSecShiftUp_f[i]);
+   } else if (is2016){
+      for(int i=0; i<100; ++i) TrueDist    .push_back(TrueDist2016_f[i]);
+      for(int i=0; i<100; ++i) TrueDistSyst.push_back(TrueDist2016_XSecShiftUp_f[i]);
+   }
+   
 std::cout<<"A2\n";
 
    LumiWeightsMC     = edm::LumiReWeighting(BgLumiMC, TrueDist);
@@ -1019,17 +1027,23 @@ void Analysis_Step1_EventLoop(char* SavePath)
       bool isData   = (samples[s].Type==0);
       bool isMC     = (samples[s].Type==1);
       bool isSignal = (samples[s].Type>=2);
+      bool is2016   = (samples[s].Name.find("13TeV16")==std::string::npos)?false:true;
+      
+      dEdxK_Data = is2016?dEdxK_Data16:dEdxK_Data15;
+      dEdxC_Data = is2016?dEdxC_Data16:dEdxC_Data15;
+      dEdxK_MC   = is2016?dEdxK_MC16:dEdxK_MC15;
+      dEdxC_MC   = is2016?dEdxC_MC16:dEdxC_MC15;
 
 std::cout<<"D\n";
 
 
       if(isData){ 
          dEdxSF [0] = 1.00000;
-         dEdxSF [1] = 1.21836;
+         dEdxSF [1] = is2016?1.41822:1.21836;
          dEdxTemplates = loadDeDxTemplate("../../data/Data13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
       }else{  
-         dEdxSF [0] = 1.09708;
-         dEdxSF [1] = 1.01875;
+         dEdxSF [0] = is2016?1.09711:1.09708;
+         dEdxSF [1] = is2016?1.09256:1.01875;
          dEdxTemplates = loadDeDxTemplate("../../data/MC13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
       }
 
@@ -1047,14 +1061,14 @@ std::cout<<"F\n";
       if(isData) stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size(), false, false, CutPt_Flip.size());
       else stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size());
       stPlots* SamplePlots = &plotsMap[samples[s].Name];
-      SamplePlots->IntLumi->Fill(0.0,IntegratedLuminosity);
+      SamplePlots->IntLumi->Fill(0.0,!is2016?IntegratedLuminosity13TeV15:IntegratedLuminosity13TeV16);
 
       string MCTrDirName = "MCTr_13TeV";
       if(isMC){
-	if(samples[s].Name.find("7TeV")!=string::npos) MCTrDirName = "MCTr_7TeV";
-	if(samples[s].Name.find("8TeV")!=string::npos) MCTrDirName = "MCTr_8TeV";
-        if(plotsMap.find(MCTrDirName)==plotsMap.end()){plotsMap[MCTrDirName] = stPlots();}
-        stPlots_Init(HistoFile,plotsMap[MCTrDirName],MCTrDirName, CutPt.size(), false, false, CutPt_Flip.size());
+         if(samples[s].Name.find("7TeV")!=string::npos) MCTrDirName = "MCTr_7TeV";
+         if(samples[s].Name.find("8TeV")!=string::npos) MCTrDirName = "MCTr_8TeV";
+         if(plotsMap.find(MCTrDirName)==plotsMap.end()){plotsMap[MCTrDirName] = stPlots();}
+         stPlots_Init(HistoFile,plotsMap[MCTrDirName],MCTrDirName, CutPt.size(), false, false, CutPt_Flip.size());
       }stPlots* MCTrPlots = &plotsMap[MCTrDirName];
 
       //Initialize plot container for pure cosmic sample
@@ -1062,10 +1076,10 @@ std::cout<<"F\n";
       //need a new set of plots for these events
       string CosmicName="";
       if(isData && TypeMode==3) {
-	if(samples[s].Name.find("8TeV")!=string::npos) CosmicName="Cosmic8TeV";
-	else CosmicName="Cosmic7TeV";
-	if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
-	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size(), false, false, CutPt_Flip.size());
+         if(samples[s].Name.find("8TeV")!=string::npos) CosmicName="Cosmic8TeV";
+         else CosmicName="Cosmic7TeV";
+         if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
+         stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size(), false, false, CutPt_Flip.size());
       }
 
       //needed for bookeeping
@@ -1117,8 +1131,8 @@ std::cout<<"F\n";
               if(MaxEntry>0 && ientry>MaxEntry)break;
               NMCevents += GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
             }
-            if(samples[s].Type==1)SampleWeight = GetSampleWeightMC((samples[s].Name.find("13TeV16")==string::npos)?IntegratedLuminosity13TeV15:IntegratedLuminosity13TeV16,FileName, samples[s].XSec, ev.size(), NMCevents, numberOfMatchingSamples(samples[s].Name, samplesFull));
-            else                  SampleWeight = GetSampleWeight  ((samples[s].Name.find("13TeV16")==string::npos)?IntegratedLuminosity13TeV15:IntegratedLuminosity13TeV16,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
+            if(samples[s].Type==1)SampleWeight = GetSampleWeightMC(is2016?IntegratedLuminosity13TeV16:IntegratedLuminosity13TeV15,FileName, samples[s].XSec, ev.size(), NMCevents, numberOfMatchingSamples(samples[s].Name, samplesFull));
+            else                  SampleWeight = GetSampleWeight  (is2016?IntegratedLuminosity13TeV16:IntegratedLuminosity13TeV15,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
          }
 
 	 if(SampleWeight==0) continue; //If sample weight 0 don't run, happens Int Lumi before change = 0

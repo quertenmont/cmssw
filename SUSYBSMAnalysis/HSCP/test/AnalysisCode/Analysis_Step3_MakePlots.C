@@ -98,7 +98,7 @@ void Analysis_Step3_MakePlots()
 //  std::cout<<"B\n";
 
 //   GetSystematicOnPrediction(InputPattern, "Data13TeV");  //FOR IMPOSSIBLE REASON, THIS FUNCTION CRASHES IF IT IS RUN TOGETHER WITH THE OTHER FUNCTIONS
-//   GetSystematicOnPrediction(InputPattern, "Data13TeV16");  //FOR IMPOSSIBLE REASON, THIS FUNCTION CRASHES IF IT IS RUN TOGETHER WITH THE OTHER FUNCTIONS
+   GetSystematicOnPrediction(InputPattern, "Data13TeV16");  //FOR IMPOSSIBLE REASON, THIS FUNCTION CRASHES IF IT IS RUN TOGETHER WITH THE OTHER FUNCTIONS
 
   std::cout<<"ALL DONE WITH THE PLOTTING CODE\n";
 
@@ -1749,7 +1749,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
     SQRTS=1316; stPlots_Draw(Data13TeV16Plots, InputPattern + "/Selection_Data13TeV16", LegendTitle, CutIndex);
     SQRTS=1315; stPlots_Draw(MCTr13TeVPlots, InputPattern + "/Selection_MCTr_13TeV", LegendTitle, CutIndex);
     SQRTS=131615; stPlots_DrawComparison(InputPattern + "/Selection_Comp_13TeV16", LegendTitle, CutIndex, CutIndexTight, &Data13TeV15Plots, &Data13TeV16Plots, &MCTr13TeVPlots,&SignPlots[JobIdToIndex("Gluino_13TeV_M1000_f10",samples)], &SignPlots[JobIdToIndex("Gluino_13TeV_M1400_f10",samples)], &SignPlots[JobIdToIndex("Stop_13TeV_M1000",samples)], &SignPlots[JobIdToIndex("GMStau_13TeV_M494",samples)]);
-    SQRTS=131615; stPlots_DrawComparison(InputPattern + "/Selection_CompAMSB_13TeV16", LegendTitle, CutIndex, CutIndexTight, &Data13TeV15Plots, &Data13TeV16Plots, &MCTr13TeVPlots,&SignPlots[JobIdToIndex("AMSB_13TeV_500_10cm",samples)], &SignPlots[JobIdToIndex("AMSB_13TeV_500_100cm",samples)], &SignPlots[JobIdToIndex("AMSB_13TeV_500_1000cm",samples)]);
+//    SQRTS=131615; stPlots_DrawComparison(InputPattern + "/Selection_CompAMSB_13TeV16", LegendTitle, CutIndex, CutIndexTight, &Data13TeV15Plots, &Data13TeV16Plots, &MCTr13TeVPlots,&SignPlots[JobIdToIndex("AMSB_13TeV_500_10cm",samples)], &SignPlots[JobIdToIndex("AMSB_13TeV_500_100cm",samples)], &SignPlots[JobIdToIndex("AMSB_13TeV_500_1000cm",samples)]);
 
 
 //    if(TypeMode!=3) {SQRTS=7; stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);}
