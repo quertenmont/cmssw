@@ -14,13 +14,13 @@ import collections # kind of map
 
 #script parameters #feel free to edit those
 #JSON = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt'
-JSON = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt'
+JSON = 'GoldenJSON.txt'
 #JSON = os.getcwd() + '/Json.txt'
 #/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt'   
 LOCALTIER   = 'T2_CH_CERN'
-DATASETMASK = '/DoubleMuon/Run2015*-PromptReco-v*/AOD'
+DATASETMASK = '/DoubleMuon/Run2016*-PromptReco-v*/AOD'
 ISLOCAL     = False #automatically assigned
-STORAGEDIR = 'quertenmont@server02.fynu.ucl.ac.be:/home/quertenmont/public_html/TEMP/Run2MuonTimingStudy/.'  #scp final dir
+STORAGEDIR = 'jzobec@ingrid-ui1.cism.ucl.ac.be:/nfs/scratch/fynu/jzobec/Run2Analysis/CMSSW_8_0_8_patch1/src/SUSYBSMAnalysis/HSCP/test/UsefulScripts/MuonTimingStudy/.'  #scp final dir
 
 
 goodLumis = {}
@@ -57,14 +57,14 @@ def initProxy():
 
 def filesFromDataset(dataset):
    ISLOCAL=False
-   command_out = commands.getstatusoutput('das_client.py --limit=0 --query "site dataset='+dataset+' | grep site.name,site.dataset_fraction"')
+   command_out = commands.getstatusoutput('das_client --limit=0 --query "site dataset='+dataset+' | grep site.name,site.dataset_fraction"')
    for site in command_out[1].split('\n'):
       if(LOCALTIER in site and '100.00%' in site): 
          ISLOCAL=True
          break
 
    Files = {}
-   command_out = commands.getstatusoutput('das_client.py --limit=0 --query "file dataset='+dataset+'"')
+   command_out = commands.getstatusoutput('das_client --limit=0 --query "file dataset='+dataset+'"')
    for f in command_out[1].split():
       run = GetRunFromFile(f)
       if(not IsGoodRun(run)):continue
@@ -104,8 +104,8 @@ if sys.argv[1]=='1':
    os.system("sh " + os.getcwd() + "/MuonTimingStudy.sh ") #just compile
 
 
-   command_out = commands.getstatusoutput('das_client.py --limit=0 --query "dataset='+DATASETMASK+'"')
-   print 'das_client.py --limit=0 --query "dataset='+DATASETMASK+'"'
+   command_out = commands.getstatusoutput('das_client --limit=0 --query "dataset='+DATASETMASK+'"')
+   print 'das_client --limit=0 --query "dataset='+DATASETMASK+'"'
    print command_out
    datasetList = command_out[1].split()
 

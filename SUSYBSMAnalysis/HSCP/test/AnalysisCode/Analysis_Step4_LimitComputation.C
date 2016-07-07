@@ -191,7 +191,7 @@ printf("Test %s\n", MODE.c_str());
    }
 
    if(MODE.find("COMPUTELIMIT2016")!=string::npos || MODE.find("OPTIMIZE2016")!=string::npos){
-      if(signal.find("13TeV")!=string::npos){Data = "Data13TeV16"; SQRTS=1316.0; EXCLUSIONDIR+="13TeV16"; }
+      if(signal.find("13TeV16")!=string::npos){Data = "Data13TeV16"; SQRTS=1316.0; EXCLUSIONDIR+="13TeV16"; }
       printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
 
       if(MODE.find("COMPUTELIMIT")!=string::npos){Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);      return;}
@@ -223,7 +223,7 @@ printf("Test %s\n", MODE.c_str());
    if(MODE.find("COMBINE_Run2")!=string::npos){
       printf("COMBINE!!!\n");
 
-      string signal13TeV15 = signal + "W13TeV15";
+      string signal13TeV15 = ReplacePartOfString(signal, "13TeV16", "13TeV") + "W13TeV15";
       string signal13TeV16 = signal + "W13TeV16";
 
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
@@ -231,7 +231,7 @@ printf("Test %s\n", MODE.c_str());
       //2015 Limits
       printf("2015 Data ...\n");
       Data = "Data13TeV"; SQRTS=1315.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"13TeV15";
-      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+      Optimize(InputPattern, Data, ReplacePartOfString(signal, "13TeV16", "13TeV"), SHAPESTRING!="", true);
 
       //2016 Limits
       printf("2016 Data ...\n");
@@ -720,7 +720,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = new TGraph(sizeof(THXSEC8TeV_Gluino_Mass)/sizeof(double),THXSEC8TeV_Gluino_Mass,THXSEC8TeV_Gluino_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC8TeV_Gluino_Mass)/sizeof(double),THXSEC8TeV_Gluino_Mass,THXSEC8TeV_Gluino_Low,THXSEC8TeV_Gluino_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){ 
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316){ 
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_Gluino_Mass)/sizeof(double),THXSEC13TeV_Gluino_Mass,THXSEC13TeV_Gluino_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC13TeV_Gluino_Mass)/sizeof(double),THXSEC13TeV_Gluino_Mass,THXSEC13TeV_Gluino_Low,THXSEC13TeV_Gluino_High, PlotMinScale, PlotMaxScale);
          }else{
@@ -735,7 +735,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = new TGraph(sizeof(THXSEC8TeV_Stop_Mass)/sizeof(double),THXSEC8TeV_Stop_Mass,THXSEC8TeV_Stop_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC8TeV_Stop_Mass)/sizeof(double),THXSEC8TeV_Stop_Mass,THXSEC8TeV_Stop_Low,THXSEC8TeV_Stop_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316){
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_Stop_Mass)/sizeof(double),THXSEC13TeV_Stop_Mass,THXSEC13TeV_Stop_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC13TeV_Stop_Mass)/sizeof(double),THXSEC13TeV_Stop_Mass,THXSEC13TeV_Stop_Low,THXSEC13TeV_Stop_High, PlotMinScale, PlotMaxScale);
          }else{
@@ -750,7 +750,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_GMStau_Mass)/sizeof(double),THXSEC8TeV_GMStau_Mass,THXSEC8TeV_GMStau_Low,THXSEC8TeV_GMStau_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){ 
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316){ 
 //            #Prospino xsection that I get looks very weird, use pythia for the time being
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_GMStau_Mass)/sizeof(double),THXSEC13TeV_GMStau_Mass,THXSEC13TeV_GMStau_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC13TeV_GMStau_Mass)/sizeof(double),THXSEC13TeV_GMStau_Mass,THXSEC13TeV_GMStau_Low,THXSEC13TeV_GMStau_High, PlotMinScale, PlotMaxScale);
@@ -771,7 +771,7 @@ std::cout<<"TESTA\n";
          }else if(SQRTS==8){
             ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_PPStau_Mass)/sizeof(double),THXSEC8TeV_PPStau_Mass,THXSEC8TeV_PPStau_Low,THXSEC8TeV_PPStau_High, PlotMinScale, PlotMaxScale);
-         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316 || SQRTS==131516 || SQRTS==131615){
+         }else if(SQRTS==13 || SQRTS==1315 || SQRTS==1316){
 //            #Prospino xsection that I get looks very weird, use pythia for the time being
             ThXSec   [k] = new TGraph(sizeof(THXSEC13TeV_PPStau_Mass)/sizeof(double),THXSEC13TeV_PPStau_Mass,THXSEC13TeV_PPStau_Cen);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC13TeV_PPStau_Mass)/sizeof(double),THXSEC13TeV_PPStau_Mass,THXSEC13TeV_PPStau_Low,THXSEC13TeV_PPStau_High, PlotMinScale, PlotMaxScale);
@@ -2242,6 +2242,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 
    //normalise the signal samples to XSection * IntLuminosity
    double LInt  = H_Lumi->GetBinContent(1);
+   LInt = Data.find("13TeV16")!=string::npos?IntegratedLuminosity13TeV16:IntegratedLuminosity13TeV15;
    double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
    double normPU= samples[CurrentSampleIndex].XSec*LInt/(TotalEPU->Integral()>0?TotalEPU->Integral():TotalE->Integral());
 
@@ -2351,9 +2352,11 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignStat, double SignalUnc, bool Shape){
 
    double LumiUnc   = 1.0;
-   if(SQRTS==7 ) LumiUnc=1.022;
-   if(SQRTS==8 ) LumiUnc=1.044;
-   if(SQRTS==13) LumiUnc=1.027;
+   if(SQRTS==7   ) LumiUnc=1.022;
+   if(SQRTS==8   ) LumiUnc=1.044;
+   if(SQRTS==13  ) LumiUnc=1.027;
+   if(SQRTS==1315) LumiUnc=1.027;
+   if(SQRTS==1316) LumiUnc=1.0; // to be determined
 
    if(isnan(float(PredRelErr)))PredRelErr= 1.2;
 
@@ -2793,7 +2796,6 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       double Tmass, Tlimit, TlimitErr; float TquantExp;
       tree->GetBranch("mh"              )->SetAddress(&Tmass    );
       tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
-      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
       tree->GetBranch("limitErr"        )->SetAddress(&TlimitErr);
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
@@ -2985,7 +2987,7 @@ bool Combine(string InputPattern, string signal1, string signal2){
       size_t toBreak1   = signal1.find("W13TeV");
       size_t toBreak2   = signal2.find("W13TeV");
       string signal11   = signal1.substr(0, toBreak1);
-      string signal12   = signal2.substr(0, toBreak1);
+      string signal12   = signal2.substr(0, toBreak2);
       string EXCLUSION1 = "/EXCLUSION"+signal1.substr(toBreak1+1, signal1.size()-toBreak1-1);
       string EXCLUSION2 = "/EXCLUSION"+signal2.substr(toBreak2+1, signal2.size()-toBreak2-1);
       //Get Optimal cut from sample11

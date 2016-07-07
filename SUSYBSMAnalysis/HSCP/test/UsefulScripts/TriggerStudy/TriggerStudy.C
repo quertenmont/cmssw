@@ -175,7 +175,7 @@ void TriggerStudy(string sampleName="", string filePath="")
       TriggerStudy_Core(sampleName, pFile, plot, FileName);
       fflush(pFile);
       fclose(pFile);
-   }else{   
+   }else{
            FILE* pFile = fopen("Results.txt","w");
 	   stPlot** plots = new stPlot*[samples.size()];  
 	   for(unsigned int i=0;i<samples.size();i++){
@@ -270,13 +270,13 @@ void TriggerStudy_Core(string sampleName, FILE* pFile, stPlot* plot, std::vector
       if(!tr.isValid()){printf("Trigger is invalid\n"); continue;}
 
       ////USE THIS TO DUMP AVAILABLE TRIGGER PATHS
-      //for(unsigned int i=0;i<tr.size();i++){
-      //   printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-      //}fflush(stdout);exit(0);
+      for(unsigned int i=0;i<tr.size();i++){
+         printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+      }fflush(stdout);exit(0);
 
-      fwlite::Handle< trigger::TriggerEvent > trEvHandle;
-      trEvHandle.getByLabel(ev,"hltTriggerSummaryAOD");
-      trigger::TriggerEvent trEv = *trEvHandle;
+//      fwlite::Handle< trigger::TriggerEvent > trEvHandle;
+//      trEvHandle.getByLabel(ev,"hltTriggerSummaryAOD");
+//      trigger::TriggerEvent trEv = *trEvHandle;
 
       //for(unsigned int i=0;i<trEvHandle->sizeFilters();i++){
       //   if(strncmp(trEvHandle->filterTag(i).label().c_str(),"hltL1",5)==0)continue;
@@ -306,9 +306,9 @@ void TriggerStudy_Core(string sampleName, FILE* pFile, stPlot* plot, std::vector
 
          Accept = passTriggerPatterns(tr, All_triggers[i]);
          Accept2 = Accept;
-         if(whereJetMetSD!=JetMetSD_triggers.end()){
-            Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMET170Filter","","HLT"),190 , 99, 1, false);
-         }
+//         if(whereJetMetSD!=JetMetSD_triggers.end()){
+//            Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMET170Filter","","HLT"),190 , 99, 1, false);
+//         }
 
          if(Accept                    ){plot->Histo   ->Fill(All_triggersL[i].c_str(),Event_Weight);}       
          if(Accept && !AlreadyAccepted){plot->HistoInc->Fill(All_triggersL[i].c_str(),Event_Weight);}
