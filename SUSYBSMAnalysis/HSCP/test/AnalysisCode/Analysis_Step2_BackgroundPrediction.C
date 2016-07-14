@@ -101,6 +101,14 @@ void Analysis_Step2_BackgroundPrediction(std::string InputPattern="COMPILE")
              CosmicVetoInEfficiencyErr = CosmicVetoInEfficiency13TeVErr;
           }
 
+	  bool is2016 = (DirName.find("13TeV16")!=string::npos);
+          dEdxK_Data = is2016?dEdxK_Data16:dEdxK_Data15;
+          dEdxC_Data = is2016?dEdxC_Data16:dEdxC_Data15;
+          dEdxK_MC   = is2016?dEdxK_MC16:dEdxK_MC15;
+          dEdxC_MC   = is2016?dEdxC_MC16:dEdxC_MC15;
+
+
+
 	  TDirectory* directory = InputFile->GetDirectory(list->At(d)->GetName());
 	  directory->cd();
 
