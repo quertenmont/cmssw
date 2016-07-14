@@ -1039,11 +1039,11 @@ std::cout<<"D\n";
 
       if(isData){ 
          dEdxSF [0] = 1.00000;
-         dEdxSF [1] = is2016?1.41822:1.21836;
+         dEdxSF [1] = (is2016)?1.41822:1.21836;
          dEdxTemplates = loadDeDxTemplate((!is2016)?"../../data/Data13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root":"../../data/Data13TeV16_dEdxTemplate.root", true);
       }else{  
-         dEdxSF [0] = is2016?1.09711:1.09708;
-         dEdxSF [1] = is2016?1.09256:1.01875;
+         dEdxSF [0] = (is2016)?1.09711:1.09708;
+         dEdxSF [1] = (is2016)?1.09256:1.01875;
          dEdxTemplates = loadDeDxTemplate("../../data/MC13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
       }
 
@@ -1067,6 +1067,7 @@ std::cout<<"F\n";
       if(isMC){
          if(samples[s].Name.find("7TeV")!=string::npos) MCTrDirName = "MCTr_7TeV";
          if(samples[s].Name.find("8TeV")!=string::npos) MCTrDirName = "MCTr_8TeV";
+         if(samples[s].Name.find("13TeV16")!=string::npos) MCTrDirName = "MCTr_13TeV16";
          if(plotsMap.find(MCTrDirName)==plotsMap.end()){plotsMap[MCTrDirName] = stPlots();}
          stPlots_Init(HistoFile,plotsMap[MCTrDirName],MCTrDirName, CutPt.size(), false, false, CutPt_Flip.size());
       }stPlots* MCTrPlots = &plotsMap[MCTrDirName];
