@@ -1,4 +1,8 @@
 #!/bin/bash
+
+export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;
+export REMOTESTORAGEPATH=/store/user/jozobec/HSCP2016/
+
 root -l -b << EOF
   TString makeshared(gSystem->GetMakeSharedLib());
   TString dummy = makeshared.ReplaceAll("-W ", "-D__USE_XOPEN2K8 ");
