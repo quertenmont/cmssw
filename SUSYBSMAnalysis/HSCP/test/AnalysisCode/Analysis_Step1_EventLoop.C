@@ -1044,7 +1044,7 @@ std::cout<<"D\n";
       }else{  
          dEdxSF [0] = (is2016)?1.09711:1.09708;
          dEdxSF [1] = (is2016)?1.09256:1.01875;
-         dEdxTemplates = loadDeDxTemplate("../../data/MC13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
+         dEdxTemplates = loadDeDxTemplate((!is2016)?"../../data/MC13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root":"../../data/MC13TeV16_dEdxTemplate.root", true);
       }
 
 std::cout<<"E\n";

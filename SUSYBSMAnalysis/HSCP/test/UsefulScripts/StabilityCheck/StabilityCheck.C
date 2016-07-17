@@ -61,7 +61,9 @@ using namespace trigger;
 
 struct plotSt{
    TH1D* NVert;
+   TH1D* PtBPS;
    TH1D* Pt;
+   TH1D* PtErr;
    TH1D* dEdxHitStrip;
    TH1D* dEdxHitPixel;
    TH1D* dEdxMin1;
@@ -69,6 +71,7 @@ struct plotSt{
    TH1D* dEdxMin3;
    TH1D* dEdxMin4;
    TH1D* dEdx;
+   TH1D* dEdxOld;
    TH1D* dEdxMT;
    TH1D* dEdxM;
    TH1D* dEdxMS;
@@ -88,7 +91,9 @@ struct plotSt{
    plotSt(string prefix, string sufix){
       string histoName;              
       histoName=prefix + "NVert"        + sufix ; NVert        = new TH1D(histoName.c_str(), histoName.c_str(),  100, 0.0, 100);
+      histoName=prefix + "PtBPS"        + sufix ; PtBPS        = new TH1D(histoName.c_str(), histoName.c_str(), 1000, 0.0,1000);
       histoName=prefix + "Pt"           + sufix ; Pt           = new TH1D(histoName.c_str(), histoName.c_str(), 1000, 0.0,1000);
+      histoName=prefix + "PtErr"        + sufix ; PtErr        = new TH1D(histoName.c_str(), histoName.c_str(), 1000, 0.0,32.0);
       histoName=prefix + "dEdxHitStrip" + sufix ; dEdxHitStrip = new TH1D(histoName.c_str(), histoName.c_str(),  400, 0.0,20.0);
       histoName=prefix + "dEdxHitPixel" + sufix ; dEdxHitPixel = new TH1D(histoName.c_str(), histoName.c_str(),  400, 0.0,20.0);
       histoName=prefix + "dEdxMin1"     + sufix ; dEdxMin1     = new TH1D(histoName.c_str(), histoName.c_str(),  200, 0.0,10.0);
@@ -96,6 +101,7 @@ struct plotSt{
       histoName=prefix + "dEdxMin3"     + sufix ; dEdxMin3     = new TH1D(histoName.c_str(), histoName.c_str(),  200, 0.0,10.0);
       histoName=prefix + "dEdxMin4"     + sufix ; dEdxMin4     = new TH1D(histoName.c_str(), histoName.c_str(),  200, 0.0,10.0);
       histoName=prefix + "dEdx"         + sufix ; dEdx         = new TH1D(histoName.c_str(), histoName.c_str(),  100, 0.0, 1.0);
+      histoName=prefix + "dEdxOld"      + sufix ; dEdxOld      = new TH1D(histoName.c_str(), histoName.c_str(),  100, 0.0, 1.0);
       histoName=prefix + "dEdxMT"       + sufix ; dEdxMT       = new TH1D(histoName.c_str(), histoName.c_str(),  200, 0.0,10.0);
       histoName=prefix + "dEdxM"        + sufix ; dEdxM        = new TH1D(histoName.c_str(), histoName.c_str(),  200, 0.0,10.0);
       histoName=prefix + "dEdxMS"       + sufix ; dEdxMS       = new TH1D(histoName.c_str(), histoName.c_str(),  200, 0.0,10.0);
@@ -265,6 +271,7 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
    printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
 
    vector<string> DataFileName;
+   TH3F* dEdxTemplatesOld = NULL;
    for(unsigned int s=0;s<samples.size();s++){
       GetInputFiles(samples[s], BaseDirectory, DataFileName, 0);
 
@@ -273,15 +280,18 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
       bool isData   = (samples[s].Type==0);
       bool isMC     = (samples[s].Type==1);
       bool isSignal = (samples[s].Type>=2);
+      bool is2016   = (samples[s].Name.find("13TeV16")!=std::string::npos);
 
+
+      dEdxTemplatesOld = loadDeDxTemplate(isData?"../../../data/Data13TeV16_dEdxTemplate.root":"../../../data/MC13TeV16_dEdxTemplate.root", true);
       if(isData){  // 2016 values
          dEdxSF [0] = 1.00000;
          dEdxSF [1] = 1.41822;
-         dEdxTemplates = loadDeDxTemplate("../../../data/Data13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
+         dEdxTemplates = loadDeDxTemplate("../../../data/Data13TeV16_dEdxTemplate.root", true);
       }else{  
          dEdxSF [0] = 1.09711;
          dEdxSF [1] = 1.09256;
-         dEdxTemplates = loadDeDxTemplate("../../../data/MC13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
+         dEdxTemplates = loadDeDxTemplate("../../../data/MC13TeV16_dEdxTemplate.root", true);
       }
 
       if(isData){    trackerCorrector.LoadDeDxCalibration("../../../data/Data13TeVGains_v2.root"); 
@@ -410,7 +420,16 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
                tofCalculator.computeTOF(muon, CSCSegmentColl, DTSegmentColl, 1 ); //apply T0 correction on data but not on signal MC
                PStof  = &tofCalculator.combinedTOF; PSdttof = &tofCalculator.dtTOF;  PScsctof = &tofCalculator.cscTOF;
             }
-         }          
+         }
+         
+         for(unsigned int i=0;i<triggers.size();i++){ //PtDistribution before preselection - i.e. out of the box
+            if(!PassingTrigger(ev,triggers[i])){continue;}
+            for(unsigned int v=0;v<versions.size();v++){
+               plotSt* plots = (*MapTriggerPlots)[triggers[i]+versions[v]];
+               plots->PtBPS->Fill(hscp.trackRef()->ptError());
+            }
+         }
+
          if(!PassPreselection(hscp, PSdedxSObj, PSdedxMObj, PStof, PSdttof, PScsctof, ev)){continue;}
          for(unsigned int i=0;i<triggers.size();i++){
             if(!PassingTrigger(ev,triggers[i])){continue;}
@@ -455,8 +474,9 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
             DeDxData dedxMin2Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.2, fake?&HIPemulator:NULL);
             DeDxData dedxMin3Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.3, fake?&HIPemulator:NULL);
             DeDxData dedxMin4Obj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.4, fake?&HIPemulator:NULL);
-            DeDxData dedxSObj = computedEdx(dedxHits, dEdxSF, dEdxTemplates, true, useClusterCleaning, TypeMode==5, false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
-            DeDxData dedxMObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxSObj    = computedEdx(dedxHits, dEdxSF, dEdxTemplates   , true, useClusterCleaning, TypeMode==5, false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxSObjOld = computedEdx(dedxHits, dEdxSF, dEdxTemplatesOld, true, useClusterCleaning, TypeMode==5, false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
+            DeDxData dedxMObj  = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
             DeDxData dedxMTObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , true, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
             DeDxData dedxMSObj = computedEdx(dedxHits, dEdxSF, NULL,          false,useClusterCleaning, false      , false, tkGains, true, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
             DeDxData dedxMPObj = computedEdx(dedxHits, dEdxSF, NULL,          true, useClusterCleaning, false      , false, tkGains, false, true, 99, false, 1, 0.0, fake?&HIPemulator:NULL);
@@ -476,17 +496,19 @@ void StabilityCheck(string DIRNAME="COMPILE", string OUTDIRNAME="pictures", stri
             }
 
             if(plotPerEvent){plots->NVert->Fill(vertexColl.size()); (dEdxHitPerLumiIt->second)[0]->Fill(vertexColl.size());}
-            plots->Pt->Fill(hscp.trackRef()->pt());
+            plots->Pt   ->Fill(hscp.trackRef()->pt());
+            plots->PtErr->Fill(hscp.trackRef()->ptError());
 
             plots->dEdxMin1->Fill(dedxMin1Obj.dEdx());
             plots->dEdxMin2->Fill(dedxMin2Obj.dEdx());
             plots->dEdxMin3->Fill(dedxMin3Obj.dEdx());
             plots->dEdxMin4->Fill(dedxMin4Obj.dEdx());
-            plots->dEdx->Fill(dedxSObj.dEdx());
-            plots->dEdxMT->Fill(dedxMTObj.dEdx());
-            plots->dEdxM->Fill(dedxMObj.dEdx());
-            plots->dEdxMS->Fill(dedxMSObj.dEdx());
-            plots->dEdxMP->Fill(dedxMPObj.dEdx());
+            plots->dEdx    ->Fill(dedxSObj.dEdx());
+            plots->dEdxOld ->Fill(dedxSObjOld.dEdx());
+            plots->dEdxMT  ->Fill(dedxMTObj.dEdx());
+            plots->dEdxM   ->Fill(dedxMObj.dEdx());
+            plots->dEdxMS  ->Fill(dedxMSObj.dEdx());
+            plots->dEdxMP  ->Fill(dedxMPObj.dEdx());
             if(fabs(track->eta())<0.5){
             plots->dEdxMSC->Fill(dedxMSObj.dEdx());
             plots->dEdxMPC->Fill(dedxMPObj.dEdx());
