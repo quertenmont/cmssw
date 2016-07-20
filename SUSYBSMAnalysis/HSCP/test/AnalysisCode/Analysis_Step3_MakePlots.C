@@ -1516,10 +1516,10 @@ void CutFlowPlot(string InputPattern, unsigned int CutIndex, double ylow, double
     vector < pair<stSample, Color_t> > SamplesToDraw;
     SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("Data13TeV"             , samples)], kBlack      ));
     SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("Data13TeV16"           , samples)], kGray   + 1 ));
-    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("MC_13TeV_DYToMuMu"     , samples)], kBlue   - 3 ));
-    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("Gluino_13TeV_M1000_f10", samples)], kRed    + 1 ));
-    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("Stop_13TeV_M1000"      , samples)], kSpring - 9 ));
-    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("GMStau_13TeV_M494"     , samples)], kOrange + 7 ));
+    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("MC_13TeV16_DYToMuMu"     , samples)], kBlue   - 3 ));
+    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("Gluino_13TeV16_M1000_f10", samples)], kRed    + 1 ));
+    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("Stop_13TeV16_M1000"      , samples)], kSpring - 9 ));
+    SamplesToDraw.push_back (make_pair(samples [JobIdToIndex("GMStau_13TeV16_M494"     , samples)], kOrange + 7 ));
     pair < TH1F*, TH1F* > * histos = new pair < TH1F*, TH1F* >[SamplesToDraw.size()];
 
 //    const char * AxisLabels [16] = {"Initial", "#hit #geq 8", "dE/dx #hit #geq 6", "nDof #geq 8", "high purity track", "#chi^{2}/nDof < 5",
@@ -1729,6 +1729,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
     stPlots Data8TeVPlots;    stPlots_InitFromFile (InputFile, Data8TeVPlots    ,"Data8TeV");
     stPlots Data7TeVPlots;    stPlots_InitFromFile (InputFile, Data7TeVPlots    ,"Data7TeV");
     stPlots MCTr13TeVPlots;   stPlots_InitFromFile (InputFile, MCTr13TeVPlots   ,"MCTr_13TeV");
+    stPlots MCTr13TeV16Plots; stPlots_InitFromFile (InputFile, MCTr13TeV16Plots ,"MCTr_13TeV16");
     stPlots MCTr8TeVPlots;    stPlots_InitFromFile (InputFile, MCTr8TeVPlots    ,"MCTr_8TeV");   
     stPlots MCTr7TeVPlots;    stPlots_InitFromFile (InputFile, MCTr7TeVPlots    ,"MCTr_7TeV");
     stPlots Cosmic13TeVPlots; if(TypeMode==3) stPlots_InitFromFile(InputFile, Cosmic13TeVPlots,"Cosmic8TeV");
@@ -1737,7 +1738,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
     stPlots* SignPlots = new stPlots[samples.size()];  
     for(unsigned int s=0;s<samples.size();s++){
        if(samples[s].Type!=2)continue;
-       if (samples[s].Name!="Gluino_13TeV_M1000_f10" && samples[s].Name!="Gluino_13TeV_M1400_f10" && samples[s].Name!="Stop_13TeV_M1000" && samples[s].Name!="GMStau_13TeV_M494" &&  samples[s].Name!="AMSB_13TeV_500_10cm" && samples[s].Name!="AMSB_13TeV_500_100cm" && samples[s].Name!="AMSB_13TeV_500_1000cm") continue;
+       if (samples[s].Name!="Gluino_13TeV16_M1000_f10" && samples[s].Name!="Gluino_13TeV16_M1400_f10" && samples[s].Name!="Stop_13TeV16_M1000" && samples[s].Name!="GMStau_13TeV16_M494" &&  samples[s].Name!="AMSB_13TeV16_500_10cm" && samples[s].Name!="AMSB_13TeV16_500_100cm" && samples[s].Name!="AMSB_13TeV16_500_1000cm") continue;
 
        //Note that loading the plots for ALL signal samples is too much, and it's likely that the code either stops or is killed without error message
        if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)){printf("Missing sample %s\n",samples[s].Name.c_str());continue;}
@@ -1748,7 +1749,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
     SQRTS=1315; stPlots_Draw(Data13TeV15Plots, InputPattern + "/Selection_Data13TeV15", LegendTitle, CutIndex);
     SQRTS=1316; stPlots_Draw(Data13TeV16Plots, InputPattern + "/Selection_Data13TeV16", LegendTitle, CutIndex);
     SQRTS=1315; stPlots_Draw(MCTr13TeVPlots, InputPattern + "/Selection_MCTr_13TeV", LegendTitle, CutIndex);
-    SQRTS=131615; stPlots_DrawComparison(InputPattern + "/Selection_Comp_13TeV16", LegendTitle, CutIndex, CutIndexTight, &Data13TeV15Plots, &Data13TeV16Plots, &MCTr13TeVPlots,&SignPlots[JobIdToIndex("Gluino_13TeV_M1000_f10",samples)], &SignPlots[JobIdToIndex("Gluino_13TeV_M1400_f10",samples)], &SignPlots[JobIdToIndex("Stop_13TeV_M1000",samples)], &SignPlots[JobIdToIndex("GMStau_13TeV_M494",samples)]);
+    SQRTS=131615; stPlots_DrawComparison(InputPattern + "/Selection_Comp_13TeV16", LegendTitle, CutIndex, CutIndexTight, &Data13TeV15Plots, &Data13TeV16Plots, &MCTr13TeVPlots,&SignPlots[JobIdToIndex("Gluino_13TeV16_M1000_f10",samples)], &SignPlots[JobIdToIndex("Gluino_13TeV16_M1400_f10",samples)], &SignPlots[JobIdToIndex("Stop_13TeV16_M1000",samples)], &SignPlots[JobIdToIndex("GMStau_13TeV16_M494",samples)]);
 //    SQRTS=131615; stPlots_DrawComparison(InputPattern + "/Selection_CompAMSB_13TeV16", LegendTitle, CutIndex, CutIndexTight, &Data13TeV15Plots, &Data13TeV16Plots, &MCTr13TeVPlots,&SignPlots[JobIdToIndex("AMSB_13TeV_500_10cm",samples)], &SignPlots[JobIdToIndex("AMSB_13TeV_500_100cm",samples)], &SignPlots[JobIdToIndex("AMSB_13TeV_500_1000cm",samples)]);
 
 
@@ -3701,11 +3702,11 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    TypeMode = TypeFromPattern(InputPattern);
    string LegendTitle = LegendFromType(InputPattern);;
 
-   string S1 = "DY_13TeV_M400_Q1"; //double Q1=1;
-   string S2 = "DY_13TeV_M400_Q2"; //double Q2=1;
-   string S3 = "DY_13TeV_M1000_Q1"; //double Q3=1;
+   string S1 = "DY_13TeV16_M400_Q1"; //double Q1=1;
+   string S2 = "DY_13TeV16_M400_Q2"; //double Q2=1;
+   string S3 = "DY_13TeV16_M1000_Q1"; //double Q3=1;
 
-   string Da = "Data13TeV";
+   string Da = "Data13TeV16";
    string outName = "2DPlotsS";
 
    int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 

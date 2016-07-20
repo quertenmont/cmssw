@@ -50,7 +50,7 @@ void GetLuminosity()
    std::vector<stSample> samples;
    vector<string> inputFiles;
    InitBaseDirectory();
-   GetSampleDefinition(samples , "../../AnalysisCode/Analysis_Samples.txt");
+   GetSampleDefinition(samples , "Analysis_Samples.txt");
    for(unsigned int s=0;s<samples.size();s++){
       if(samples[s].Type!=0)continue;
       GetInputFiles(samples[s], BaseDirectory, inputFiles);

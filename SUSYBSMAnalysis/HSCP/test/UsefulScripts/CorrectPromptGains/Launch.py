@@ -5,7 +5,7 @@ import os,sys,time
 import collections # kind of map
 
 gains        = "/afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain"
-whitelist    = [272760, 273592, 274094, 274198, 274387, 274421, 275282, 275370]
+whitelist    = [272760, 273592, 274094, 274198, 274387, 274421, 275282, 275370, 275376, 276097, 276244, 276542, 276585, 276659]
 blacklist    = [273402, 273592]
 useWhitelist = True
 useBlacklist = False
@@ -58,6 +58,7 @@ def GetAvailableGains ():
     for directory in os.listdir(gains):
         if not os.path.isdir ("%s/%s" % (gains, directory)): continue
         if directory.find("run") == -1 and directory.find("Run") == -1: continue
+        if directory.find("PCL") == -1: continue
         if len(os.listdir("%s/%s/plots_gain" % (gains, directory))) == 1: continue
         if not os.path.isfile("%s/%s/sqlite/Gains.root" % (gains, directory)): continue
         toManipulate = directory.split("_")

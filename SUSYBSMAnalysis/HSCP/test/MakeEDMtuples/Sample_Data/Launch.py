@@ -13,7 +13,7 @@ import json
 import collections # kind of map
 
 #script parameters #feel free to edit those
-JSON = 'lumiToProcess.txt' #'/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt'   
+JSON = 'ReMerge.txt' #'/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt'   
 LOCALTIER   = 'T2_BE_UCL'
 DATASETMASKS = ['/DoubleMuon/Run2016*-PromptReco-v*/AOD', '/SingleMuon/Run2016*-PromptReco-v*/AOD', '/MET/Run2016*-PromptReco-v*/AOD']
 ISLOCAL     = False #automatically assigned
@@ -113,7 +113,7 @@ if sys.argv[1]=='1':
       DATASET = DATASET.replace('\n','')
       FILELIST = filesFromDataset(DATASET)
       LaunchOnCondor.Jobs_InitCmds = []
-      if(not ISLOCAL):LaunchOnCondor.Jobs_InitCmds = ['export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;']
+      if(not ISLOCAL):LaunchOnCondor.Jobs_InitCmds = ['export HOME=%s' % os.environ['HOME'], 'export X509_USER_PROXY=~/x509_user_proxy/x509_proxy; voms-proxy-init --noregen;']
 
       print DATASET + " : " 
       for RUN in FILELIST:

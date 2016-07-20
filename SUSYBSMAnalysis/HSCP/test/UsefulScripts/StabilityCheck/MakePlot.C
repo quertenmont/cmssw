@@ -131,6 +131,7 @@ void MakedEdxPlot()
    }
 
    TProfile* SingleMu_PtProf           = (TProfile*)GetObjectFromPath(InputFile, "HLT_Mu50PtProf");      
+   TProfile* SingleMu_PtErrProf        = (TProfile*)GetObjectFromPath(InputFile, "HLT_Mu50PtErrProf");      
    TProfile* SingleMu_dEdxProf         = (TProfile*)GetObjectFromPath(InputFile, "HLT_Mu50dEdxProf");   
    TProfile* SingleMu_dEdxMProf        = (TProfile*)GetObjectFromPath(InputFile, "HLT_Mu50dEdxMProf");
    TProfile* SingleMu_dEdxMSProf       = (TProfile*)GetObjectFromPath(InputFile, "HLT_Mu50dEdxMSProf");
@@ -227,6 +228,12 @@ void MakedEdxPlot()
       SaveCanvas(c1,"pictures/","GraphdEdx_Profile_pT");
       delete c1;
 
+      c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+      TGraph* graphpTErr = ConvertFromRunToIntLumi(SingleMu_PtErrProf, "A*" , "<#sigma_{p_{T}}> (GeV)",0,0);
+      SaveCanvas(c1,"pictures/","GraphdEdx_Profile_pTErr");
+      delete c1;
+
+
 
    }else{
       printf("TEST TEST TEST\n");
@@ -236,6 +243,7 @@ void MakedEdxPlot()
    for(int i=0;i<SingleMu_PtProf->GetXaxis()->GetNbins();i++){
 //      if((i+3)%4==0)continue;
       SingleMu_PtProf->GetXaxis()->SetBinLabel(i,"");
+      SingleMu_PtErrProf->GetXaxis()->SetBinLabel(i,"");
       SingleMu_dEdxProf->GetXaxis()->SetBinLabel(i,"");
       SingleMu_dEdxMProf->GetXaxis()->SetBinLabel(i,"");
       SingleMu_NVertProf->GetXaxis()->SetBinLabel(i,"");
@@ -263,6 +271,14 @@ void MakedEdxPlot()
    SaveCanvas(c1,"pictures/","dEdx_Profile_Pt");
    delete c1;
 
+   c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+   Histos[0] = SingleMu_PtErrProf;                 legend.push_back("SingleMu50");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "#sigma_{p_{T}} (GeV)", 0,0, 0,0);
+   for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,"pictures/","dEdx_Profile_PtErr");
+   delete c1;
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = SingleMu_dEdxProf;                  legend.push_back("SingleMu50");
@@ -626,12 +642,12 @@ void MakePlot()
    triggers.push_back("HLT_Mu45_eta2p1");
    triggers.push_back("HLT_Mu50");
    triggers.push_back("HLT_PFMET170_NoiseCleaned");
-   triggers.push_back("HLT_PFMET170_HBHECleaned");
+//   triggers.push_back("HLT_PFMET170_HBHECleaned");
 
    std::vector<string> versions;
-   versions.push_back("");
+//   versions.push_back("");
    versions.push_back("AOD");
-   versions.push_back("FAKE");
+//   versions.push_back("FAKE");
 
    for(unsigned int T=0;T<triggers.size();T++){
    for(unsigned int V=0;V<versions.size();V++){
@@ -704,8 +720,25 @@ void MakePlot()
       SaveCanvas(c1,"pictures/","Summary_Profile_Pt_"+trigger+"_"+version);
       delete c1;
 
-      std::string dEdxVariables[] = {"dEdx", "dEdxM", "dEdxMS", "dEdxMP", "dEdxMSC", "dEdxMPC", "dEdxMSF", "dEdxMPF", "dEdxMT", "dEdxMin1", "dEdxMin2", "dEdxMin3", "dEdxMin4", "dEdxHitStrip", "dEdxHitPixel"};
-      std::string dEdxLegends[]   = {"I_{as}", "I_{h}", "I_{h} StripOnly", "I_{h} PixelOnly", "I_{h} StripOnly Barrel", "I_{h} PixelOnly Barrel", "I_{h} StripOnly Endcap", "I_{h} PixelOnly Endcap", "I_{T40}", "I_{h} (Hybrid-2-15)", "I_{h} drop lowHit (20%)", "I_{h} drop lowHit (30%)", "I_{h} drop lowHit (40%)", "Strip Hit dEdx", "Pixel Hit dEdx"};
+      SQRTS = 1316;
+      c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+      frameR->GetYaxis()->SetTitle("#sigma_{p_{T}} (GeV)");   frameR->SetMinimum(0.0);   frameR->SetMaximum(5.0);  frameR->Draw("AXIS");
+      g1 = getStabilityGraph(runList, InputFile, trigger+"PtErr");  g1->Draw("0 P same");
+      DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
+      SaveCanvas(c1,"pictures/","Summary_Profile_PtErr_"+trigger+"_"+version);
+      delete c1;
+
+      SQRTS = 1316;
+      c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+      frameR->GetYaxis()->SetTitle("p_{T_{BPS}} (GeV)");   frameR->SetMinimum(0.0);   frameR->SetMaximum(5.0);  frameR->Draw("AXIS");
+      g1 = getStabilityGraph(runList, InputFile, trigger+"PtBPS");  g1->Draw("0 P same");
+      DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
+      SaveCanvas(c1,"pictures/","Summary_Profile_PtBPS_"+trigger+"_"+version);
+      delete c1;
+
+
+      std::string dEdxVariables[] = {"dEdx", "dEdxOld", "dEdxM", "dEdxMS", "dEdxMP", "dEdxMSC", "dEdxMPC", "dEdxMSF", "dEdxMPF", "dEdxMT", "dEdxMin1", "dEdxMin2", "dEdxMin3", "dEdxMin4", "dEdxHitStrip", "dEdxHitPixel"};
+      std::string dEdxLegends[]   = {"I_{as}", "I_{as}" "I_{h}", "I_{h} StripOnly", "I_{h} PixelOnly", "I_{h} StripOnly Barrel", "I_{h} PixelOnly Barrel", "I_{h} StripOnly Endcap", "I_{h} PixelOnly Endcap", "I_{T40}", "I_{h} (Hybrid-2-15)", "I_{h} drop lowHit (20%)", "I_{h} drop lowHit (30%)", "I_{h} drop lowHit (40%)", "Strip Hit dEdx", "Pixel Hit dEdx"};
       for(unsigned int S=0;S<sizeof(dEdxVariables)/sizeof(string);S++){
          if(dEdxLegends[S].find("I_{as}")!=std::string::npos){
             //overlay(runList     , InputFile,  trigger+dEdxVariables[S]+version, 0.0, 0.5, "overlay_"+dEdxVariables[S]+version+"All", 1E-5, dEdxLegends[S].c_str()); 
@@ -761,6 +794,17 @@ void MakePlot()
          LEG->Draw();
          DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
          SaveCanvas(c1,"pictures/","Summary_Profile_AllMin_"+trigger+"_"+version);
+         delete c1;
+
+
+         c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+         frameR->GetYaxis()->SetTitle("I_{as}");   frameR->SetMinimum(0.0);   frameR->SetMaximum(0.05);  frameR->Draw("AXIS");
+         LEG = new TLegend(0.70,0.80,0.90,0.90);      LEG->SetFillColor(0);      LEG->SetFillStyle(0);      LEG->SetBorderSize(0);
+         g1 = getStabilityGraph(runList, InputFile, trigger+"dEdx", false, 1, 20);            g1->Draw("0 P same");     LEG->AddEntry(g1, "I_{as} (new)" ,"P");
+         g1 = getStabilityGraph(runList, InputFile, trigger+"dEdxOld", false, 2, 20);            g1->Draw("0 P same");     LEG->AddEntry(g1, "I_{as} (old)" ,"P");
+         LEG->Draw();
+         DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
+         SaveCanvas(c1,"pictures/","Summary_Profile_TemplateComp_"+trigger+"_"+version);
          delete c1;
 
 
